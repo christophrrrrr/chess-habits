@@ -34,7 +34,7 @@ New analyses come from the research notes in `docs/research/`.
 | DELETE | `/runs/{id}` | Delete a run |
 
 If the games service is down, `POST /players/{id}/runs` answers `503` with a clear message after
-a 10 s timeout; earlier findings stay readable.
+a 60 s timeout (enough for the games service to wake from scale-to-zero); earlier findings stay readable.
 
 ## Run and test locally
 

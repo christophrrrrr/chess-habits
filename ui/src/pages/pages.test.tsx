@@ -212,3 +212,20 @@ describe('player page', () => {
     expect(await screen.findByText('chess.com is not reachable right now')).toBeInTheDocument()
   })
 })
+
+describe('cold start banner', () => {
+  it('explains slow requests while servers wake up', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    let release: (v: Response) => void = () => {}
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => new Promise<Response>((resolve) => (release = resolve))),
+    )
+    render(<App />)
+    await vi.advanceTimersByTimeAsync(4_500)
+    expect(await screen.findByRole('status')).toHaveTextContent('Waking up the servers')
+    release(new Response(JSON.stringify([]), { status: 200 }))
+    await waitFor(() => expect(screen.queryByRole('status')).not.toBeInTheDocument())
+    vi.useRealTimers()
+  })
+})
