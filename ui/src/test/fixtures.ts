@@ -1,4 +1,4 @@
-import type { Finding } from '../api'
+import type { Finding, Rule } from '../api'
 
 export const contrast: Finding = {
   id: 1,
@@ -49,6 +49,12 @@ export const clockProfile: Finding = {
       lost_on_time: { winning: 45, level: 93, losing: 86, unknown: 0 },
       won_on_time: { winning: 87, level: 56, losing: 31, unknown: 0 },
       net_points_per_100: -3.8,
+    },
+    checkpoint: {
+      move: 20,
+      min_share: 0.45,
+      wins: { count: 285, n: 344, rate: 0.83, ci: [0.79, 0.86] },
+      trouble_games: { count: 117, n: 155, rate: 0.75, ci: [0.68, 0.82] },
     },
   },
 }
@@ -109,4 +115,44 @@ export const notEnough: Finding = {
   label: 'not_enough_data',
   title: 'Classical: not enough games to judge your play right after a loss',
   time_class: 'classical',
+}
+
+export const rule: Rule = {
+  id: 11,
+  player_id: 1,
+  time_class: 'bullet',
+  kind: 'clock_checkpoint',
+  move: 20,
+  min_share: 0.45,
+  stop_rule: null,
+  note: null,
+  description: 'Keep at least 45% of your clock after move 20',
+  adopted_at: '2026-10-15T00:00:00',
+  retired_at: null,
+  created_at: '2026-11-12T10:00:00',
+}
+
+export const ruleCheck: Finding = {
+  ...contrast,
+  id: 12,
+  analysis_key: 'rule_check',
+  metric: 'share',
+  title: 'Your rule: keep at least 45% of your clock after move 20: you keep it more often since adopting it',
+  summary: 'Since 15 Oct 2026 you kept it in 93% of 640 games, before in 81% of 109.',
+  effect: 0.124,
+  ci_low: 0.048,
+  ci_high: 0.201,
+  details: {
+    rule_id: 11,
+    adopted_at: '2026-10-15T00:00:00',
+    needed: 30,
+    after: { count: 595, n: 640, rate: 0.93 },
+    before: { count: 88, n: 109, rate: 0.81 },
+    strip: [
+      { date: '2026-11-10T10:00:00', kept: true },
+      { date: '2026-11-10T10:05:00', kept: false },
+      { date: '2026-11-10T10:10:00', kept: true },
+    ],
+    trouble: { before: { count: 20, n: 109, rate: 0.18 }, after: { count: 134, n: 640, rate: 0.21 } },
+  },
 }

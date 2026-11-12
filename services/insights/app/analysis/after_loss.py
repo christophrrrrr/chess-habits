@@ -28,7 +28,8 @@ STOP_RULES = [
 ]
 
 
-def _triggered(rule: str, results: list[str]) -> bool:
+def triggered(rule: str, results: list[str]) -> bool:
+    """True if `rule` says stop after this sequence of results in a session."""
     if rule == "two_in_a_row":
         return results[-2:] == ["loss", "loss"]
     if rule == "three_in_a_row":
@@ -39,7 +40,7 @@ def _triggered(rule: str, results: list[str]) -> bool:
 def skipped_by(rule: str, g: GameRecord) -> bool:
     """True if `rule` had already told the player to stop before this game started."""
     history = g.previous_results
-    return any(_triggered(rule, history[:i]) for i in range(1, len(history) + 1))
+    return any(triggered(rule, history[:i]) for i in range(1, len(history) + 1))
 
 
 def after_loss(games: list[GameRecord]) -> list[FindingDraft]:

@@ -1,13 +1,15 @@
 import type { Finding } from '../api'
 import { axisPosition, elo, points } from '../format'
+import type { RuleActions } from './AdoptButton'
 import { CardHeader } from './CardHeader'
 import { ClockProfileCard } from './ClockProfileCard'
 import { StopLossCard } from './StopLossCard'
 
 /** Picks the right card for a finding. */
-export function FindingCard({ finding }: { finding: Finding }) {
-  if (finding.analysis_key === 'clock_profile') return <ClockProfileCard finding={finding} />
-  if (finding.analysis_key === 'stop_loss_rules') return <StopLossCard finding={finding} />
+export function FindingCard({ finding, actions }: { finding: Finding; actions?: RuleActions }) {
+  if (finding.analysis_key === 'clock_profile')
+    return <ClockProfileCard finding={finding} actions={actions} />
+  if (finding.analysis_key === 'stop_loss_rules') return <StopLossCard finding={finding} actions={actions} />
   return <ContrastCard finding={finding} />
 }
 

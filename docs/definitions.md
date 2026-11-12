@@ -50,3 +50,15 @@ the code is wrong. Background and sources: [research/shortlist.md](research/shor
 | Minimum sample | Score findings: ≥ **100** games in the smaller group. Behaviour rates: ≥ **30**. Below that: **not enough data**, no claim. A time class with fewer than 20 games gets no cards. |
 | Early estimate | Clock profile from fewer than 100 games. |
 | Stop-loss rules | A rule *helps* if the games it would have skipped have a residual whose 95 % interval lies below the other games; *costs* if above; needs ≥ 30 skipped games. |
+
+## Rules
+
+| Term | Definition | Code |
+|---|---|---|
+| Rule | A suggestion from a card that the player adopts: a **clock checkpoint** or a **stop-loss rule**, per time class. At most one active rule per kind and time class. | `rules` table |
+| Clock checkpoint | "Keep at least X of your clock after own move M" (M = 20 by default). A game that reaches move M **keeps** it if the clock after that move is at least `X × T_est`. | `rules.clock_units` |
+| Suggested X | The 25th percentile of the clock share after move 20 in the player's wins (a floor 3 in 4 wins clear), rounded down to 5 %, at least 5 %. Needs ≥ 30 wins that reached move 20. | `clock._checkpoint` |
+| Stop-loss rule | "Stop after 2 losses in a row", "3 in a row" or "3 losses in one session". A session in which the rule said stop **keeps** it if no further game of that time class followed. | `rules.stop_units` |
+| Baseline | The player's last **300** games (or sessions) before `adopted_at`, scored as if the rule had applied. | `rules.BASELINE_UNITS` |
+| Rule verdict | Share kept after adoption minus share kept in the baseline, game-cluster (checkpoint) or session-cluster (stop loss) bootstrap, same labels and Benjamini-Hochberg pass as every other card. **Too early** (`not_enough_data`) until 30 games or sessions on both sides. It is a before/after comparison, not a controlled experiment, and the card says so. | `rules.check_rule` |
+| Changing a rule | Changing the threshold resets `adopted_at`: the count starts again. | `PATCH /rules/{id}` |

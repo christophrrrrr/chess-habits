@@ -75,6 +75,11 @@ def test_clock_profile_and_score_contrast():
     assert d["pace"]["wins"]["20"] > d["pace"]["losses"]["20"]
     assert d["flags"]["lost_on_time"]["winning"] == 20
     assert d["flags"]["won_on_time"]["losing"] == 1
+    # Calm wins keep 58% of the clock after move 20: suggested floor 55%.
+    assert d["checkpoint"]["move"] == 20
+    assert d["checkpoint"]["min_share"] == 0.55
+    assert d["checkpoint"]["wins"]["rate"] == 1.0
+    assert d["checkpoint"]["trouble_games"]["count"] == 0
     title, summary = profile.text("profile")
     assert "mostly self-inflicted" in title
     assert "Main cause" in summary
@@ -93,6 +98,7 @@ def test_small_samples_say_so():
     profile = next(d for d in drafts if d.analysis_key == "clock_profile")
     assert profile.details["early_estimate"] is True
     assert profile.details["time_sinks"] == {}
+    assert profile.details["checkpoint"] is None  # fewer than 30 wins
     assert "Early estimate" in profile.text("profile")[1]
     score = next(d for d in drafts if d.analysis_key == "time_trouble_score")
     assert "not enough games" in score.text("not_enough_data")[0]

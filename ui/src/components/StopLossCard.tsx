@@ -1,4 +1,5 @@
 import type { Finding } from '../api'
+import { AdoptButton, type RuleActions } from './AdoptButton'
 import { CardHeader } from './CardHeader'
 
 interface RuleRow {
@@ -22,7 +23,7 @@ function signed(x: number): string {
   return `${v > 0 ? '+' : v < 0 ? '−' : '±'}${Math.abs(v)}`
 }
 
-export function StopLossCard({ finding }: { finding: Finding }) {
+export function StopLossCard({ finding, actions }: { finding: Finding; actions?: RuleActions }) {
   const rules = (finding.details.rules ?? []) as RuleRow[]
   return (
     <article className="finding finding--profile" aria-label={finding.title}>
@@ -37,6 +38,7 @@ export function StopLossCard({ finding }: { finding: Finding }) {
               <th scope="col">Skipped games</th>
               <th scope="col">Their level vs. the rest</th>
               <th scope="col">Verdict</th>
+              {actions && <th scope="col">Track it</th>}
             </tr>
           </thead>
           <tbody>
@@ -50,6 +52,15 @@ export function StopLossCard({ finding }: { finding: Finding }) {
                     : `${signed(r.difference_elo)} Elo (${signed(r.ci_elo![0])} to ${signed(r.ci_elo![1])})`}
                 </td>
                 <td className={`verdict verdict--${r.verdict}`}>{VERDICT[r.verdict]}</td>
+                {actions && (
+                  <td>
+                    <AdoptButton
+                      actions={actions}
+                      compact
+                      draft={{ time_class: finding.time_class, kind: 'stop_loss', stop_rule: r.rule }}
+                    />
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
