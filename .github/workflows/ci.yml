@@ -68,3 +68,34 @@ jobs:
         run: npm audit --audit-level=high
       - name: Build
         run: npm run build
+
+  compose:
+    name: compose smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Throwaway local SQL password (CI only, never stored)
+        run: echo "MSSQL_SA_PASSWORD=Ci$(openssl rand -hex 12)Xy7" > .env
+      - name: Start the whole system
+        run: docker compose up -d --build
+      - name: Wait for both services
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS localhost:8001/health && curl -fsS localhost:8002/health; then exit 0; fi
+            sleep 5
+          done
+          exit 1
+      - name: Smoke test
+        run: |
+          set -e
+          curl -fsS localhost:8001/players | grep -q '^\[\]$'
+          # insights -> games over HTTP: unknown player must come back as 404
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:8002/players/999/runs)
+          test "$code" = "404"
+          curl -fsS localhost:5173/ | grep -q '<title>Kiebitz</title>'
+      - name: Logs on failure
+        if: failure()
+        run: docker compose logs --no-color
+      - name: Stop
+        if: always()
+        run: docker compose down -v

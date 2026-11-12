@@ -1,0 +1,89 @@
+# Whole system locally: SQL Server (two databases), both services and the UI.
+#   cp .env.example .env   # then set MSSQL_SA_PASSWORD
+#   docker compose up --build
+# UI: http://localhost:5173  games: http://localhost:8001/docs  insights: http://localhost:8002/docs
+
+name: kiebitz
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-CU27-GDR2-ubuntu-22.04
+    # MSSQL_SA_PASSWORD comes from the gitignored .env file (see .env.example).
+    env_file: .env
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q 'SELECT 1' -b -o /dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  # One-shot job: creates the two databases (one per service) if they do not exist.
+  db-init:
+    image: mcr.microsoft.com/mssql/server:2022-CU27-GDR2-ubuntu-22.04
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    env_file: .env
+    entrypoint:
+      - /bin/bash
+      - -c
+      - >-
+        /opt/mssql-tools18/bin/sqlcmd -C -S sqlserver -U sa -P "$$MSSQL_SA_PASSWORD" -b -Q
+        "IF DB_ID('kiebitz_games') IS NULL CREATE DATABASE kiebitz_games;
+        IF DB_ID('kiebitz_insights') IS NULL CREATE DATABASE kiebitz_insights;"
+    restart: "no"
+
+  games:
+    build: ./services/games
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: mssql+pymssql://sa:${MSSQL_SA_PASSWORD}@sqlserver:1433/kiebitz_games
+      CORS_ORIGINS: http://localhost:5173
+    ports:
+      - "8001:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  insights:
+    build: ./services/insights
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: mssql+pymssql://sa:${MSSQL_SA_PASSWORD}@sqlserver:1433/kiebitz_insights
+      CORS_ORIGINS: http://localhost:5173
+      GAMES_SERVICE_URL: http://games:8000
+    ports:
+      - "8002:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  ui:
+    build:
+      context: ./ui
+      args:
+        VITE_GAMES_API_URL: http://localhost:8001
+        VITE_INSIGHTS_API_URL: http://localhost:8002
+    ports:
+      - "5173:8080"
+    depends_on:
+      - games
+      - insights
+
+volumes:
+  sqldata:
