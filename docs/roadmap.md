@@ -1,6 +1,6 @@
 # Roadmap
 
-How Kiebitz gets from today's open PRs to the best possible submission on 24 Nov 2026, and
+How Chess Habits gets from today's open PRs to the best possible submission on 24 Nov 2026, and
 what comes after the course. Priorities follow the grading weights in
 [assignment.md](assignment.md): a working, tested, self-deploying and monitored product beats
 more features. Product ideas come from the research shortlist
@@ -10,7 +10,7 @@ more features. Product ideas come from the research shortlist
 
 | Grading area (weight) | State |
 |---|---|
-| Product, architecture, code (25%) | MVP complete in PRs #1–#10: games service (players CRUD, chess.com import), insights service (clock profile, after-loss, stop-loss, rules with adherence), UI. Not merged yet. |
+| Product, architecture, code (25%) | MVP complete in PRs #1–#10 (#12 renames the project): games service (players CRUD, chess.com import), insights service (clock profile, after-loss, stop-loss, rules with adherence), UI. Not merged yet. |
 | Cloud infrastructure (15%) | Bicep for everything; **blocked**: no resource group and service principal yet. |
 | DevOps pipeline (20%) | CI (lint, format, tests with coverage gate, pip-audit, image builds, compose smoke test) and deploy workflow written; deploy never run. |
 | Testing (10%) | 51 insights + 27 games + 29 UI tests, 96–98% coverage. No browser E2E yet. |
@@ -72,5 +72,5 @@ From the research shortlist, section 6:
   containers); critical moments and only-move find rate; resignation quality; drills.
 - **Feb – Apr 2027: human baseline.** Maia-3 in the browser once its weight licence is
   confirmed; "surprising mistake" rate against players of your level; Lichess import.
-- **From May 2027: gaze.** Webcam eye tracking in Kiebitz's own training sessions (never
+- **From May 2027: gaze.** Webcam eye tracking in Chess Habits' own training sessions (never
   during chess.com play), opt-in and processed in the browser.
