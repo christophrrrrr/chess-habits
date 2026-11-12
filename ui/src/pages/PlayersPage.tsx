@@ -1,6 +1,8 @@
+import { Plus, Trash } from 'lucide-react'
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
-import { gamesApi, type Player } from '../api'
+import { gamesApi, insightsApi, type Finding, type Player } from '../api'
 import { formatDate } from '../format'
+import { headline } from '../tiles'
 
 export function PlayersPage() {
   const [players, setPlayers] = useState<Player[] | null>(null)
@@ -54,10 +56,6 @@ export function PlayersPage() {
           habits that never show up in a move list. Chess Habits measures them across hundreds of your games,
           and every finding says how sure it is.
         </p>
-      </section>
-
-      <section className="panel">
-        <h3>Track a chess.com account</h3>
         <form className="add-form" onSubmit={add}>
           <label htmlFor="username" className="sr-only">
             chess.com username
@@ -69,33 +67,65 @@ export function PlayersPage() {
             onChange={(e) => setUsername(e.target.value)}
             autoComplete="off"
           />
-          <button type="submit" disabled={busy || !username.trim()}>
+          <button type="submit" className="big-button" disabled={busy || !username.trim()}>
+            <Plus size={18} aria-hidden="true" />
             {busy ? 'Checking…' : 'Add'}
           </button>
         </form>
         {error && <p className="error">{error}</p>}
       </section>
 
-      <section className="panel">
-        <h3>Tracked accounts</h3>
+      <section aria-label="Tracked accounts">
+        <h3 className="section-title">Tracked accounts</h3>
         {players === null && !error && <p className="muted">Loading…</p>}
         {players?.length === 0 && <p className="muted">No accounts yet. Add one above.</p>}
         {players && players.length > 0 && (
-          <ul className="player-list">
+          <div className="account-grid">
             {players.map((p) => (
-              <li key={p.id}>
-                <a href={`#/players/${p.id}`} className="player-list__name">
-                  {p.display_name ? `${p.display_name} (${p.username})` : p.username}
-                </a>
-                <span className="muted">last import: {formatDate(p.last_imported_at)}</span>
-                <button className="link danger" onClick={() => remove(p)} aria-label={`Delete ${p.username}`}>
-                  Delete
-                </button>
-              </li>
+              <AccountTile key={p.id} player={p} onDelete={() => remove(p)} />
             ))}
-          </ul>
+          </div>
         )}
       </section>
     </div>
+  )
+}
+
+/** A big account tile: who, how many games, and the result most worth a look. */
+function AccountTile({ player, onDelete }: { player: Player; onDelete: () => void }) {
+  const [games, setGames] = useState<number | null>(null)
+  const [top, setTop] = useState<Finding | null>(null)
+  const name = player.display_name ?? player.username
+
+  useEffect(() => {
+    // Extras: the tile works without them if a service is slow or down.
+    gamesApi
+      .getPlayer(player.id)
+      .then((d) => setGames(Object.values(d.game_counts).reduce((a, b) => a + b, 0)))
+      .catch(() => setGames(null))
+    insightsApi
+      .latestFindings(player.id)
+      .then((run) => setTop(headline(run.findings) ?? null))
+      .catch(() => setTop(null))
+  }, [player.id])
+
+  return (
+    <article className="account">
+      <a href={`#/players/${player.id}`} className="account__link">
+        <span className="avatar" aria-hidden="true">
+          {name[0].toUpperCase()}
+        </span>
+        <span className="account__text">
+          <span className="account__name">{player.username}</span>
+          <span className="muted small">
+            {games !== null ? `${games} games · ` : ''}last import {formatDate(player.last_imported_at)}
+          </span>
+        </span>
+      </a>
+      {top && <p className={`account__top account__top--${top.effect! < 0 ? 'bad' : 'good'}`}>{top.title}</p>}
+      <button className="icon-button danger" onClick={onDelete} aria-label={`Delete ${player.username}`}>
+        <Trash size={16} aria-hidden="true" />
+      </button>
+    </article>
   )
 }

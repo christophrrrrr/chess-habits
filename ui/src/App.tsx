@@ -15,7 +15,10 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    const onChange = () => setRoute(parseRoute(window.location.hash))
+    const onChange = () => {
+      setRoute(parseRoute(window.location.hash))
+      document.documentElement.scrollTop = 0
+    }
     window.addEventListener('hashchange', onChange)
     return () => window.removeEventListener('hashchange', onChange)
   }, [])
@@ -36,7 +39,11 @@ export default function App() {
         </div>
       )}
       <main className="container">
-        {route.page === 'player' ? <PlayerPage playerId={route.id} key={route.id} /> : <PlayersPage />}
+        {route.page === 'player' ? (
+          <PlayerPage playerId={route.id} view={route} key={route.id} />
+        ) : (
+          <PlayersPage />
+        )}
       </main>
     </>
   )
