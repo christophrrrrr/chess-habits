@@ -1,41 +1,55 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import type { Finding } from '../api'
+import { clockProfile, contrast, notEnough, requeue, stopLoss } from '../test/fixtures'
 import { FindingCard } from './FindingCard'
 
-const base: Finding = {
-  id: 1,
-  analysis_key: 'time_trouble',
-  time_class: 'blitz',
-  title: 'Blitz: time trouble costs you points (22% of games)',
-  summary: 'Your clock drops below 10%...',
-  effect: -0.25,
-  ci_low: -0.35,
-  ci_high: -0.14,
-  sample_size: 437,
-  confidence: 'high',
-  details: {},
-}
-
 describe('FindingCard', () => {
-  it('shows title, evidence label, effect and sample size', () => {
-    render(<FindingCard finding={base} />)
-    expect(screen.getByRole('heading', { name: base.title })).toBeInTheDocument()
-    expect(screen.getByText('Strong evidence')).toBeInTheDocument()
-    expect(screen.getByText('−25.0')).toBeInTheDocument()
-    expect(screen.getByText('Based on 437 games')).toBeInTheDocument()
+  it('shows a contrast with label, Elo effect, interval and detectable size', () => {
+    render(<FindingCard finding={contrast} />)
+    expect(screen.getByRole('heading', { name: contrast.title })).toBeInTheDocument()
+    expect(screen.getByText('Finding')).toBeInTheDocument()
+    expect(screen.getByText('−110 Elo')).toBeInTheDocument()
+    expect(screen.getByRole('img')).toHaveAccessibleName(/95% interval −164 Elo to −50 Elo/)
+    expect(screen.getByText(/smallest effect this data can detect: \+83 Elo/)).toBeInTheDocument()
     expect(screen.getByRole('article')).toHaveClass('finding--bad')
   })
 
-  it('hides the effect bar when there are not enough games', () => {
-    render(<FindingCard finding={{ ...base, confidence: 'insufficient' }} />)
-    expect(screen.getByText('Not enough games')).toBeInTheDocument()
-    expect(screen.queryByRole('img')).not.toBeInTheDocument()
+  it('keeps behaviour shares neutral and shows percentage points', () => {
+    render(<FindingCard finding={requeue} />)
     expect(screen.getByRole('article')).toHaveClass('finding--neutral')
+    expect(screen.getByText('+10.7 pp')).toBeInTheDocument()
   })
 
-  it('marks a significant positive effect as good', () => {
-    render(<FindingCard finding={{ ...base, effect: 0.1, ci_low: 0.02, ci_high: 0.18 }} />)
-    expect(screen.getByRole('article')).toHaveClass('finding--good')
+  it('hides the bar when there is not enough data', () => {
+    render(<FindingCard finding={notEnough} />)
+    expect(screen.getByText('Not enough data')).toBeInTheDocument()
+    expect(screen.queryByRole('img')).not.toBeInTheDocument()
+    expect(screen.queryByText(/smallest effect/)).not.toBeInTheDocument()
+  })
+
+  it('renders the clock profile with tiles, causes, pace and flags', () => {
+    render(<FindingCard finding={clockProfile} />)
+    expect(screen.getByText('19%')).toBeInTheDocument()
+    expect(screen.getByText('77%')).toBeInTheDocument()
+    expect(screen.getByText('≥ 45')).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: /Steady drain 67%/ })).toBeInTheDocument()
+    expect(screen.getByRole('table', { name: /Clock left/ })).toHaveTextContent('Losses84%52%22%–')
+    expect(screen.getByRole('table', { name: /decided on time/ })).toHaveTextContent('Lost on time459386')
+    expect(screen.getByText(/net clock points per 100 games: −3.8/)).toBeInTheDocument()
+    expect(screen.queryByText('Profile')).not.toBeInTheDocument()
+  })
+
+  it('renders the clock profile without causes for small samples', () => {
+    const details = { ...clockProfile.details, time_sinks: {}, early_estimate: true }
+    render(<FindingCard finding={{ ...clockProfile, details }} />)
+    expect(screen.queryByText(/Main cause/)).not.toBeInTheDocument()
+    expect(screen.getByText(/early estimate/)).toBeInTheDocument()
+  })
+
+  it('renders the stop-loss rule table', () => {
+    render(<FindingCard finding={stopLoss} />)
+    expect(screen.getByText('Would have cost you')).toBeInTheDocument()
+    expect(screen.getByText('+69 Elo (+20 to +118)')).toBeInTheDocument()
+    expect(screen.getByText('Not enough data')).toBeInTheDocument()
   })
 })

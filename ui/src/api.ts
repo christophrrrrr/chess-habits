@@ -72,17 +72,23 @@ export interface GamePage {
   offset: number
 }
 
+export type FindingLabel = 'finding' | 'exploratory' | 'no_effect' | 'not_enough_data' | 'profile'
+
 export interface Finding {
   id: number
   analysis_key: string
   time_class: string
+  kind: 'contrast' | 'profile'
+  metric: 'score' | 'share' | 'profile'
+  label: FindingLabel
   title: string
   summary: string
-  effect: number
-  ci_low: number
-  ci_high: number
+  effect: number | null
+  ci_low: number | null
+  ci_high: number | null
+  mde: number | null
+  p_value: number | null
   sample_size: number
-  confidence: 'high' | 'medium' | 'low' | 'insufficient'
   details: Record<string, unknown>
 }
 

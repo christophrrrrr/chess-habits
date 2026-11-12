@@ -12,7 +12,15 @@ from sqlalchemy.orm import Session
 
 from app.chesscom import ChessComClient
 from app.models import Game, ImportedMonth, Player
-from app.pgn import opening_from_url, parse_moves, parse_time_control, pgn_header, result_from_code
+from app.pgn import (
+    material_balance,
+    opening_from_url,
+    parse_moves,
+    parse_time_control,
+    pgn_header,
+    result_from_code,
+    started_at_from_pgn,
+)
 
 
 @dataclass(frozen=True)
@@ -56,6 +64,7 @@ def game_from_chesscom(player: Player, data: dict) -> Game | None:
         increment_seconds=inc,
         rated=bool(data.get("rated", False)),
         ended_at=datetime.fromtimestamp(int(data.get("end_time", 0)), UTC).replace(tzinfo=None),
+        started_at=started_at_from_pgn(pgn),
         player_color=color,
         player_rating=me.get("rating"),
         opponent_username=opp.get("username", "?")[:64],
@@ -66,6 +75,10 @@ def game_from_chesscom(player: Player, data: dict) -> Game | None:
         opening=opening_from_url(data.get("eco") or pgn_header(pgn, "ECOUrl")),
         ply_count=moves.ply_count,
         clocks=moves.clocks,
+        termination=(pgn_header(pgn, "Termination") or "")[:100] or None,
+        final_material=material_balance(
+            data.get("fen") or pgn_header(pgn, "CurrentPosition"), color
+        ),
         pgn=pgn,
     )
 

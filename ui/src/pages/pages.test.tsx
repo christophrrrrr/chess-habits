@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
 import { mockFetch } from '../test/fetchMock'
+import { clockProfile, contrast } from '../test/fixtures'
 
 const player = {
   id: 1,
@@ -24,31 +25,14 @@ const run = {
   finished_at: '2026-11-12T00:00:01',
   findings: [
     {
+      ...contrast,
       id: 1,
-      analysis_key: 'tilt',
       time_class: 'rapid',
+      label: 'no_effect',
       title: 'Rapid: no clear tilt after a loss',
-      summary: 'rapid summary',
-      effect: 0.01,
-      ci_low: -0.05,
-      ci_high: 0.07,
-      sample_size: 200,
-      confidence: 'low',
-      details: {},
     },
-    {
-      id: 2,
-      analysis_key: 'tilt',
-      time_class: 'bullet',
-      title: 'Bullet: you score worse right after a loss',
-      summary: 'bullet summary',
-      effect: -0.08,
-      ci_low: -0.15,
-      ci_high: -0.01,
-      sample_size: 700,
-      confidence: 'medium',
-      details: {},
-    },
+    { ...clockProfile, id: 3 },
+    { ...contrast, id: 2, title: 'Bullet: you score worse right after a loss' },
   ],
 }
 

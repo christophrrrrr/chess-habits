@@ -13,6 +13,10 @@
   --neutral-bg: #eef0ee;
   --track: #e6e9e7;
   --radius: 10px;
+  /* categorical series (validated: dataviz validate_palette.js, light on #fff) */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
   color-scheme: light;
   font-family:
     Inter,
@@ -41,6 +45,9 @@
     --bad-bg: #2e1a15;
     --neutral-bg: #222825;
     --track: #2a312d;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
     color-scheme: dark;
   }
 }
@@ -327,14 +334,14 @@ input {
   white-space: nowrap;
 }
 
-.badge--high,
-.badge--medium {
+.badge--finding,
+.badge--exploratory {
   background: var(--accent);
   color: var(--accent-text);
 }
 
-.badge--medium {
-  opacity: 0.8;
+.badge--exploratory {
+  opacity: 0.75;
 }
 
 .effect__track {
@@ -434,4 +441,120 @@ th {
   padding: 0.6rem 1rem;
   text-align: center;
   font-size: 0.9rem;
+}
+
+.finding--profile {
+  border-left-color: var(--accent);
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 0.6rem;
+  margin: 0.75rem 0;
+}
+
+.tile {
+  background: var(--neutral-bg);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+}
+
+.tile__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.tile__label {
+  font-size: 0.85rem;
+}
+
+.tile__note {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.sinks h5,
+.mini caption {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0.75rem 0 0.4rem;
+  text-align: left;
+}
+
+.stack-bar {
+  display: flex;
+  gap: 2px; /* surface gap between segments */
+  height: 14px;
+}
+
+.stack-bar__seg {
+  min-width: 4px;
+}
+
+.stack-bar__seg:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.stack-bar__seg:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+.stack-bar__seg--opening {
+  background: var(--series-1);
+}
+
+.stack-bar__seg--spikes {
+  background: var(--series-2);
+}
+
+.stack-bar__seg--drain {
+  background: var(--series-3);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+}
+
+.legend__swatch {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 2px;
+  margin-right: 0.35rem;
+  vertical-align: -0.05rem;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 0.5rem 1.25rem;
+}
+
+table.mini {
+  font-size: 0.85rem;
+}
+
+table.mini th,
+table.mini td {
+  padding: 0.3rem 0.4rem;
+}
+
+table.mini td {
+  font-variant-numeric: tabular-nums;
+}
+
+.verdict--helps {
+  color: var(--good);
+}
+
+.verdict--costs {
+  color: var(--bad);
 }

@@ -9,7 +9,7 @@ It is not another engine game review. See [docs/vision.md](docs/vision.md) for w
 ## What it does today
 
 1. Track a chess.com account and import its full game history (month by month, cached).
-2. Run analyses across all games, per time control, e.g. *"In blitz you reach time trouble in 22% of games and score 26 points below expectation in them"*, each with its sample size and a 95% confidence interval. Kiebitz says "not enough games" instead of guessing.
+2. Run analyses across all games, per time control: a **clock profile** (how often you get into time trouble, from which move, whether it is self-inflicted, whether long thinks, the opening or a steady drain cause it, and how many won positions the clock took) and an **after-loss** card (do you requeue faster, do you play below your level, would a stop-loss rule help). Every comparison comes with its sample size, a 95% interval, the smallest effect the data could detect, and a correction for testing many things at once; Kiebitz says "not enough data" instead of guessing.
 
 **Live URL:** _added after the first Azure deployment_ (see [docs/deployment.md](docs/deployment.md)).
 
@@ -77,6 +77,7 @@ Reproduce the Azure setup: [docs/deployment.md](docs/deployment.md).
 | [docs/assignment.md](docs/assignment.md) | Assignment requirements as a checklist |
 | [docs/decisions.md](docs/decisions.md) | Architecture decision records |
 | [docs/data-model.md](docs/data-model.md) | Entities and relationships |
+| [docs/definitions.md](docs/definitions.md) | Every metric and statistical rule the analyses use |
 | [docs/deployment.md](docs/deployment.md) | Azure resources, secrets, pipeline, rollback |
 | [docs/monitoring.md](docs/monitoring.md) | Logs, dashboard queries, SLO |
 | [docs/scrum/](docs/scrum/) | Definition of Done and sprint notes |

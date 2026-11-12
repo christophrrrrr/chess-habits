@@ -68,6 +68,7 @@ class GameOut(BaseModel):
     increment_seconds: int | None
     rated: bool
     ended_at: datetime
+    started_at: datetime | None
     player_color: str
     player_rating: int | None
     opponent_username: str
@@ -78,6 +79,8 @@ class GameOut(BaseModel):
     opening: str | None
     ply_count: int
     clocks: str | None
+    termination: str | None
+    final_material: int | None
 
 
 class GameWithPgn(GameOut):

@@ -1,44 +1,73 @@
 import type { Finding } from '../api'
-import { CONFIDENCE_LABEL, axisPosition, points } from '../format'
+import { axisPosition, elo, points } from '../format'
+import { CardHeader } from './CardHeader'
+import { ClockProfileCard } from './ClockProfileCard'
+import { StopLossCard } from './StopLossCard'
 
-const RANGE = 0.4 // axis shows -40 to +40 score points
-
+/** Picks the right card for a finding. */
 export function FindingCard({ finding }: { finding: Finding }) {
-  const { effect, ci_low, ci_high, confidence } = finding
-  const showAxis = confidence !== 'insufficient'
-  const tone = confidence === 'high' || confidence === 'medium' ? (effect < 0 ? 'bad' : 'good') : 'neutral'
-  const lo = axisPosition(ci_low, RANGE)
-  const hi = axisPosition(ci_high, RANGE)
-  const mid = axisPosition(effect, RANGE)
+  if (finding.analysis_key === 'clock_profile') return <ClockProfileCard finding={finding} />
+  if (finding.analysis_key === 'stop_loss_rules') return <StopLossCard finding={finding} />
+  return <ContrastCard finding={finding} />
+}
+
+/** Group A vs group B with the effect, its 95% interval and the minimum detectable effect. */
+export function ContrastCard({ finding }: { finding: Finding }) {
+  const { label, metric, mde } = finding
+  const effect = finding.effect ?? 0
+  const ci_low = finding.ci_low ?? 0
+  const ci_high = finding.ci_high ?? 0
+  const hasAxis = label !== 'not_enough_data' && finding.effect !== null && finding.ci_low !== null
+  const significant = label === 'finding' || label === 'exploratory'
+  // Only results (score) are good or bad; a behaviour share is just a description.
+  const tone = significant && metric === 'score' ? (effect < 0 ? 'bad' : 'good') : 'neutral'
+  const range = metric === 'share' ? 0.5 : 0.4
+  const fmt = (x: number) => (metric === 'score' ? `${elo(x)} Elo` : `${points(x)} pp`)
 
   return (
     <article className={`finding finding--${tone}`} aria-label={finding.title}>
-      <header className="finding__head">
-        <h4>{finding.title}</h4>
-        <span className={`badge badge--${confidence}`}>{CONFIDENCE_LABEL[confidence]}</span>
-      </header>
+      <CardHeader finding={finding} />
       <p className="finding__summary">{finding.summary}</p>
-      {showAxis && (
+      {hasAxis && (
         <div
           className="effect"
           role="img"
-          aria-label={`Effect ${points(effect)} points, 95% interval ${points(ci_low)} to ${points(ci_high)}`}
+          aria-label={`Difference ${fmt(effect)}, 95% interval ${fmt(ci_low)} to ${fmt(ci_high)}`}
         >
           <div className="effect__track">
             <div className="effect__zero" />
-            <div className="effect__ci" style={{ left: `${lo}%`, width: `${Math.max(hi - lo, 0.5)}%` }} />
-            <div className="effect__dot" style={{ left: `${mid}%` }} />
+            <div
+              className="effect__ci"
+              style={{
+                left: `${axisPosition(ci_low, range)}%`,
+                width: `${Math.max(axisPosition(ci_high, range) - axisPosition(ci_low, range), 0.5)}%`,
+              }}
+            />
+            <div
+              className="effect__dot"
+              style={{ left: `${axisPosition(effect, range)}%` }}
+              title={`${fmt(effect)} (95% CI ${fmt(ci_low)} to ${fmt(ci_high)})`}
+            />
           </div>
           <div className="effect__labels">
-            <span>−40</span>
+            <span>{fmt(-range)}</span>
             <span>
-              <strong>{points(effect)}</strong> points vs. the rest of your games
+              <strong>{fmt(effect)}</strong>
             </span>
-            <span>+40</span>
+            <span>{fmt(range)}</span>
           </div>
         </div>
       )}
-      <footer className="finding__foot">Based on {finding.sample_size} games</footer>
+      <footer className="finding__foot">
+        Based on {finding.sample_size} games
+        {mde !== null && label !== 'not_enough_data' && (
+          <>
+            {' '}
+            · smallest effect this data can detect:{' '}
+            {metric === 'score' ? `${elo(mde)} Elo` : `${points(mde)} pp`}
+          </>
+        )}
+      </footer>
     </article>
   )
 }

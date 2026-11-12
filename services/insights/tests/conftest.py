@@ -24,6 +24,9 @@ def api_game(
     clocks: str | None = None,
     color: str = "white",
     detail: str | None = None,
+    started_at: datetime | None = None,
+    termination: str | None = None,
+    final_material: int | None = 0,
 ) -> dict:
     return {
         "id": i,
@@ -38,11 +41,23 @@ def api_game(
         "increment_seconds": inc,
         "ply_count": 40,
         "clocks": clocks,
+        "started_at": (started_at or ended_at - timedelta(minutes=4)).isoformat(),
+        "termination": termination,
+        "final_material": final_material,
     }
 
 
+def interleave(own: list[int], opp: list[int], color: str = "white") -> str:
+    """Comma-separated per-ply clocks (tenths) from the player's and opponent's clocks."""
+    first, second = (own, opp) if color == "white" else (opp, own)
+    plies = [c for pair in zip(first, second, strict=False) for c in pair]
+    if len(first) > len(second):
+        plies.append(first[-1])
+    return ",".join(str(c) for c in plies)
+
+
 def session_games(start_id: int, start: datetime, results: list[str], **kw) -> list[dict]:
-    """Games played back to back (5 minutes apart) - one session."""
+    """Games played back to back (5 minutes apart, 30 s between games) - one session."""
     return [
         api_game(start_id + k, ended_at=start + timedelta(minutes=5 * k), result=r, **kw)
         for k, r in enumerate(results)
