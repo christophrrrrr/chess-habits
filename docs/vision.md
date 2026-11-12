@@ -1,12 +1,55 @@
 # Chess Habits: Vision and Research Brief
 
+## The idea
+
+When a strong player solves a position in seconds, the people watching rarely ask which move it
+was: they can see the move. They ask **how**. *How do you manage your clock so well? What do you
+do after a bad loss? Where do you look first?*
+
+No chess platform can answer that. Chess.com and Lichess store every move, and their engines say
+which move was best. But the habits that make a player strong (how they spend their time, how
+they react to losing, where their eyes go) leave no trace in the move list, so a game review
+never shows them.
+
+The same blind spot exists from the other side. A strong player does most of this on autopilot,
+so even they cannot say which of their habits hold them back. *Why am I 2300 and not 2600? Where
+exactly do I lose the points?* The answer is somewhere in thousands of their own games, but
+nobody has measured it.
+
+Chess Habits makes those habits visible. It measures how you play across hundreds of your games,
+shows which habits cost you points, and checks whether a change you make actually sticks. The
+main comparison is **you against yourself**: your wins against your losses, your good days against
+your bad ones. If you want, you can put your habits next to **a grandmaster of your choice**,
+whose games on chess.com are public too.
+
+## Who it is for
+
+Club players and up (roughly 1200+ and a few hundred games): weaker players learn what stronger
+players do differently; strong players find what still holds them back.
+
 ## One-line pitch
 
-Chess Habits collects data about how you play chess (your games, your clock, and optionally where you look) and turns it into personal, evidence-based feedback on what to train next. **Which analyses it runs is deliberately open**: new ones are researched and added over time.
+Game review shows **what** you played. Chess Habits shows **how** you play: your clock, your
+reactions and, later, where you look, measured across hundreds of your games, compared with your
+own best play and, if you like, with your favourite grandmaster.
 
 ## Goal
 
-Help chess players, including strong ones, improve by finding patterns in **how** they play that they cannot see themselves, and turning those patterns into concrete things to train.
+Help chess players, including strong ones, improve by finding patterns in **how** they play that
+they cannot see themselves, seeing how a grandmaster they choose handles the same situations, and
+turning both into concrete things to train. **Which analyses it runs is deliberately open**: new ones are researched
+and added over time.
+
+## The habits, layer by layer
+
+| Habit | What reveals it | Status |
+|---|---|---|
+| **Clock**: how you spend your time | Per-move clock times in every chess.com game | Built: clock profile, cost of time trouble, suggested clock checkpoint |
+| **Reactions**: tilt, sessions, when to stop | Game start and end times, results, sessions | Built: after-loss card, stop-loss rules |
+| **Follow-through**: do you keep the habit you chose | The same data after you adopt a rule | Built: rule cards with adherence |
+| **Decisions**: which kinds of positions you get wrong | Engine evaluation in the browser | After the course (Dec 2026 – Jan 2027) |
+| **Comparison**: what a grandmaster does differently | The same metrics on the public chess.com games of a grandmaster you pick, side by side with yours | Planned (candidate for the course) |
+| **Attention**: where you look | Webcam eye tracking in the browser, opt-in | Long-term goal; research, from May 2027 |
 
 ## How Chess Habits differs from engine game review
 
@@ -16,7 +59,7 @@ Chess.com Game Review, Lichess analysis and similar tools grade **moves**. Chess
 |---|---|
 | Looks at **one game** | Looks at **patterns across hundreds of games** |
 | Judges **moves** (best, blunder, "brilliant", accuracy %) | Explains **the player**: why and in which situations points are lost |
-| Compares against **Stockfish perfection** | Compares against **your own baseline** and **players of your level** |
+| Compares against **Stockfish perfection** | Compares against **your own baseline** first, and a **grandmaster you choose** |
 | Says "the best move was Nf5" | Says "you miss opponent threats after long thinks in sharp positions" |
 | Uses only the moves | Also uses **behaviour**: clock, gaze, context (tilt, time of day, session length) |
 | The review is the end | Each finding becomes **something to train**, and Chess Habits checks whether it improved |

@@ -48,10 +48,11 @@ export function PlayersPage() {
   return (
     <div className="stack">
       <section className="hero">
-        <h2>Find out how you lose points, not just where.</h2>
+        <h2>Game review shows what you played. Chess Habits shows how you play.</h2>
         <p className="muted">
-          Chess Habits looks at hundreds of your games at once: your clock, your sessions, how you react to
-          losses. Every finding comes with its sample size and how sure we are.
+          How you spend your clock, how you react to a loss, whether you keep the rules you set yourself:
+          habits that never show up in a move list. Chess Habits measures them across hundreds of your games,
+          and every finding says how sure it is.
         </p>
       </section>
 

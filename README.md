@@ -1,8 +1,20 @@
 # Chess Habits
 
-Chess Habits is a chess improvement platform. It collects data about **how you play** (your games, your clock, and optionally where you look on the board) and turns it into personal, evidence-based feedback on **what to train next**.
+Game review shows **what** you played. Chess Habits shows **how** you play.
 
-It is not another engine game review. See [docs/vision.md](docs/vision.md) for what makes it different and the open research questions.
+When people watch a strong player, they don't ask which move was best; they ask how: *how do you
+manage your clock, what do you do after a loss, where do you look first?* Those habits never
+show up in a move list or an engine review. Chess Habits measures them across hundreds of your
+chess.com games, shows which ones cost you points (with an honest error bar on every finding),
+and checks whether a change you make actually sticks. It works the other way round too: a strong
+player rarely knows which of their own habits hold them back, and their games can tell them.
+
+You are compared mainly with yourself (your wins against your losses); you can also put your
+habits next to a grandmaster of your choice. Eye tracking ("where do you look?") is the long-term
+goal.
+
+See [docs/vision.md](docs/vision.md) for the idea in full, the habits it covers and the open
+research questions.
 
 ## What it does today
 
