@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     # can take up to a minute to resume from auto-pause).
     db_startup_timeout_seconds: int = 120
     chesscom_base_url: str = "https://api.chess.com/pub"
-    chesscom_user_agent: str = "Kiebitz/0.1 (+https://github.com/christophrrrrr/Kiebitz)"
+    chesscom_user_agent: str = "ChessHabits/0.1 (+https://github.com/christophrrrrr/chess-habits)"
     chesscom_timeout_seconds: float = 15.0
 
     @property

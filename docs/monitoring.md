@@ -12,7 +12,7 @@ Container Apps forwards stdout to the Log Analytics workspace `<prefix>-logs`
 
 ## Base query
 
-Save as function `KiebitzRequests` (Log Analytics → Logs → Save → Save as function):
+Save as function `ChessHabitsRequests` (Log Analytics → Logs → Save → Save as function):
 
 ```kusto
 ContainerAppConsoleLogs_CL
@@ -33,21 +33,21 @@ Pin each to an Azure dashboard or a Workbook.
 
 **Requests per service (15 min buckets)**
 ```kusto
-KiebitzRequests
+ChessHabitsRequests
 | summarize requests = count() by service, bin(TimeGenerated, 15m)
 | render timechart
 ```
 
 **Error rate (5xx share)**
 ```kusto
-KiebitzRequests
+ChessHabitsRequests
 | summarize error_rate = 100.0 * countif(status >= 500) / count() by service, bin(TimeGenerated, 1h)
 | render timechart
 ```
 
 **Response time (p50 / p95)**
 ```kusto
-KiebitzRequests
+ChessHabitsRequests
 | where path != "/health"
 | summarize p50 = percentile(duration_ms, 50), p95 = percentile(duration_ms, 95)
     by service, bin(TimeGenerated, 1h)
@@ -61,7 +61,7 @@ KiebitzRequests
 we want to see them.
 
 ```kusto
-KiebitzRequests
+ChessHabitsRequests
 | where TimeGenerated > ago(7d) and path != "/health"
 | summarize total = count(), good = countif(status < 500)
 | extend availability_pct = round(100.0 * good / total, 2), slo_pct = 99.0

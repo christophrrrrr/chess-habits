@@ -1,7 +1,7 @@
 [project]
-name = "kiebitz-games"
+name = "chess-habits-games"
 version = "0.1.0"
-description = "Kiebitz games service: tracked chess accounts and game import"
+description = "Chess Habits games service: tracked chess accounts and game import"
 requires-python = ">=3.12"
 
 [tool.ruff]

@@ -3,7 +3,7 @@
 #   docker compose up --build
 # UI: http://localhost:5173  games: http://localhost:8001/docs  insights: http://localhost:8002/docs
 
-name: kiebitz
+name: chess-habits
 
 services:
   sqlserver:
@@ -36,8 +36,8 @@ services:
       - -c
       - >-
         /opt/mssql-tools18/bin/sqlcmd -C -S sqlserver -U sa -P "$$MSSQL_SA_PASSWORD" -b -Q
-        "IF DB_ID('kiebitz_games') IS NULL CREATE DATABASE kiebitz_games;
-        IF DB_ID('kiebitz_insights') IS NULL CREATE DATABASE kiebitz_insights;"
+        "IF DB_ID('chess_habits_games') IS NULL CREATE DATABASE chess_habits_games;
+        IF DB_ID('chess_habits_insights') IS NULL CREATE DATABASE chess_habits_insights;"
     restart: "no"
 
   games:
@@ -46,7 +46,7 @@ services:
       db-init:
         condition: service_completed_successfully
     environment:
-      DATABASE_URL: mssql+pymssql://sa:${MSSQL_SA_PASSWORD}@sqlserver:1433/kiebitz_games
+      DATABASE_URL: mssql+pymssql://sa:${MSSQL_SA_PASSWORD}@sqlserver:1433/chess_habits_games
       CORS_ORIGINS: http://localhost:5173
     ports:
       - "8001:8000"
@@ -62,7 +62,7 @@ services:
       db-init:
         condition: service_completed_successfully
     environment:
-      DATABASE_URL: mssql+pymssql://sa:${MSSQL_SA_PASSWORD}@sqlserver:1433/kiebitz_insights
+      DATABASE_URL: mssql+pymssql://sa:${MSSQL_SA_PASSWORD}@sqlserver:1433/chess_habits_insights
       CORS_ORIGINS: http://localhost:5173
       GAMES_SERVICE_URL: http://games:8000
     ports:

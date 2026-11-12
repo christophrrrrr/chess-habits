@@ -25,9 +25,9 @@ export default function App() {
       <header className="topbar">
         <a href="#/" className="brand">
           <span className="brand__mark" aria-hidden="true" />
-          Kiebitz
+          Chess Habits
         </a>
-        <span className="muted small">the onlooker who tells you how you play</span>
+        <span className="muted small">your habits at the board, measured</span>
       </header>
       {slow > 0 && (
         <div className="wake-banner" role="status">

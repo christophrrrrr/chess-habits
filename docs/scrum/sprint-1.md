@@ -13,7 +13,7 @@ chess.com games and see a first set of findings end to end.
 | `docker compose` for the whole system + CI smoke test | #4 | In review |
 | Azure infrastructure (Bicep) and deploy pipeline | #5 | In review, waiting for Azure credentials |
 | Decision records, data model, monitoring/SLO queries, Scrum docs | #6 | In review |
-| Research sweep: what can Kiebitz analyse that no tool does yet | #8 | In review |
+| Research sweep: what can Chess Habits analyse that no tool does yet | #8 | In review |
 | Handle scale-to-zero cold starts | #7 | In review |
 | MVP analyses from the research: clock profile, after-loss cards, statistics layer, definitions | #9 | In review |
 | Product Backlog in GitHub Projects with acceptance criteria | | To do |

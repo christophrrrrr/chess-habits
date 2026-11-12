@@ -1,7 +1,7 @@
 """Thin client for the chess.com Published-Data API (https://www.chess.com/news/view/published-data-api).
 
 Requests are made one at a time (chess.com asks clients not to parallelise) with a
-User-Agent that identifies Kiebitz. Any network problem surfaces as ChessComUnavailable
+User-Agent that identifies Chess Habits. Any network problem surfaces as ChessComUnavailable
 so the API can answer with a clear 503 instead of hanging.
 """
 

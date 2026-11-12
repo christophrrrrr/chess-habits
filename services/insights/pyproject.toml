@@ -1,7 +1,7 @@
 [project]
-name = "kiebitz-insights"
+name = "chess-habits-insights"
 version = "0.1.0"
-description = "Kiebitz insights service: analyses and findings"
+description = "Chess Habits insights service: analyses and findings"
 requires-python = ">=3.12"
 
 [tool.ruff]

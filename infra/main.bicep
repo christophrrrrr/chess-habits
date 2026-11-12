@@ -1,4 +1,4 @@
-// Kiebitz infrastructure, deployed into the group's EXISTING resource group (never creates one).
+// Chess Habits infrastructure, deployed into the group's EXISTING resource group (never creates one).
 //
 // Creates exactly what the assignment allows:
 //   - 2 Container Apps (games, insights): Consumption, scale to zero, max 1 replica
@@ -24,7 +24,7 @@ param sqlAdminLogin string
 @description('SQL administrator password (GitHub secret).')
 param sqlAdminPassword string
 
-@description('Full image references, e.g. ghcr.io/christophrrrrr/kiebitz-games:<sha>.')
+@description('Full image references, e.g. ghcr.io/christophrrrrr/chess-habits-games:<sha>.')
 param gamesImage string
 param insightsImage string
 

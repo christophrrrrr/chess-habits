@@ -1,4 +1,4 @@
-"""FastAPI application for the Kiebitz insights service."""
+"""FastAPI application for the Chess Habits insights service."""
 
 import logging
 from collections.abc import AsyncIterator
@@ -32,7 +32,7 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
 def create_app() -> FastAPI:
     settings = get_settings()
     configure_logging(settings.service_name)
-    app = FastAPI(title="Kiebitz insights service", version="0.1.0", lifespan=lifespan)
+    app = FastAPI(title="Chess Habits insights service", version="0.1.0", lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origin_list,
