@@ -2,13 +2,13 @@
 
 **Question:** In which kinds of positions does your gaze reach the important part of the board late, and does practice make it faster?
 
-**What to measure:** Only in Kiebitz training sessions, where the important region is known before the player sees the position:
+**What to measure:** Only in Chess Habits training sessions, where the important region is known before the player sees the position:
 
 - For each position, the **relevant region** is the quadrant (or half, for wide ideas) containing the from- and to-squares of the solution's first two moves, or of the threat the player must answer. If those squares fall in two quadrants, both count.
 - `rel_latency` = time from the position appearing to the first run of ≥ 300 ms of gaze inside the relevant region.
 - `rel_early_share` = dwell share in the relevant region during the first 5 s. This mirrors the "first dwell" and "first five fixations" measures of [Sheridan & Reingold 2014](https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2014.00941/full) and Charness et al. 2001 (described there).
 - `irrel_share` = the same for a control region of the same size with no relevant content.
-- Per player and per position type (puzzle theme from the Lichess puzzle tags, or Kiebitz's own mistake type, game phase, piece configuration): median `rel_latency`, mean (`rel_early_share` − `irrel_share`), and solve rate.
+- Per player and per position type (puzzle theme from the Lichess puzzle tags, or Chess Habits' own mistake type, game phase, piece configuration): median `rel_latency`, mean (`rel_early_share` − `irrel_share`), and solve rate.
 - Optional design: like Sheridan & Reingold, show two versions of a position that differ by one piece so that the relevant half flips. This rules out "the player always looks at the kingside first".
 
 **Data needed:** Gaze and solution timing in training sessions. Positions from (a) the player's own games, at moments where they went wrong (from chess.com or Lichess imports; engine labels), and (b) the Lichess puzzle database, CC0, 6.19 million puzzles with ratings and themes ([database.lichess.org](https://database.lichess.org/)). Works for chess.com-only users and for any time control (set the timer per session: 5 s, 20 s, 60 s).

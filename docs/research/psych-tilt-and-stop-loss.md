@@ -35,7 +35,7 @@ All metrics are per time class (bullet, blitz, rapid), rated games only, compare
 - **For strong players specifically**, a hierarchical Bayesian model on Lichess bullet and blitz found little evidence of a consistent effect of the previous result in the 1700–1900 and GM cohorts. Only "a small proportion" of individual players showed one ([Gee et al. 2025](https://arxiv.org/abs/2503.21713)).
 - **Inside one game**, small inaccuracies are followed by more inaccuracies, while serious blunders tend to make players more careful ([Adhikari, Anatolyev & Dagaev 2023, IEEE Trans. Games](https://pages.nes.ru/sanatoly/Papers/TiltChess.htm)).
 - **Detectable effect size for one player** (80% power, α = 0.05, residual SD ≈ 0.46 measured on the owner's games). Per group you need about 160 games to detect 100 Elo, about 640 games for 50 Elo, and about 2,550 games for 25 Elo.
-  - So a typical 7 Elo tilt can never be shown for an individual. Kiebitz can only find **large personal effects**, or report "no effect larger than X Elo".
+  - So a typical 7 Elo tilt can never be shown for an individual. Chess Habits can only find **large personal effects**, or report "no effect larger than X Elo".
   - Show the minimum detectable effect next to every "no effect" result.
 - **Rules before showing a finding:**
   - at least 100 games in the smaller group;

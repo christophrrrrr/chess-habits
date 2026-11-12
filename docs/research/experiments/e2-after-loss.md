@@ -94,7 +94,7 @@ Monte Carlo SE ≈ 1 percentage point. Under a complete null, BH controls the fa
 | (a) quality CI ≤ half the outcome CI (standardised) | **Fail.** In d units the widths are equal at equal n (0.39 vs 0.37 for owner rapid; ratio 1.0-1.05 everywhere). In Elo-equivalent terms quality is 1.9-2.8× tighter on the *same* games (CI width owner rapid 44 vs 123 Elo, owner bullet 68 vs 180, P1 90 vs 167, P3 68 vs 167), but only 1.2-2.2× tighter than the outcome contrast on *all* games of that time class (96, 100, 106, 79 Elo), which costs no engine time. |
 | (b) shuffled finding rate ≤ 10% per player | **Borderline fail:** 9.3-12.6% for the five players with enough data. The rule behaves as designed (≈ q); it is the target that needs q = 0.05. |
 
-## What it means for Kiebitz
+## What it means for Chess Habits
 
 1. **Lead the after-loss card with behaviour, not results.** Requeue speed after a loss is a finding for 4 of 5 players and is exact (timestamps only). But it is nearly universal, so it is not a personal discovery. Show the player's size against other players (+18 to +39 pp in rapid for P1, P3, P4 and the owner) and pair it with "and did it cost you?" (results and quality). For the owner, rapid after-loss games are faster (−4.4 pp of `T_est` on moves 10-25) but not worse: residual +63 Elo, error rate −1.9 pp.
 2. **Outcome tilt needs thousands of games.** P1 and P3 (4,000-6,500 games per class) show no after-loss effect beyond about 20-40 Elo (MDE 27-33). With 300-1,300 games per class the MDE is 55-120 Elo. "No effect larger than X" is the honest default answer.
@@ -116,4 +116,4 @@ Monte Carlo SE ≈ 1 percentage point. Under a complete null, BH controls the fa
 - chess.com Published-Data API (post-game ratings, archives): https://www.chess.com/news/view/published-data-api
 - Gee, Seese, Curley & Ward 2025, session rules and hierarchical model: https://arxiv.org/html/2503.21713v2
 - Sonas on Elo expectancy: https://en.chessbase.com/post/the-elo-rating-system-correcting-the-expectancy-tables
-- Kiebitz notes: [psych-tilt-and-stop-loss.md](../psych-tilt-and-stop-loss.md), [psychology-and-context.md](../psychology-and-context.md)
+- Chess Habits notes: [psych-tilt-and-stop-loss.md](../psych-tilt-and-stop-loss.md), [psychology-and-context.md](../psychology-and-context.md)

@@ -43,7 +43,7 @@
 
 **Why it's not engine review:**
 - It uses no engine at all.
-- The vision test is only **partly** passed: chess.com Insights already shows raw results by hour. Kiebitz adds three things. It compares results against expectation, which removes the effect of opponent strength and rating drift. It says whether the pattern is real, using a permutation test, a CI and an out-of-sample check. And it turns the result into a rule.
+- The vision test is only **partly** passed: chess.com Insights already shows raw results by hour. Chess Habits adds three things. It compares results against expectation, which removes the effect of opponent strength and rating drift. It says whether the pattern is real, using a permutation test, a CI and an out-of-sample check. And it turns the result into a rule.
 - With raw win rates, a player can easily see a "bad hour" that is pure noise. Build it only with these additions.
 
 **Training link:**

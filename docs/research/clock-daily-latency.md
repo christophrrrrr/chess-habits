@@ -37,7 +37,7 @@ Metrics (if the format is confirmed):
 **Why it's not engine review:** It is about a habit outside the board (answering instantly while on the phone) and its cost, compared with your own considered moves.
 
 **Training link:**
-- A "sleep on it" rule: in positions Kiebitz flags as critical-looking (captures, checks, opponent's surprise), do not reply within N minutes.
+- A "sleep on it" rule: in positions Chess Habits flags as critical-looking (captures, checks, opponent's surprise), do not reply within N minutes.
 - Measure: quick-reply share in critical positions and the quick-reply error rate over the next 50 Daily games.
 
 **Verdict:** **Later.** Novel, but low value for the owner (little Daily play) and blocked on confirming the clock format; run the verification spike when Daily support is built.

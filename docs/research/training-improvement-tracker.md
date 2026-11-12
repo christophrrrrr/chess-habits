@@ -1,6 +1,6 @@
 # Improvement tracker (did the weakness shrink?)
 
-**Question:** Since you started working on a weakness Kiebitz found, has that weakness actually become less frequent in your new games, by more than chance, regression to the mean and general form would explain?
+**Question:** Since you started working on a weakness Chess Habits found, has that weakness actually become less frequent in your new games, by more than chance, regression to the mean and general form would explain?
 
 **What to measure:**
 
@@ -43,6 +43,6 @@ Every finding has one **target metric**: an exposure-normalised rate or mean ove
 
 **Why it's not engine review:** Game Review grades one game; Insights shows trends of generic metrics with no baseline design, no control and no uncertainty. The tracker answers a different question ("did *this* weakness shrink after I worked on it, beyond chance?") that requires cross-game exposure counting and a statistical design no existing tool shows.
 
-**Training link:** This is the measurement half of every training link in the other notes. It also feeds back: if a finding stays at *No clear change* after enough data (MDE below the effect that would matter), Kiebitz suggests switching the plan (e.g. from drills to a rule, see the knowledge-vs-process split in [training-own-position-drills.md](training-own-position-drills.md)).
+**Training link:** This is the measurement half of every training link in the other notes. It also feeds back: if a finding stays at *No clear change* after enough data (MDE below the effect that would matter), Chess Habits suggests switching the plan (e.g. from drills to a rule, see the knowledge-vs-process split in [training-own-position-drills.md](training-own-position-drills.md)).
 
-**Verdict:** **Build for MVP**, first on engine-free targets (time-trouble entry rate in rapid, post-loss residual). It is the clearest gap in the market, needs no engine, and is the part of vision principle 5 ("Kiebitz checks whether it improved") that no competitor does.
+**Verdict:** **Build for MVP**, first on engine-free targets (time-trouble entry rate in rapid, post-loss residual). It is the clearest gap in the market, needs no engine, and is the part of vision principle 5 ("Chess Habits checks whether it improved") that no competitor does.

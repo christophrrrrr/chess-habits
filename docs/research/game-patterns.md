@@ -32,7 +32,7 @@ Dropped or folded in: plain conversion rate, accuracy by phase, results by openi
 - Thresholds: inaccuracy 5, mistake 10, blunder 15 win% points (Lichess's .1/.2/.3 on a −1..1 scale, [Advice.scala](https://github.com/lichess-org/lila/blob/master/modules/tree/src/main/Advice.scala)).
 - Moves are not scored in decided positions (W_best > 97 or < 3) or in the first 6 own moves.
 
-**Engine pipeline.** chess.com games carry no evals, only `[%clk]` per move. Of the owner's 2,642 games, 1,440 carry a game-level `accuracies` field and nothing per move ([Published-Data API](https://www.chess.com/news/view/published-data-api)). Kiebitz therefore has to evaluate every game itself:
+**Engine pipeline.** chess.com games carry no evals, only `[%clk]` per move. Of the owner's 2,642 games, 1,440 carry a game-level `accuracies` field and nothing per move ([Published-Data API](https://www.chess.com/news/view/published-data-api)). Chess Habits therefore has to evaluate every game itself:
 - **Engine:** Stockfish 19 via [stockfish.js](https://github.com/nmrugg/stockfish.js) (v19.0.1, 2026-10-10; GPL-3.0 engine). The "lite single-threaded" build (≈1.7 MB) runs on any static host without cross-origin isolation headers. The multi-threaded builds need COOP/COEP headers.
 - **Measured cost on this PC** (Node 24, one thread per worker): MultiPV 2 at 100k nodes on every ply, plus one null-move probe per mistake, took **about 0.37 s per ply per worker**. 120 games (8,614 plies, about 72 per game) finished in 453 s on 7 workers. In a browser with 4 workers that is about 7 s per game, so 300 games take about 35 minutes. The owner's full history would take about 5 hours. Browser speed is assumed similar to Node and is untested.
 - **Consequences:**
@@ -78,12 +78,12 @@ These are pilot numbers for sizing and method checks, not findings about the pla
 ## What is new compared with existing tools
 
 - Existing tools report **what happened** (accuracy by phase, results by opening, conversion rate, motif counts: forks, pins, hanging pieces) or **style frequency** (ChessBase).
-- The gap Kiebitz can fill is **why and when**:
+- The gap Chess Habits can fill is **why and when**:
   - causes of errors (threat vs chance vs quiet vs drift);
   - only-move find rates by kind of move;
   - points dropped against an expectation that includes the clock and the selection bias;
   - all of it conditioned on context and compared with the player's own norm (and later with peers via Maia or the Lichess DB).
-- Audit Chess (free, browser-side Stockfish) is the closest new competitor. It lists "Mistake Themes", "Blown Wins", "Position Complexity" and "Confidence Under Pressure", but publishes no definitions ([auditchess.com](https://www.auditchess.com/)). Kiebitz's defensible difference is **published, validated definitions with sample sizes and confidence**, as vision principle 4 requires.
+- Audit Chess (free, browser-side Stockfish) is the closest new competitor. It lists "Mistake Themes", "Blown Wins", "Position Complexity" and "Confidence Under Pressure", but publishes no definitions ([auditchess.com](https://www.auditchess.com/)). Chess Habits' defensible difference is **published, validated definitions with sample sizes and confidence**, as vision principle 4 requires.
 
 ## Recommendation for the MVP (deadline 2026-11-24)
 

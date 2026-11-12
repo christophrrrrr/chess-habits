@@ -1,6 +1,6 @@
 # Engines, human baseline and data pipeline
 
-**Question:** Where do Kiebitz's engine evaluations and "human of rating R" probabilities come from, and how do we compute them inside the assignment's constraints (two scale-to-zero containers, Azure SQL serverless, static UI)?
+**Question:** Where do Chess Habits' engine evaluations and "human of rating R" probabilities come from, and how do we compute them inside the assignment's constraints (two scale-to-zero containers, Azure SQL serverless, static UI)?
 
 **Status:** feasibility study, 2026-11-12. Measurements in this note were made on 2026-11-12 (see "How the benchmarks were run"). Companion note: [maia-human-baseline.md](maia-human-baseline.md).
 
@@ -144,20 +144,20 @@ Assumption for B: an Azure vCPU is about as fast as one loaded desktop core here
 
 ## Licences
 
-| Component | Licence | What it means for Kiebitz |
+| Component | Licence | What it means for Chess Habits |
 |---|---|---|
-| Stockfish / stockfish.js WASM | GPL-3.0 ([repo](https://github.com/nmrugg/stockfish.js); npm `Copying.txt`; the package's non-engine glue code is MIT) | Serving the `.wasm` to browsers is *conveying* object code. Ship the licence text and give the Corresponding Source next to it (GPLv3 §6(d): "equivalent access" from the same place, e.g. a link to the exact tag `v19.0.1` and the Stockfish `sf_19` source). Our UI talks to the engine only through UCI text messages in a separate Web Worker, which the [GPL FAQ](https://www.gnu.org/licenses/gpl-faq.en.html#MereAggregation) treats like pipes and sockets ("communication mechanisms normally used between two separate programs"). On that reading, Kiebitz's own code need not be GPL. Not legal advice. |
+| Stockfish / stockfish.js WASM | GPL-3.0 ([repo](https://github.com/nmrugg/stockfish.js); npm `Copying.txt`; the package's non-engine glue code is MIT) | Serving the `.wasm` to browsers is *conveying* object code. Ship the licence text and give the Corresponding Source next to it (GPLv3 §6(d): "equivalent access" from the same place, e.g. a link to the exact tag `v19.0.1` and the Stockfish `sf_19` source). Our UI talks to the engine only through UCI text messages in a separate Web Worker, which the [GPL FAQ](https://www.gnu.org/licenses/gpl-faq.en.html#MereAggregation) treats like pipes and sockets ("communication mechanisms normally used between two separate programs"). On that reading, Chess Habits' own code need not be GPL. Not legal advice. |
 | Stockfish native in a container | GPL-3.0 | Running it on a server without distributing it creates no source obligation. Publishing the Docker image to GHCR (public) is distribution, so add the source link there too. |
 | `@lichess-org/stockfish-web` | GPL-3.0 (repo licence) | Same as stockfish.js. |
 | Maia-1 | GPL-3.0 | Not used. |
 | Maia-2 | MIT | Unproblematic, but unusable for our rating range. |
-| Maia-3 code | **AGPL-3.0** | §13: anyone interacting with a *modified* version over a network must be offered its source. If we use only the ONNX weights with our own preprocessing, Maia-3's code is not part of Kiebitz. |
+| Maia-3 code | **AGPL-3.0** | §13: anyone interacting with a *modified* version over a network must be offered its source. If we use only the ONNX weights with our own preprocessing, Maia-3's code is not part of Chess Habits. |
 | Maia-3 weights | **unclear**: no licence tag on Hugging Face; the announcement says the models are "completely free for you to download and use" | Ask CSSLab to confirm in writing before building a product on them. The ONNX conversion (`bqrio`) states AGPLv3 "inherited from the upstream". |
-| maia-platform-frontend | GPL-3.0 | Read it for facts, do not copy code into Kiebitz. |
+| maia-platform-frontend | GPL-3.0 | Read it for facts, do not copy code into Chess Habits. |
 | Lichess open database | CC0 | Free for any use. |
-| chess.com published data | API terms: commercial use allowed; do not copy chess.com features/IP; state non-affiliation | Shapes the product too: Kiebitz must not rebuild Game Review. |
+| chess.com published data | API terms: commercial use allowed; do not copy chess.com features/IP; state non-affiliation | Shapes the product too: Chess Habits must not rebuild Game Review. |
 
-**Simplest safe option (decision for the owner):** release Kiebitz under AGPL-3.0. GPLv3 §13 allows combining with AGPL code, so that covers Stockfish and Maia-3 whatever the weights turn out to be. Note: the repo is private as of 2026-11-12; if the UI serves Stockfish WASM, the GPL source offer applies to everyone who gets the page.
+**Simplest safe option (decision for the owner):** release Chess Habits under AGPL-3.0. GPLv3 §13 allows combining with AGPL code, so that covers Stockfish and Maia-3 whatever the weights turn out to be. Note: the repo is private as of 2026-11-12; if the UI serves Stockfish WASM, the GPL source offer applies to everyone who gets the page.
 
 ---
 
@@ -224,7 +224,7 @@ Offline, on a dev machine: Lichess open DB slice ──> baseline tables ──>
 - Browser timings for onnxruntime-web with the 5M model were estimated from FLOPs, not measured. Measure in Chrome and Firefox on a typical laptop.
 - The benchmarks ran on a loaded machine. Re-run on an idle laptop before quoting numbers in the report.
 - Azure price list shows a new "Environment Management Hour" meter ($0.10/h, effective 2026-11-01). The billing docs tie management charges to private endpoints, planned maintenance and Dedicated profiles. Confirm it does not apply to the group's Consumption-only environment.
-- Client-computed evals can be faked. That only harms the user's own account, but it matters if Kiebitz ever shows cross-user comparisons.
+- Client-computed evals can be faked. That only harms the user's own account, but it matters if Chess Habits ever shows cross-user comparisons.
 
 ---
 

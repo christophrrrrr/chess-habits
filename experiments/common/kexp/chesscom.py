@@ -15,7 +15,7 @@ import requests
 
 from .paths import CHESSCOM
 
-UA = "Kiebitz-research/0.1 (research experiments; contact: rintzchristoph@gmail.com)"
+UA = "Chess Habits-research/0.1 (research experiments; contact: rintzchristoph@gmail.com)"
 BASE = "https://api.chess.com/pub"
 MAX_AGE_CURRENT = 6 * 3600
 _session = requests.Session()

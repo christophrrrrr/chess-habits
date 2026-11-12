@@ -35,7 +35,7 @@ Metrics:
 **Why it's not engine review:** Game Review never grades a game lost on time as a problem of time; it grades the moves. This counts points that the board said were yours and the clock took away, across all games, and says whether the fix is pacing (onset) or scramble technique.
 
 **Training link:**
-- High `L_win`: practise converting won positions fast. Kiebitz can export the player's own flag-loss positions (the position 10 moves before the flag) as "win this with 15 seconds" drills. Rule of thumb to test: when ahead on the board and behind on the clock, simplify and premove safe moves.
+- High `L_win`: practise converting won positions fast. Chess Habits can export the player's own flag-loss positions (the position 10 moves before the flag) as "win this with 15 seconds" drills. Rule of thumb to test: when ahead on the board and behind on the clock, simplify and premove safe moves.
 - High `W_lose`: nothing to fix, but tell the player this is part of their rating (useful self-knowledge for bullet players).
 - Measure: `L_win` per 100 games and net clock points in the next 100-200 bullet games vs. the previous window.
 

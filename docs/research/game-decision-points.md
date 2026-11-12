@@ -7,7 +7,7 @@
 1. **Criticality of each own position**, from a MultiPV-2 search: `gap = W_best - W_second` in win% points for the side to move ([Lichess win% formula](https://lichess.org/page/accuracy)). Only score positions with `10 <= W_best <= 95`, so they are not decided yet.
    - `critical`: gap ≥ 10, so the second-best move is already a Lichess "mistake" ([Advice.scala](https://github.com/lichess-org/lila/blob/master/modules/tree/src/main/Advice.scala)).
    - `only-move`: gap ≥ 20.
-   - For comparison, the Lichess puzzle generator requires the best move to beat the second by 0.7 on the −1..1 scale (35 win% points) for a puzzle move to be unique ([generator.py](https://github.com/ornicar/lichess-puzzler/blob/master/generator/generator.py)). Kiebitz's threshold is lower on purpose, because many real decision points are defensive and not puzzle-like.
+   - For comparison, the Lichess puzzle generator requires the best move to beat the second by 0.7 on the −1..1 scale (35 win% points) for a puzzle move to be unique ([generator.py](https://github.com/ornicar/lichess-puzzler/blob/master/generator/generator.py)). Chess Habits' threshold is lower on purpose, because many real decision points are defensive and not puzzle-like.
 2. **Remove trivial critical positions.** This step is essential: the pilot shows that without it, recaptures dominate. A position does not count when:
    - the best move recaptures on the square of the opponent's last move;
    - the player is in check;

@@ -1,1 +1,1 @@
-"""Shared helpers for the Kiebitz research experiments (not product code)."""
+"""Shared helpers for the Chess Habits research experiments (not product code)."""

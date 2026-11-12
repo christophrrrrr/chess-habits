@@ -1,6 +1,6 @@
 # Training loop: from finding to practice to proof
 
-**Question:** How should a Kiebitz finding become practice for a strong (1800+) player, and how do we show, honestly, whether the weakness actually shrank?
+**Question:** How should a Chess Habits finding become practice for a strong (1800+) player, and how do we show, honestly, whether the weakness actually shrank?
 
 Research sweep, 2026-11-12. This is an overview note; it does not follow the per-analysis template. The three strongest mechanisms have their own template notes:
 
@@ -15,7 +15,7 @@ Speculation is marked as such. Web search budget ran out before every lead could
 ## Bottom line
 
 1. **Every serious tool already turns mistakes into puzzles.** Lichess and chess.com do it per game; Aimchess, Chessable Puzzle Connect, Chessiro, Chess Tempo and several hobby projects do it across games. A "puzzles from your blunders" feature fails the vision test.
-2. **What nobody does:** (a) group the drills by the *cause* Kiebitz found (missed threat, under-thinking a critical moment, surprise reply, conversion), (b) use drill formats that train the failing *process* rather than "find the best move", (c) tell apart knowledge gaps from process failures, (d) attach habit rules whose adherence is checked from the clock data, and (e) re-measure the weakness in new games with a confidence interval and a control. No product reviewed re-measures the targeted weakness ([prior-work-gap-map.md](prior-work-gap-map.md), section "Gaps").
+2. **What nobody does:** (a) group the drills by the *cause* Chess Habits found (missed threat, under-thinking a critical moment, surprise reply, conversion), (b) use drill formats that train the failing *process* rather than "find the best move", (c) tell apart knowledge gaps from process failures, (d) attach habit rules whose adherence is checked from the clock data, and (e) re-measure the weakness in new games with a confidence interval and a control. No product reviewed re-measures the targeted weakness ([prior-work-gap-map.md](prior-work-gap-map.md), section "Gaps").
 3. **For a 2300 player most drill positions are trivial without time pressure.** The mistake was rarely "did not know"; it was "did not look" or "did not spend time here". So the drill must reproduce the condition (time limit matching the time control, the opponent's last move shown, a "think or play?" decision) and the success metric must be in-game behaviour, not drill accuracy. (Reasoning plus Moxley et al. 2012; the size of this effect for our users is untested.)
 4. **The measurement is the hard part and the differentiator.** Selecting your worst category and re-measuring it makes it look better even with no training (regression to the mean). In a simulation with six mistake types that are truly identical (25% rate, 100 positions each), the "worst" type improves by **5.5 percentage points on average** in the next window with zero training, and by 5 pp or more in **52%** of runs. Any honest tracker must design this away (split-sample detection, long baseline, untrained control types).
 5. **Rating is a useless success metric at this scale.** With a per-game score SD of about 0.45, the 95% CI of a performance rating is about **±61 Elo after 100 games** and ±43 after 200. Use exposure-normalised in-game rates instead.
@@ -24,18 +24,18 @@ Speculation is marked as such. Web search budget ran out before every lead could
 
 ## 1. What learning science says, and what transfers to chess
 
-| Principle | Evidence | Chess-specific caveat | Use in Kiebitz |
+| Principle | Evidence | Chess-specific caveat | Use in Chess Habits |
 |---|---|---|---|
 | **Spacing** (distributed practice) | Meta-analysis of 839 assessments in 317 experiments: spaced study beats massed study, and the best gap grows with the retention interval ([Cepeda et al. 2006](https://pubmed.ncbi.nlm.nih.gov/16719566/)). | Shown mostly on verbal recall. Chess drills from own games risk training *recall of that position*, not recognition of new ones. | Schedule reviews (FSRS), but retire an item after it is stable and replace it with a fresh position of the same type. |
 | **Retrieval practice** (testing effect) | Testing beats restudy; recall tests beat recognition tests ([Rowland 2014](https://pubmed.ncbi.nlm.nih.gov/25150680/)). Secondary summaries give g ≈ 0.50 overall, larger when the final test is a day or more later (not checked in the full paper). | Solving a position is retrieval; replaying an annotated game is restudy. | Every drill asks the player to produce a move or a judgement before any answer is shown. |
 | **Interleaving** | g = 0.42 overall; larger when categories are similar to each other and items within a category vary; negative for word lists ([Brunmair & Richter 2019](https://pubmed.ncbi.nlm.nih.gov/31556629/)). | Chess positions are complex and categories (threat types) look alike, the conditions under which interleaving helps most. | Mix finding types inside a session; do not run a block of 20 "missed threat" items in a row once the player knows the type exists. |
 | **Variability of practice** | More varied training makes early learning harder but generalises better ([Raviv, Lupyan & Green 2022](https://eprints.gla.ac.uk/272070)). | Supports many different positions per finding over many repetitions of the same few. | Large, refreshed decks; measure on unseen positions. |
 | **Learning from high-confidence errors** | Errors made with high confidence are corrected *more* often after feedback (hypercorrection), and corrections last at least a week ([Fazio, Duke](https://dukespace.lib.duke.edu/items/d6ab09ca-f55c-4efb-9d32-2788bc5838b2)). | A fast, confident blunder by a strong player is exactly this case. | Ask "how sure are you?" (1-3) before revealing; prioritise confident misses. Speculative transfer to chess. |
-| **Deliberate practice** | Serious solo study predicts current and peak rating better than tournament play or lessons ([Charness et al. 2005](https://zendy.io/title/10.1002/acp.1106)). Across domains, deliberate practice explains ~12% of performance variance, ~26% for games ([Macnamara et al. 2014](https://www.psychologie.uzh.ch/dam/jcr:658d39fe-2f4b-467f-9ae2-ffeb25caf2b6/McNamara.PsychSci.25.2014.pdf)); about a third for chess after correcting for measurement error ([expertise-literature.md](expertise-literature.md)). A 2021 paper argues individualised practice has a much larger effect (178 chess players; abstract only, not checked) ([Current Psychology](https://link.springer.com/article/10.1007/s12144-021-02326-x)). | Practice helps but is not the whole story; personalisation is the part with most upside. | Kiebitz's whole pitch is individualised practice; claims must stay modest. |
+| **Deliberate practice** | Serious solo study predicts current and peak rating better than tournament play or lessons ([Charness et al. 2005](https://zendy.io/title/10.1002/acp.1106)). Across domains, deliberate practice explains ~12% of performance variance, ~26% for games ([Macnamara et al. 2014](https://www.psychologie.uzh.ch/dam/jcr:658d39fe-2f4b-467f-9ae2-ffeb25caf2b6/McNamara.PsychSci.25.2014.pdf)); about a third for chess after correcting for measurement error ([expertise-literature.md](expertise-literature.md)). A 2021 paper argues individualised practice has a much larger effect (178 chess players; abstract only, not checked) ([Current Psychology](https://link.springer.com/article/10.1007/s12144-021-02326-x)). | Practice helps but is not the whole story; personalisation is the part with most upside. | Chess Habits' whole pitch is individualised practice; claims must stay modest. |
 | **Extra deliberation helps everyone** | Extra thinking time improved move quality for both experts and weaker players, on easy and hard problems ([Moxley et al. 2012](https://vivo.weill.cornell.edu/display/pubid22541584)). | The question for a strong player is *where* to spend time, not whether thinking helps. | Basis for "think or play?" drills and time-budget rules. |
 | **If-then plans** (implementation intentions) | Original meta-analysis: d = 0.65 over goal intentions alone, 94 tests ([Gollwitzer & Sheeran 2006](https://kops.uni-konstanz.de/server/api/core/bitstreams/eb48c8cf-7855-478e-90ec-1ea6d44f8252/content)). A 2024 re-analysis of 642 tests gives d = 0.15-0.35 after bias correction (as reported by [this summary](https://www.thebehavioralscientist.com/glossary/implementation-intentions); primary not checked). | Effects are real but small; no chess study found. | Phrase every habit rule as "If X, then Y" and track adherence from data. |
 
-**Evidence that puzzle training raises chess rating is weak.** Puzzle and game ratings correlate (a Lichess analysis of 24,000+ players; correlation only) ([ggSayItBack](https://lichess.org/@/ggSayItBack/blog/do-puzzles-matter-a-data-analysis/twAyjQDX)). A non-peer-reviewed Woodpecker study (431,899 puzzle attempts) reports +35 Elo but warns that people who start training may already be improving ([Disco Chess](https://lichess.org/@/DiscoChessApp/blog/woodpecker-method-training-431000-puzzles-60000-rated-games-and-35-elo/yrWsFF1N), read via search summary only). Aimchess claims its personalised puzzles raise ratings "31% faster" in a 12-week randomised field experiment by UBC researchers ([aimchess.com](https://aimchess.com)); no paper, sample size or authors are linked, and we found none. Treat as a vendor claim. **Kiebitz should not promise rating gains; it should measure the targeted behaviour.**
+**Evidence that puzzle training raises chess rating is weak.** Puzzle and game ratings correlate (a Lichess analysis of 24,000+ players; correlation only) ([ggSayItBack](https://lichess.org/@/ggSayItBack/blog/do-puzzles-matter-a-data-analysis/twAyjQDX)). A non-peer-reviewed Woodpecker study (431,899 puzzle attempts) reports +35 Elo but warns that people who start training may already be improving ([Disco Chess](https://lichess.org/@/DiscoChessApp/blog/woodpecker-method-training-431000-puzzles-60000-rated-games-and-35-elo/yrWsFF1N), read via search summary only). Aimchess claims its personalised puzzles raise ratings "31% faster" in a 12-week randomised field experiment by UBC researchers ([aimchess.com](https://aimchess.com)); no paper, sample size or authors are linked, and we found none. Treat as a vendor claim. **Chess Habits should not promise rating gains; it should measure the targeted behaviour.**
 
 ---
 
@@ -65,7 +65,7 @@ Speculation is marked as such. Web search budget ran out before every lead could
 
 ---
 
-## 3. Kiebitz design: the loop
+## 3. Chess Habits design: the loop
 
 ```
 games (import) ──► findings (insights) ──► plan: drills + rules ──► practice (browser)
@@ -88,7 +88,7 @@ Full design in [training-own-position-drills.md](training-own-position-drills.md
 | Missed own chance | Find the move; any move within 3 Win% of best counts. | Classic, but human-filtered and with lenient acceptance. |
 | Critical moment under-thought (fast move in a position where only one move holds; see [clock-time-vs-criticality.md](clock-time-vs-criticality.md)) | "Think or play?" in 2 s (binary). Then solve with a *minimum* think time. Mixed with non-critical positions from the same games as foils. | Trains recognising when to spend time, which is the actual failure. New. |
 | Reply to a surprising move ([clock-surprise-response.md](clock-surprise-response.md)) | Animate the opponent's last move, then ask for the reply. | Reproduces the trigger. |
-| Failed conversion | Play out the winning position against Maia at the opponent's rating, with the clock you had. | Format exists (Aimchess vs computer); Kiebitz's addition is the human opponent model and the clock. |
+| Failed conversion | Play out the winning position against Maia at the opponent's rating, with the clock you had. | Format exists (Aimchess vs computer); Chess Habits' addition is the human opponent model and the clock. |
 | Time-trouble error | Same position, clock set to what you had (e.g. 8 s), bullet-style. | Time realism. |
 
 - **Time limits follow the time control** of the source game: bullet items 3-5 s, blitz 10-15 s, rapid 30-60 s, classical and daily untimed with "write your candidate moves first". (Starting values, speculation.)
@@ -185,13 +185,13 @@ Data model sketch (insights DB; all fits within two services, no queues, no sche
 
 ## Open questions
 
-1. Do drills from a player's own positions transfer to new positions better than generic themed puzzles for 2000+ players? Nobody has published this; Aimchess's "31% faster" claim has no paper. Kiebitz could test it on its own users with a randomised split (half of a finding's positions drilled, half held out as probes).
+1. Do drills from a player's own positions transfer to new positions better than generic themed puzzles for 2000+ players? Nobody has published this; Aimchess's "31% faster" claim has no paper. Chess Habits could test it on its own users with a randomised split (half of a finding's positions drilled, half held out as probes).
 2. What share of a strong player's critical mistakes are process failures (solved untimed) vs knowledge gaps? If it is very high, drills should mostly be "noticing" drills and rules, not puzzles.
 3. How many exposure positions per type does a 2300 player produce per 100 games (e.g. opponent-threat positions)? This decides how long "Too early" lasts. Needs the browser engine run on the owner's games.
 4. Which acceptance threshold (3 Win%? 5?) feels fair to strong players and still trains the right thing?
 5. Does the knowledge-vs-process split stay stable on re-test, or does the first untimed attempt already change the answer (the player has seen the game)?
 6. Can rules be shown at the moment of play without our own board (chess.com is the playing interface)? Until gaze/own board exists, the loop relies on a weekly adherence report.
-7. Is the Lichess puzzle database (CC0 per [database.lichess.org](https://database.lichess.org/)) usable as a source of extra probe positions per theme, and do its themes map to Kiebitz finding types?
+7. Is the Lichess puzzle database (CC0 per [database.lichess.org](https://database.lichess.org/)) usable as a source of extra probe positions per theme, and do its themes map to Chess Habits finding types?
 
 ## Sources
 

@@ -15,7 +15,7 @@ This is research code, not product code: nothing here is imported by the service
 ## Data stays out of the repo
 
 All downloads, the Stockfish binary, eval caches and outputs live under the folder named by the
-environment variable `KIEBITZ_EXP_DATA` (default `experiments/data/`, gitignored, see `.gitignore`).
+environment variable `CHESS_HABITS_EXP_DATA` (default `experiments/data/`, gitignored, see `.gitignore`).
 Downloaded files are treated as untrusted data: nothing in that folder is executed, and every script is
 run with `python -I` (isolated mode) from the repo root.
 
@@ -27,19 +27,19 @@ Windows, Python 3.12, 8 cores. Engine wall time on an i7-9700F (8 cores, 7 Stock
 
 ```bash
 pip install -r experiments/requirements.txt
-export KIEBITZ_EXP_DATA=/path/outside/the/repo/research-data      # optional
+export CHESS_HABITS_EXP_DATA=/path/outside/the/repo/research-data      # optional
 
 # 1. Stockfish 19, official build (https://github.com/official-stockfish/Stockfish/releases/tag/sf_19)
-mkdir -p "$KIEBITZ_EXP_DATA/stockfish" && cd "$KIEBITZ_EXP_DATA/stockfish"
+mkdir -p "$CHESS_HABITS_EXP_DATA/stockfish" && cd "$CHESS_HABITS_EXP_DATA/stockfish"
 curl -LO https://github.com/official-stockfish/Stockfish/releases/download/sf_19/stockfish-windows-x86-64-universal.zip
 unzip stockfish-windows-x86-64-universal.zip && cd -
-# (or set KIEBITZ_STOCKFISH=/path/to/stockfish)
+# (or set CHESS_HABITS_STOCKFISH=/path/to/stockfish)
 
 # 2. Players and games (serial requests with a contact User-Agent; cached)
-python -I experiments/fetch_data/select_players.py 5      # writes $KIEBITZ_EXP_DATA/chesscom/players.json
+python -I experiments/fetch_data/select_players.py 5      # writes $CHESS_HABITS_EXP_DATA/chesscom/players.json
 python -I experiments/fetch_data/fetch_archives.py
 
-# 3. Experiments (each prints progress and writes $KIEBITZ_EXP_DATA/out/*_summary.json)
+# 3. Experiments (each prints progress and writes $CHESS_HABITS_EXP_DATA/out/*_summary.json)
 python -I experiments/e1_time_vs_criticality/run.py --players chrisaxm --rapid 300 --blitz 150 --tag _owner
 python -I experiments/e1_time_vs_criticality/run.py --players <P1>,<P3>,<P5> --rapid 150 --blitz 0 --tag _others
 python -I experiments/e2_after_loss/run.py

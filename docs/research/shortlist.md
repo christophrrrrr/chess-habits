@@ -1,4 +1,4 @@
-# Shortlist: what Kiebitz should analyse, and in which order
+# Shortlist: what Chess Habits should analyse, and in which order
 
 **Status:** synthesis of the first research sweep, 2026-11-12. It reads all notes in this folder (index in [README.md](README.md)), re-applies the vision test against [prior-work-gap-map.md](prior-work-gap-map.md), spot-checks the claims that looked too good, and turns the result into an MVP slice, a roadmap, open decisions and three experiments.
 
@@ -8,7 +8,7 @@
 
 ## 1. The answer in one paragraph
 
-Every product on the market grades **moves**, and the newer ones (Audit Chess, Chessigma Supercoach, Aimchess, chess-game-analyzer) also count things across games: accuracy by phase, blunders under time pressure, blown wins, streaks, best hours. None of them publishes its definitions, adjusts for position difficulty or rating lag, or says how sure it is. So the raw ideas ("time pressure", "tilt", "complexity") are not unique any more. What nobody offers is **behaviour measured against what the position demanded and against the player's own baseline, with an honest error bar and a loop that checks the fix**. Concretely, Kiebitz can tell a strong chess.com player:
+Every product on the market grades **moves**, and the newer ones (Audit Chess, Chessigma Supercoach, Aimchess, chess-game-analyzer) also count things across games: accuracy by phase, blunders under time pressure, blown wins, streaks, best hours. None of them publishes its definitions, adjusts for position difficulty or rating lag, or says how sure it is. So the raw ideas ("time pressure", "tilt", "complexity") are not unique any more. What nobody offers is **behaviour measured against what the position demanded and against the player's own baseline, with an honest error bar and a loop that checks the fix**. Concretely, Chess Habits can tell a strong chess.com player:
 - where their time trouble comes from, whether it costs *them* points beyond the position they had (E3: for the owner it does, and only when self-inflicted), and how many winning positions the clock takes;
 - which kinds of only-moves they miss (quiet, defensive, low clock), compared with their own norm and later with players of their level (Maia-3);
 - whether their resignations, stop-loss habits and play times are good decisions for *them*.
@@ -51,7 +51,7 @@ Every finding carries n, a 95% interval and a minimum detectable effect, and bec
 |---|---|---|---|
 | 1 | Blunder threshold: ΔW ≥ 20 (chess.com 0.20 expected points) vs ΔW ≥ 15 (Lichess 0.3 on the −1..1 scale) | [clock-and-time.md](clock-and-time.md) vs [game-patterns.md](game-patterns.md) | Both agree on **error = ΔW ≥ 10**. Use that as the only threshold in findings. Pick one blunder threshold in a shared definitions file (decision D4). |
 | 2 | MVP engine: browser Stockfish depth 12 in the MVP vs MultiPV 2 at 100k nodes plus re-verification vs no engine | [engines-and-human-baseline.md](engines-and-human-baseline.md), [game-patterns.md](game-patterns.md), clock and psych notes | **No per-move engine findings in the MVP.** Depth 12 agrees with depth 22 on only 71.5% of best moves, and even 100k-node mistake labels flipped 13 of 50 times. Slice 1 uses 100k nodes on the user's positions with MultiPV 2, and re-verifies every ΔW ≥ 7 at a higher budget. Criticality labels were stable (47/50), so criticality-based analyses are the safer first engine features. |
-| 3 | Lichess cloud eval: "cheapest source" vs "not worth it" | [game-recurring-positions.md](game-recurring-positions.md) vs [engines-and-human-baseline.md](engines-and-human-baseline.md) | **Drop it.** Measured: one request at a time, 0/59 hits after ply 30. Use Kiebitz's own eval cache keyed by EPD in the insights DB. |
+| 3 | Lichess cloud eval: "cheapest source" vs "not worth it" | [game-recurring-positions.md](game-recurring-positions.md) vs [engines-and-human-baseline.md](engines-and-human-baseline.md) | **Drop it.** Measured: one request at a time, 0/59 hits after ply 30. Use Chess Habits' own eval cache keyed by EPD in the insights DB. |
 | 4 | Stockfish build: "Stockfish 18 lite, about 7 MB" vs "Stockfish 19 lite single, 1.8 MB" | clock notes vs engines note | Use the engines note: stockfish.js 19.0.1 lite single-threaded (1.8 MB, no COOP/COEP needed). |
 | 5 | Tilt numbers: gap map's exploratory after-loss differences (bullet −58 ± 50, blitz +82 ± 79, rapid +66 ± 51) vs psych pilot (after-loss vs own level: bullet −28, blitz +47, rapid +27) | [prior-work-gap-map.md](prior-work-gap-map.md) vs [psych-tilt-and-stop-loss.md](psych-tilt-and-stop-loss.md) | The gap map used post-game ratings, which the API confirms (2.1). Use the psych method (smoothed `R_skill`, session-cluster bootstrap). Both agree on direction (bullet slightly negative, blitz and rapid positive or zero) and on the main point: intervals are ±40-80 Elo. |
 | 6 | Residual baseline: raw `R_you` vs smoothed `R_skill` | [structure-familiarity.md](structure-familiarity.md) vs psych notes | Use `R_skill` everywhere (pre-game rating reconstructed from the previous game, median over ±25 games). The insights code (PR #2) already does this. |
@@ -71,7 +71,7 @@ Every finding carries n, a 95% interval and a minimum detectable effect, and bec
 
 "Exists" means a documented or vendor-claimed feature as of 2026-11-12 (sources in [prior-work-gap-map.md](prior-work-gap-map.md) and section 2.1). "Undefined" means the vendor names it but publishes no method.
 
-| Analysis | Existing tools | Kiebitz angle |
+| Analysis | Existing tools | Chess Habits angle |
 |---|---|---|
 | Move grading, accuracy, classifications, explanations | chess.com Game Review, Lichess analysis, Chessigma, Audit Chess, Chessiro, maiachess.com | None. Engine output is an input only. |
 | Accuracy / results by phase, opening, tactic motif | chess.com Insights, Lichess Insights, Aimchess, Audit Chess, ChessBase Error Report | None. |
@@ -204,7 +204,7 @@ Scores 1-5 (5 = best) after the sceptic pass; where a score changed from the res
 
 ### Slice 3 (from May 2027): gaze
 
-- **Setting first:** Kiebitz training sessions (guess-the-move from the player's own critical positions from slices 1-2, plus CC0 Lichess puzzles). These work for chess.com users and every time control, and the relevant region is known in advance. Lichess Board API rapid games come second. Never during chess.com play (Fair Play).
+- **Setting first:** Chess Habits training sessions (guess-the-move from the player's own critical positions from slices 1-2, plus CC0 Lichess puzzles). These work for chess.com users and every time control, and the relevant region is known in advance. Lichess Board API rapid games come second. Never during chess.com play (Fair Play).
 - **Pipeline:** WebEyeTrack (MIT) in a Web Worker; move-click recalibration with a per-session error figure (37); quality flags; only per-move aggregates leave the browser (`gaze_move_features` in insights). Opt-in, one-click delete, a DPIA, no emotion inference (EU AI Act Art. 3(39)).
 - **Analyses:** relevance latency (35) to validate the pipeline on the owner, then threat-check share vs missed-threat mistakes (36). Tunnel vision and last-move reaction (38) follow if 35-36 show any within-player signal.
 - **Exit criteria:** owner pilot (about 300 guess-the-move positions and about 30 Board API rapid games) shows a within-player difference with a CI excluding zero, or the gaze line is parked.

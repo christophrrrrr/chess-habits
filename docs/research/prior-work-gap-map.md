@@ -6,7 +6,7 @@
 
 **Bottom line:**
 
-1. Everyone grades **moves** (accuracy, classifications, explanations), and many now aggregate them across games: by phase, opening, tactic motif, conversion/defence, and against rating peers. None of that is a Kiebitz feature.
+1. Everyone grades **moves** (accuracy, classifications, explanations), and many now aggregate them across games: by phase, opening, tactic motif, conversion/defence, and against rating peers. None of that is a Chess Habits feature.
 2. **Clock analysis is almost absent for chess.com players.** chess.com shows a per-game time chart only. Lichess Insights can cross move time and clock with accuracy, but only for Lichess games that were server-analysed one by one. Aimchess reports a "behind on the clock" percentage. **Nobody relates time spent to how critical the position was.**
 3. **Human-relative difficulty exists only per position** (Maia platform "Blunder Meter"). Nobody aggregates it over a player's own games to separate "mistakes everyone at your level makes" from real blind spots.
 4. **Tilt and session effects are not measured by any product.** There are only stop-loss browser extensions (lock the Play button after N losses) and population-level studies.
@@ -31,7 +31,7 @@
 - Advanced Stats [7]: ratings per time control for Openings, Tactics, Strategy (attacking/defending, activity, pawn structure, space) and Endgames (converting or holding).
 - **No time-management metric is documented** in either [6][7].
 
-### chess.com data available to Kiebitz (verified)
+### chess.com data available to Chess Habits (verified)
 
 - The public API returns monthly archives with full PGN including `[%clk h:mm:ss.s]` after every move (0.1 s resolution) and **no `[%eval]` tags** [8]. Verified on the owner's account (chrisaxm): 2,670 games since 2023-07 (rapid 1,310, bullet 846, blitz 461, daily 53); 2,662 have clock comments.
 - The game JSON also has an `accuracies` object (white/black game accuracy) for games that someone has reviewed: 1,446 of the owner's 2,670 games (rapid 1,172, blitz 232, bullet 30, daily 12). This is a per-game number only, not per move. (Field observed in the API response; not described in the API documentation [8].)
@@ -233,7 +233,7 @@ Ordered by how strongly they pass the vision test *and* how much they matter to 
 
 ### G9. Time-control-specific analyses (nobody)
 
-- Existing tools filter by time control but run the same analyses. Kiebitz can choose by format (speculation about weights): bullet → clock deficit, increment usage, flag rate, speed-vs-blunder curve; blitz → time-trouble entry and points thrown away; rapid/classical → G1 criticality and G5 surprise; daily → long-horizon (e.g. move-time in days is meaningless, so use results and conversion only).
+- Existing tools filter by time control but run the same analyses. Chess Habits can choose by format (speculation about weights): bullet → clock deficit, increment usage, flag rate, speed-vs-blunder curve; blitz → time-trouble entry and points thrown away; rapid/classical → G1 criticality and G5 surprise; daily → long-horizon (e.g. move-time in days is meaningless, so use results and conversion only).
 
 ### G10. Gaze linked to moves (nobody)
 

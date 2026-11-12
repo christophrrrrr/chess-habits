@@ -23,12 +23,12 @@ Each strong candidate has its own note:
    - says whether a pattern is real (CI, minimum sample, multiple-comparison control);
    - tests a rule (for example "stop after 2 losses") against the player's own history before recommending it.
 
-   That combination is the Kiebitz gap. One more analysis exists nowhere: **resignation and draw decisions measured against how players of your level score from that position**.
+   That combination is the Chess Habits gap. One more analysis exists nowhere: **resignation and draw decisions measured against how players of your level score from that position**.
 2. **Population effects are small, and smallest for strong players.**
    - Lichess tilt is about −7 Elo after a loss and −24 after 5+ losses in a row. For 2000+ players there is no significant effect after a single loss, and a 30+ minute break removes the effect ([chess-tilt, 9.4M player-games](https://github.com/romanbreyten/chess-tilt)).
    - A hierarchical Bayesian study of 1700–1900 and GM accounts found little consistent effect of the previous result; only a few individuals showed one ([Gee et al. 2025](https://arxiv.org/abs/2503.21713)).
    - Time of day changes move speed and accuracy, but not rating outcomes on average ([Leone et al., Cognition](https://www.sciencedirect.com/science/article/abs/pii/S0010027716302414)).
-   - **Implication:** Kiebitz must look for *large personal* effects and must say "no effect ≥ X Elo" convincingly. Expect many 1800+ users to get that answer for tilt.
+   - **Implication:** Chess Habits must look for *large personal* effects and must say "no effect ≥ X Elo" convincingly. Expect many 1800+ users to get that answer for tilt.
 3. **Per-player statistical power is the binding constraint.** The per-game residual SD is about 0.46. With 80% power at α = 0.05, each group needs about 160 games to detect 100 Elo, 640 for 50 Elo, and 2,550 for 25 Elo.
 4. **A pilot on the product owner's own games** (`chrisaxm`, 2,290 rated games) found:
    - **one real-looking personal effect:** rated rapid between 06:00 and 12:00 local time scores **−155 Elo** against his level (n = 82, CI −212 to −101, family-wise permutation p = 0.003, the same sign in 2023–24 and 2025–26);
@@ -52,7 +52,7 @@ All outcome-based splits use the same engine. Build it once in the insights serv
 | Many findings on one page | **Benjamini–Hochberg** at q = 0.10 across all displayed splits. |
 | Minimum data | Show a finding only with at least 100 games in the smaller group. Otherwise show "not enough data" with the **minimum detectable effect** `MDE ≈ 2.8·0.46·√(1/n₁+1/n₂)` converted to Elo. |
 | Out-of-sample check | The effect must have the same sign in the older and newer half of the games; confirm again on games played after the finding was shown. |
-| Later | Empirical-Bayes shrinkage towards population priors (for example tilt about −7 Elo) once Kiebitz has many users. |
+| Later | Empirical-Bayes shrinkage towards population priors (for example tilt about −7 Elo) once Chess Habits has many users. |
 
 Output labels: **Finding** (passes everything), **No effect larger than X Elo** (enough data, CI includes 0), **Not enough data** (n below the minimum).
 
@@ -122,10 +122,10 @@ Build one **"Context report"** endpoint in the insights service. It needs no eng
 ## Open questions
 
 - Where should the 30-minute session threshold sit for rapid? Should it be relative to time control (for example 3× the base time)? Gee et al. used start-to-start gaps of 5 min (bullet) and 7 min (blitz).
-- How many Kiebitz users are needed before empirical-Bayes shrinkage beats the published priors? Can priors be borrowed from the Lichess open database instead (CC0, compute once offline)?
+- How many Chess Habits users are needed before empirical-Bayes shrinkage beats the published priors? Can priors be borrowed from the Lichess open database instead (CC0, compute once offline)?
 - Lookup table vs Maia-2 value head for resignation expected scores: which is better calibrated at 1800–2500 with low clocks? This needs an offline comparison on held-out Lichess games.
 - Is the owner's morning effect a warm-up effect, a sleep effect, or a pre-work time constraint? The data cannot separate these. The next step is a self-report tag ("rushed / tired / fine") on a few sessions. That tag is a design idea, not researched.
-- Does a rule shown by Kiebitz change behaviour, and does adherence improve results? This can only be measured after launch; it needs the adherence tracking described in the notes.
+- Does a rule shown by Chess Habits change behaviour, and does adherence improve results? This can only be measured after launch; it needs the adherence tracking described in the notes.
 - Gaze, later: do the behavioural tilt markers (faster requeue, faster moves after a loss) also show up as shorter or narrower scanning in the gaze data?
 
 ## Sources

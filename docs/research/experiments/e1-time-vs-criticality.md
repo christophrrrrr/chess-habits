@@ -91,7 +91,7 @@ Even in "hidden" critical positions, where the natural move is a mistake, fast m
 | (b) critical-fast error excess, CI excludes 0, ≥ 100 critical-fast moves | **Fail (reversed):** −18.1 pp [−23.0, −13.2] with 284 moves. The CI excludes 0 on the wrong side. |
 | (c) two players with non-overlapping CIs | **Weak:** only on ρ(r, C_gap) (owner vs P3) and in comparisons confounded by time control. Not on the primary metric. |
 
-## What it means for Kiebitz
+## What it means for Chess Habits
 
 1. **Drop the "missed alarm" claim.** A card that says "you lose points by moving fast in critical positions" would be false for all four players tested. Fast moves in critical positions are mostly moves the player recognised, so speed is a *consequence* of finding the move, not a cause of missing it. Observational data cannot show what a longer think would have changed.
 2. **Time vs criticality as a personal trait is not supported.** ρ(r, ΔU) is real (it replicates Russek et al. per player), but players on the same time control are indistinguishable at 150-300 games. This is consistent with Russek et al., who call the Elo effect on this link "modest". It can stay as one descriptive chart on the critical-moments card, not as the flagship.
@@ -114,4 +114,4 @@ Even in "hidden" critical positions, where the natural move is a mistake, fast m
 - Lichess Win% formula: https://lichess.org/page/accuracy
 - chess.com Published-Data API: https://www.chess.com/news/view/published-data-api
 - Stockfish 19 release: https://github.com/official-stockfish/Stockfish/releases/tag/sf_19
-- Kiebitz notes: [clock-time-vs-criticality.md](../clock-time-vs-criticality.md), [game-decision-points.md](../game-decision-points.md), [clock-and-time.md](../clock-and-time.md)
+- Chess Habits notes: [clock-time-vs-criticality.md](../clock-time-vs-criticality.md), [game-decision-points.md](../game-decision-points.md), [clock-and-time.md](../clock-and-time.md)

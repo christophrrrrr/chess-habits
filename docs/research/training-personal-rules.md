@@ -41,6 +41,6 @@
 
 **Why it's not engine review:** None of these rules is about a move. They are about clock use and session behaviour across many games, chosen from the player's own findings, and checked automatically afterwards. Game Review and Insights neither suggest such rules nor check them.
 
-**Training link:** The rule *is* the practice: the player follows it in their normal games. Kiebitz shows adherence after every import and the target metric through the tracker. If adherence is high and the target does not move after enough data, the rule is retired and another plan is suggested; if adherence stays low (< 50% after 4 weeks; speculation), Kiebitz suggests an easier rule (e.g. "after 3 losses" instead of 2) rather than repeating the same advice.
+**Training link:** The rule *is* the practice: the player follows it in their normal games. Chess Habits shows adherence after every import and the target metric through the tracker. If adherence is high and the target does not move after enough data, the rule is retired and another plan is suggested; if adherence stays low (< 50% after 4 weeks; speculation), Chess Habits suggests an easier rule (e.g. "after 3 losses" instead of 2) rather than repeating the same advice.
 
 **Verdict:** **Build for MVP.** Engine-free, small, uses data the games service already imports, and closes the loop (finding → rule → adherence → re-measure) that no competitor closes. Start with the stop-loss and the clock-checkpoint rules.

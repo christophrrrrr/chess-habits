@@ -85,12 +85,12 @@ The spike at exactly 0.1 s is 5-40× the 0.2 s level for everyone who premoves. 
 | (a) material precision for "winning" ≥ 0.85 | **Pass:** 0.96 [0.89, 0.99] (lost on time), 0.92 [0.84, 0.96] (won on time, "losing"). But recall is only 0.48-0.54. |
 | (b) time-trouble coefficient keeps ≥ 50% with CI excluding 0 | **Pass for the owner** in rapid, blitz and bullet (ratios 1.02-1.08, all CIs exclude 0). Not testable or not significant for P1 and P3 (no raw gap to keep). |
 
-## What it means for Kiebitz
+## What it means for Chess Habits
 
 1. **Flag-loss card:** the material proxy can ship in the MVP, worded as a lower bound: "lost on time with at least 3 points of material up: 52 games (the engine would count about twice as many)". The stretch item (one browser eval of the final position) is worth it: it nearly doubles the count (owner: 52 → 94) with almost no false positives. Net clock points by engine: −33 for the owner over 2,290 games.
 2. **Time-trouble card may state a cost, for players where it holds, with care.** For the owner the gap is not explained by the position at move 20, sharpness or rating gap. The card can say "games where you got into time trouble scored 15-27 points lower per 100 games, and this is not because you were already worse at move 20". It should still not say "caused", because the position between move 20 and the onset is not controlled (see caveats).
 3. **The decomposition is the finding:** self-inflicted time trouble carries the cost; mutual scrambles do not. That supports the shortlist's "self-inflicted share" and "where the time went" metrics as the core of card 2, and it is new relative to every tool in the gap map.
-4. **It is personal.** P1 shows no time-trouble cost in blitz (+0.14), P3 a smaller, uncertain one. So "time trouble hurts you" is a per-player finding, not a universal truth. That is what Kiebitz wants.
+4. **It is personal.** P1 shows no time-trouble cost in blitz (+0.14), P3 a smaller, uncertain one. So "time trouble hurts you" is a per-player finding, not a universal truth. That is what Chess Habits wants.
 5. **Premove detector:** use exactly 0.1 s. It is chess.com-specific and fails silently for players with premoves off (P5), so show the premove card only when the 0.1 s spike exists.
 
 ## Caveats
@@ -108,4 +108,4 @@ The spike at exactly 0.1 s is 5-40× the 0.2 s level for everyone who premoves. 
 - chess.com help, premoves cost 0.1 s: https://support.chess.com/en/articles/8562432-what-are-pre-moves-and-how-do-they-work
 - Lichess Win% formula: https://lichess.org/page/accuracy
 - Stockfish 19: https://github.com/official-stockfish/Stockfish/releases/tag/sf_19
-- Kiebitz notes: [clock-flag-losses.md](../clock-flag-losses.md), [clock-time-trouble.md](../clock-time-trouble.md), [clock-bullet-premoves.md](../clock-bullet-premoves.md)
+- Chess Habits notes: [clock-flag-losses.md](../clock-flag-losses.md), [clock-time-trouble.md](../clock-time-trouble.md), [clock-bullet-premoves.md](../clock-bullet-premoves.md)

@@ -43,7 +43,7 @@ Per time control: Part A in **blitz, rapid, classical** (bullet move times are t
 **Why it's not engine review:** It is about a thinking habit (when you deliberate and whether deliberation converges), across games, against your own normal play. Game Review grades the move; it does not know you spent 90 seconds on it or whether that is unusual for you.
 
 **Training link:**
-- Overthinking forced/obvious moves: "play the forced move, think on the opponent's time" habit; Kiebitz shows the player's own examples.
+- Overthinking forced/obvious moves: "play the forced move, think on the opponent's time" habit; Chess Habits shows the player's own examples.
 - Long thinks that do not pay: a think-structure drill (candidate moves first, a fixed blunder check, a deadline at 3x median); solve own long-think positions with half the time they used.
 - Errors after long thinks: a "reset" check on the next move (opponent threats first).
 - Measure: overthink seconds per game, long-think payoff and post-long-think error rate, per quarter.

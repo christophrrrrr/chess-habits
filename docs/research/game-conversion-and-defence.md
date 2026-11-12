@@ -72,7 +72,7 @@ All evals are converted to win% for the side to move with the Lichess formula `W
 Headline rates are kept as context only.
 
 **Training link:**
-- Failures dominated by `slow` attribution: practise converting won positions against an engine from your own entry positions. Aimchess offers this kind of replay, so Kiebitz uses the player's own entry positions and tracks the residual.
+- Failures dominated by `slow` attribution: practise converting won positions against an engine from your own entry positions. Aimchess offers this kind of replay, so Chess Habits uses the player's own entry positions and tracks the residual.
 - `single-blow` under low clock: practise safe-move habits and time budgeting when winning.
 - High `early_resignation`: a simple behavioural rule ("play on while W ≥ 20 and the opponent has under 30 s").
 - Improvement: the residual on new games against the pre-training residual, using the same expectation model.
