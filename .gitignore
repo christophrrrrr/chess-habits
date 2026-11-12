@@ -34,3 +34,7 @@ Thumbs.db
 .terraform/
 *.tfstate
 *.tfstate.*
+
+# Local SQLite dev databases
+*.db
+*.sqlite
