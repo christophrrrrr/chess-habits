@@ -37,7 +37,7 @@ more features. Product ideas come from the research shortlist
 
 ### When the Azure credentials arrive
 
-8. Merge the PR stack in order, first deployment **by the pipeline**, check `/health`, logs
+8. First deployment **by the pipeline** (the PR stack is reviewed and merged before, in order), check `/health`, logs
    in Log Analytics, run the SLO query and fix the KQL against real data.
 9. Show partial failure in the cloud: stop the games app, insights findings stay readable.
 10. Branch protection on `main` with one required approval.
@@ -46,8 +46,11 @@ more features. Product ideas come from the research shortlist
 
 ### Sprint 2 (19–24 Nov)
 
-12. One stretch card, chosen by what the data supports: **time of day** (stores the browser's
-    time zone on the account, D6) or **opening autopilot cost**.
+12. **Grandmaster comparison** (can start before Sprint 2): pick a grandmaster, import their
+    public chess.com games through the same import, and show their clock profile and after-loss
+    habits next to yours, e.g. how Hikaru uses his clock compared with you. No new service or
+    database: a grandmaster is just another tracked player. Time of day (D6) and opening
+    autopilot cost move to after the course.
 13. Docs: live URL and screenshots in the README, `sprint-2.md`, retrospectives, decision
     records for blue-green deploys and the release scheme, `AI_USAGE.md`.
 14. Sprint Review prep: the demo story (import → clock card → adopt rule → rule card), a small
@@ -59,7 +62,7 @@ more features. Product ideas come from the research shortlist
 
 | Risk | Mitigation |
 |---|---|
-| Azure credentials arrive late | Pipeline, Bicep and docs are ready; asked the professor (12 Nov). Everything else is done first. |
+| Azure credentials arrive late | Pipeline, Bicep and docs are ready; emailed the professor for access to the group's resource group and the service principal (12 Nov). Everything else is done first. |
 | Few team members for PR approvals and role rotation | Clarify with the professor; record roles per sprint. |
 | Cold start during the live demo | Warm-up request before the review; the UI explains slow first requests. |
 | chess.com API down during the demo | Import before the review; findings are stored, so the demo does not need chess.com. |
