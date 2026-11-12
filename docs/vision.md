@@ -48,7 +48,7 @@ and added over time.
 | **Reactions**: tilt, sessions, when to stop | Game start and end times, results, sessions | Built: after-loss card, stop-loss rules |
 | **Follow-through**: do you keep the habit you chose | The same data after you adopt a rule | Built: rule cards with adherence |
 | **Decisions**: which kinds of positions you get wrong | Engine evaluation in the browser | After the course (Dec 2026 – Jan 2027) |
-| **Comparison**: what a grandmaster does differently | The same metrics on the public chess.com games of a grandmaster you pick, side by side with yours | Planned (candidate for the course) |
+| **Comparison**: what a grandmaster does differently | The same metrics on the public chess.com games of a grandmaster you pick, side by side with yours | Planned for Sprint 2 |
 | **Attention**: where you look | Webcam eye tracking in the browser, opt-in | Long-term goal; research, from May 2027 |
 
 ## How Chess Habits differs from engine game review

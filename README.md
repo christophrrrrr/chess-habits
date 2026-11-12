@@ -20,6 +20,11 @@ research questions.
 
 1. Track a chess.com account and import its full game history (month by month, cached).
 2. Run analyses across all games, per time control: a **clock profile** (how often you get into time trouble, from which move, whether it is self-inflicted, whether long thinks, the opening or a steady drain cause it, and how many won positions the clock took) and an **after-loss** card (do you requeue faster, do you play below your level, would a stop-loss rule help). Every comparison comes with its sample size, a 95% interval, the smallest effect the data could detect, and a correction for testing many things at once; Chess Habits says "not enough data" instead of guessing.
+3. Turn a suggestion into a **rule** with one click (a clock checkpoint such as "keep 30% of my time at move 20", or a stop-loss rule such as "stop after two losses in a row") and see on a rule card whether you keep it more often than before.
+
+**Next (Sprint 2):** put your habits next to a grandmaster of your choice, for example how Hikaru
+uses his clock compared with you (his chess.com games are public). See
+[docs/roadmap.md](docs/roadmap.md).
 
 **Live URL:** _added after the first Azure deployment_ (see [docs/deployment.md](docs/deployment.md)).
 
@@ -59,8 +64,17 @@ docker compose up --build
 
 UI: http://localhost:5173 · games API: http://localhost:8001/docs · insights API: http://localhost:8002/docs
 
-Without Docker, each service also runs on SQLite: see [services/games](services/games/README.md),
-[services/insights](services/insights/README.md) and [ui](ui/README.md).
+Without Docker, each service also runs on SQLite (from the repo root, with a virtualenv that has
+both services' `requirements.txt` installed):
+
+```bash
+(cd services/games    && uvicorn app.main:app --port 8001) &
+(cd services/insights && uvicorn app.main:app --port 8002) &
+(cd ui && npm ci && npm run dev)
+```
+
+Details: [services/games](services/games/README.md), [services/insights](services/insights/README.md)
+and [ui](ui/README.md).
 
 ## Tests
 
@@ -84,6 +98,7 @@ Reproduce the Azure setup: [docs/deployment.md](docs/deployment.md).
 | File | Contents |
 |---|---|
 | [docs/vision.md](docs/vision.md) | Product vision, design principles, research questions |
+| [docs/roadmap.md](docs/roadmap.md) | What comes next, until the deadline and after the course |
 | [docs/assignment.md](docs/assignment.md) | Assignment requirements as a checklist |
 | [docs/decisions.md](docs/decisions.md) | Architecture decision records |
 | [docs/data-model.md](docs/data-model.md) | Entities and relationships |
