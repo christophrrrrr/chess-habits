@@ -2,7 +2,14 @@ from conftest import PGN, chesscom_game
 
 from app.importer import game_from_chesscom
 from app.models import Player
-from app.pgn import opening_from_url, parse_moves, parse_time_control, result_from_code
+from app.pgn import (
+    material_balance,
+    opening_from_url,
+    parse_moves,
+    parse_time_control,
+    result_from_code,
+    started_at_from_pgn,
+)
 
 
 def test_parse_time_control():
@@ -57,3 +64,17 @@ def test_game_id_falls_back_to_url():
     del data["uuid"]
     data["url"] = "https://www.chess.com/game/live/123456"
     assert game_from_chesscom(player, data).platform_game_id == "123456"
+
+
+def test_material_balance():
+    start = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    assert material_balance(start, "white") == 0
+    assert material_balance("4k3/8/8/8/8/8/8/R3K3 b - - 0 40", "white") == 5
+    assert material_balance("4k3/8/8/8/8/8/8/R3K3 b - - 0 40", "black") == -5
+    assert material_balance(None, "white") is None
+
+
+def test_started_at_from_pgn():
+    assert started_at_from_pgn(PGN).isoformat() == "2026-10-01T18:00:05"
+    assert started_at_from_pgn('[Event "x"]') is None
+    assert started_at_from_pgn('[UTCDate "bad"] [UTCTime "x"]') is None

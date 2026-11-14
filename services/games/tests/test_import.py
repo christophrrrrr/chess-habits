@@ -60,6 +60,9 @@ def test_import_month_stores_games_and_skips_variants(client, chesscom, player):
     assert game["opening"] == "Italian Game"
     assert game["ply_count"] == 5
     assert game["clocks"] == "1819,1815,1823,1798,1831"
+    assert game["started_at"] == "2026-10-01T18:00:05"
+    assert game["termination"] == "chrisaxm won by resignation"
+    assert game["final_material"] == 5  # white (the player) is a rook up
     assert "pgn" not in game
 
     detail = client.get(f"/players/{pid}").json()

@@ -18,13 +18,17 @@ class FindingOut(BaseModel):
     id: int
     analysis_key: str
     time_class: str
+    kind: str
+    metric: str
+    label: str
     title: str
     summary: str
-    effect: float
-    ci_low: float
-    ci_high: float
+    effect: float | None
+    ci_low: float | None
+    ci_high: float | None
+    mde: float | None
+    p_value: float | None
     sample_size: int
-    confidence: str
     details: dict
 
     @field_validator("details", mode="before")

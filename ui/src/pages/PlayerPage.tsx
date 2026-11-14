@@ -160,8 +160,10 @@ function InsightsPanel({ playerId, hasGames }: { playerId: number; hasGames: boo
               ))}
           </div>
           <p className="muted small">
-            Points = score percentage points against what the ratings predict (a win is 100, a draw 50). The
-            bar shows the 95% interval: if it crosses the middle line, the effect may be chance.
+            Results are compared with what your smoothed rating predicts, in Elo. Each comparison shows its
+            95% interval (the bar) and the smallest effect your games could reveal. Labels are corrected for
+            testing many things at once: “Finding” means strong evidence, “No clear effect” means nothing
+            larger than the stated size.
           </p>
         </>
       )}

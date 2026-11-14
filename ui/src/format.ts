@@ -26,11 +26,24 @@ export function sortTimeClasses(classes: string[]): string[] {
   return [...classes].sort((a, b) => rank(a) - rank(b) || a.localeCompare(b))
 }
 
-export const CONFIDENCE_LABEL: Record<string, string> = {
-  high: 'Strong evidence',
-  medium: 'Moderate evidence',
-  low: 'No clear effect',
-  insufficient: 'Not enough games',
+export const LABEL_TEXT: Record<string, string> = {
+  finding: 'Finding',
+  exploratory: 'Exploratory',
+  no_effect: 'No clear effect',
+  not_enough_data: 'Not enough data',
+  profile: 'Profile',
+}
+
+/** Score points -> Elo near an expected score of 0.5 (same constant as the insights service). */
+export const ELO_PER_SCORE_POINT = 400 / (Math.log(10) * 0.25)
+
+export function elo(scorePoints: number): string {
+  const v = Math.round(scorePoints * ELO_PER_SCORE_POINT)
+  return `${v > 0 ? '+' : v < 0 ? '−' : '±'}${Math.abs(v)}`
+}
+
+export function percent(x: number | null | undefined, digits = 0): string {
+  return x === null || x === undefined ? '–' : `${(x * 100).toFixed(digits)}%`
 }
 
 /**

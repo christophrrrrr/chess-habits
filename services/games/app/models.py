@@ -73,6 +73,7 @@ class Game(Base):
     increment_seconds: Mapped[int | None] = mapped_column(Integer)
     rated: Mapped[bool] = mapped_column(Boolean)
     ended_at: Mapped[datetime] = mapped_column(DateTime, index=True)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime)
     player_color: Mapped[str] = mapped_column(String(5))
     player_rating: Mapped[int | None] = mapped_column(Integer)
     opponent_username: Mapped[str] = mapped_column(String(64))
@@ -84,6 +85,10 @@ class Game(Base):
     ply_count: Mapped[int] = mapped_column(Integer)
     # Remaining clock after each ply in tenths of a second, comma-separated.
     clocks: Mapped[str | None] = mapped_column(UnicodeText)
+    # PGN [Termination], e.g. "opponent1 won on time".
+    termination: Mapped[str | None] = mapped_column(Unicode(100))
+    # Material (P=1, N=B=3, R=5, Q=9) of the player minus the opponent in the final position.
+    final_material: Mapped[int | None] = mapped_column(Integer)
     pgn: Mapped[str] = mapped_column(UnicodeText)
 
     player: Mapped[Player] = relationship(back_populates="games")

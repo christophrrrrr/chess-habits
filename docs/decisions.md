@@ -91,15 +91,16 @@ environment's Log Analytics workspace, where saved KQL queries build the dashboa
 depend on opponents), and small samples produce confident-looking noise.
 
 **Decision.** Every game gets a residual: actual score minus the Elo-expected score. A finding
-compares the mean residual of a group of games (e.g. right after a loss) with the rest and
-reports the difference with a 95% confidence interval and a label; below 30 games per group it
-makes no claim. chess.com reports **post-game** ratings (verified on real data), so pre-game
+compares a group of games (e.g. right after a loss) with another and reports the difference
+with a 95% cluster-bootstrap interval (sessions or games), the minimum detectable effect, and
+a label after Benjamini-Hochberg correction over the whole page; below 100 games (results) or
+30 events (behaviour) it makes no claim. Definitions: [definitions.md](definitions.md). chess.com reports **post-game** ratings (verified on real data), so pre-game
 ratings are reconstructed, and the player's strength is smoothed (median of ±25 games) to avoid
 regression-to-the-mean artifacts.
 
 **Alternatives.** Win rates per bucket (biased by opponent strength); Bayesian models (better,
 but harder to explain and test in this sprint).
 
-**Consequences.** Findings are comparable across time controls and honest about noise. With
-many analyses × time controls some "medium" findings will be chance (multiple comparisons);
-the research notes propose stricter thresholds for later sprints.
+**Consequences.** Findings are comparable across time controls and honest about noise; "no clear
+effect" always comes with the size that could have been detected. Research E2 measured the
+false-finding rate on shuffled data, which is why q = 0.05 (not 0.10) is the finding threshold.

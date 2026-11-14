@@ -33,7 +33,8 @@ class AnalysisRun(Base):
 
 
 class Finding(Base):
-    """One measured pattern, always with its sample size and uncertainty."""
+    """One card on the insights page. Contrasts (group A vs group B) always carry their
+    interval, minimum detectable effect and a label after multiple-testing correction."""
 
     __tablename__ = "findings"
 
@@ -43,14 +44,18 @@ class Finding(Base):
     )
     analysis_key: Mapped[str] = mapped_column(String(64))
     time_class: Mapped[str] = mapped_column(String(16))
+    kind: Mapped[str] = mapped_column(String(16))  # contrast / profile
+    metric: Mapped[str] = mapped_column(String(16))  # score / share / profile
+    # finding / exploratory / no_effect / not_enough_data (contrasts), profile (profiles)
+    label: Mapped[str] = mapped_column(String(24))
     title: Mapped[str] = mapped_column(Unicode(200))
     summary: Mapped[str] = mapped_column(Unicode(1000))
-    # Effect in score points (0..1 scale): group performance minus comparison group.
-    effect: Mapped[float] = mapped_column(Float)
-    ci_low: Mapped[float] = mapped_column(Float)
-    ci_high: Mapped[float] = mapped_column(Float)
+    effect: Mapped[float | None] = mapped_column(Float)
+    ci_low: Mapped[float | None] = mapped_column(Float)
+    ci_high: Mapped[float | None] = mapped_column(Float)
+    mde: Mapped[float | None] = mapped_column(Float)
+    p_value: Mapped[float | None] = mapped_column(Float)
     sample_size: Mapped[int] = mapped_column(Integer)
-    confidence: Mapped[str] = mapped_column(String(16))  # high / medium / low / insufficient
     details: Mapped[str] = mapped_column(UnicodeText)  # JSON with analysis-specific numbers
 
     run: Mapped[AnalysisRun] = relationship(back_populates="findings")

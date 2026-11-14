@@ -18,6 +18,10 @@ PGN = """[Event "Live Chess"]
 [ECO "C50"]
 [ECOUrl "https://www.chess.com/openings/Italian-Game"]
 [TimeControl "180+2"]
+[UTCDate "2026.10.01"]
+[UTCTime "18:00:05"]
+[CurrentPosition "4k3/8/8/8/8/8/8/R3K3 b - - 0 40"]
+[Termination "chrisaxm won by resignation"]
 
 1. e4 {[%clk 0:03:01.9]} 1... e5 {[%clk 0:03:01.5]} 2. Nf3 {[%clk 0:03:02.3]} 2... Nc6
 {[%clk 0:02:59.8]} 3. Bc4 {[%clk 0:03:03.1]} 1-0

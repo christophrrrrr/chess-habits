@@ -1,15 +1,18 @@
 from datetime import datetime, timedelta
 
 import httpx
-from conftest import session_games
+from conftest import interleave, session_games
 
 T0 = datetime(2026, 10, 1, 18, 0)
+CLOCKS = interleave([1800 - 40 * k for k in range(30)], [1790 - 30 * k for k in range(30)])
 
 
 def _games(n_sessions: int = 40) -> list[dict]:
     raw = []
     for s in range(n_sessions):
-        raw += session_games(s * 10, T0 + timedelta(days=s), ["win", "loss", "loss", "win"])
+        raw += session_games(
+            s * 10, T0 + timedelta(days=s), ["win", "loss", "loss", "win"], clocks=CLOCKS
+        )
     return raw
 
 
@@ -26,7 +29,7 @@ def _mock_pages(games_api, games: list[dict], page: int = 500):
 def test_health_and_analyses(client):
     assert client.get("/health").json() == {"status": "ok", "service": "insights"}
     keys = [a["key"] for a in client.get("/analyses").json()]
-    assert keys == ["tilt", "session_fatigue", "time_trouble"]
+    assert keys == ["clock_profile", "after_loss"]
 
 
 def test_run_stores_findings(client, games_api):
@@ -37,10 +40,21 @@ def test_run_stores_findings(client, games_api):
     run = resp.json()
     assert run["games_analyzed"] == len(games)
     keys = {f["analysis_key"] for f in run["findings"]}
-    assert keys == {"tilt", "session_fatigue", "time_trouble"}
-    tilt = next(f for f in run["findings"] if f["analysis_key"] == "tilt")
-    assert tilt["confidence"] in ("high", "medium")
-    assert tilt["details"]["n_group"] > 0
+    assert keys == {
+        "clock_profile",
+        "time_trouble_score",
+        "after_loss_requeue",
+        "after_loss_result",
+        "stop_loss_rules",
+    }
+    for f in run["findings"]:
+        if f["kind"] == "profile":
+            assert f["label"] == "profile"
+        else:
+            assert f["label"] in ("finding", "exploratory", "no_effect", "not_enough_data")
+    requeue = next(f for f in run["findings"] if f["analysis_key"] == "after_loss_requeue")
+    assert requeue["details"]["n_a"] > 0
+    assert requeue["mde"] is not None
 
     latest = client.get("/players/1/findings").json()
     assert latest["id"] == run["id"]

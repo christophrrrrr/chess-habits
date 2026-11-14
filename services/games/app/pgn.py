@@ -3,6 +3,7 @@
 import io
 import re
 from dataclasses import dataclass
+from datetime import datetime
 
 import chess.pgn
 
@@ -72,3 +73,27 @@ def opening_from_url(url: str | None) -> str | None:
 def pgn_header(pgn_text: str, name: str) -> str | None:
     m = re.search(rf'\[{re.escape(name)} "([^"]*)"\]', pgn_text)
     return m.group(1) if m else None
+
+
+PIECE_VALUES = {"p": 1, "n": 3, "b": 3, "r": 5, "q": 9}
+
+
+def material_balance(fen: str | None, color: str) -> int | None:
+    """Material (P=1, N=B=3, R=5, Q=9) of `color` minus the opponent's, from a FEN."""
+    if not fen:
+        return None
+    board = fen.split(" ", 1)[0]
+    white = sum(PIECE_VALUES.get(c.lower(), 0) for c in board if c.isupper())
+    black = sum(PIECE_VALUES.get(c, 0) for c in board if c.islower())
+    return white - black if color == "white" else black - white
+
+
+def started_at_from_pgn(pgn_text: str) -> datetime | None:
+    """Game start (UTC) from chess.com's [UTCDate] and [UTCTime] headers."""
+    date, time = pgn_header(pgn_text, "UTCDate"), pgn_header(pgn_text, "UTCTime")
+    if not date or not time:
+        return None
+    try:
+        return datetime.strptime(f"{date} {time}", "%Y.%m.%d %H:%M:%S")
+    except ValueError:
+        return None
