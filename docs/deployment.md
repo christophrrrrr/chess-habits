@@ -15,7 +15,7 @@ GitHub Actions. Nothing is changed by hand in the portal after setup.
 | Log Analytics workspace | `<prefix>-logs` | request logs, dashboard queries, SLO query |
 
 `<prefix>` is the group prefix from the professor, e.g. `sdd-3a-g3`. Images live in GitHub
-Container Registry: `ghcr.io/christophrrrrr/kiebitz-games` and `...-insights`.
+Container Registry: `ghcr.io/christophrrrrr/chess-habits-games` and `...-insights`.
 
 ## One-time setup (when the Azure credentials arrive)
 
@@ -25,7 +25,7 @@ Container Registry: `ghcr.io/christophrrrrr/kiebitz-games` and `...-insights`.
    |---|---|
    | `AZURE_RESOURCE_GROUP` | `rg-sdd-3a-g3` (existing; never created by us) |
    | `AZURE_PREFIX` | `sdd-3a-g3` |
-   | `SQL_ADMIN_LOGIN` | `kiebitzadmin` |
+   | `SQL_ADMIN_LOGIN` | `chesshabitsadmin` |
    | `AZURE_ENABLED` | `true` (set last, after step 4) |
 
 2. **Repository secrets** (same page → Secrets). Paste values only there, never in chat, code or issues:

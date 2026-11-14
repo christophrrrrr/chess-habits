@@ -1,25 +1,25 @@
-# Kiebitz: Vision and Research Brief
+# Chess Habits: Vision and Research Brief
 
 ## One-line pitch
 
-Kiebitz collects data about how you play chess (your games, your clock, and optionally where you look) and turns it into personal, evidence-based feedback on what to train next. **Which analyses it runs is deliberately open**: new ones are researched and added over time.
+Chess Habits collects data about how you play chess (your games, your clock, and optionally where you look) and turns it into personal, evidence-based feedback on what to train next. **Which analyses it runs is deliberately open**: new ones are researched and added over time.
 
 ## Goal
 
 Help chess players, including strong ones, improve by finding patterns in **how** they play that they cannot see themselves, and turning those patterns into concrete things to train.
 
-## How Kiebitz differs from engine game review
+## How Chess Habits differs from engine game review
 
-Chess.com Game Review, Lichess analysis and similar tools grade **moves**. Kiebitz explains **the player**.
+Chess.com Game Review, Lichess analysis and similar tools grade **moves**. Chess Habits explains **the player**.
 
-| Engine game review | Kiebitz |
+| Engine game review | Chess Habits |
 |---|---|
 | Looks at **one game** | Looks at **patterns across hundreds of games** |
 | Judges **moves** (best, blunder, "brilliant", accuracy %) | Explains **the player**: why and in which situations points are lost |
 | Compares against **Stockfish perfection** | Compares against **your own baseline** and **players of your level** |
 | Says "the best move was Nf5" | Says "you miss opponent threats after long thinks in sharp positions" |
 | Uses only the moves | Also uses **behaviour**: clock, gaze, context (tilt, time of day, session length) |
-| The review is the end | Each finding becomes **something to train**, and Kiebitz checks whether it improved |
+| The review is the end | Each finding becomes **something to train**, and Chess Habits checks whether it improved |
 
 ## Design principles
 
@@ -27,11 +27,11 @@ Every feature must follow these. Any proposed analysis must pass one test:
 
 > **"Could chess.com's Game Review already tell you this?"** If yes, drop it or use it only as an input.
 
-1. **The engine is a tool, not the output.** Stockfish provides raw evaluations; Kiebitz never just shows them back. If a feature amounts to "here's the engine line", it doesn't belong in Kiebitz.
+1. **The engine is a tool, not the output.** Stockfish provides raw evaluations; Chess Habits never just shows them back. If a feature amounts to "here's the engine line", it doesn't belong in Chess Habits.
 2. **Human-relevant, not engine-relevant.** A move that only a 3000-rated engine finds is not a weakness. Research candidate: **Maia**, an open-source engine trained on Lichess games that predicts what a human of a given rating would play. It could separate "mistakes everyone at your level makes" from "mistakes players of your level usually don't make", the real blind spots. (Check its licence before use.)
 3. **Explain causes, not symptoms.** "You blundered on move 23" is a symptom. "Your mistakes cluster after your opponent's unexpected moves" is a cause.
 4. **Only show what you can back up.** Each finding comes with its sample size and how confident it is. Small samples get no strong claims.
-5. **Make it actionable and close the loop.** Each finding leads to a concrete training suggestion, and Kiebitz tracks whether that weakness shrinks over time.
+5. **Make it actionable and close the loop.** Each finding leads to a concrete training suggestion, and Chess Habits tracks whether that weakness shrinks over time.
 
 ## Data sources
 
@@ -68,4 +68,4 @@ These are starting points, not commitments. Each needs a research note in [resea
 
 ## Constraints
 
-Kiebitz is built for a university group assignment; see [assignment.md](assignment.md). In short: exactly two backend services (Python or Node), each with its own Azure SQL database; a static web UI; no extra Azure services; no paid APIs without caching and rate limits. **A working MVP comes first; analyses are added on top of it.**
+Chess Habits is built for a university group assignment; see [assignment.md](assignment.md). In short: exactly two backend services (Python or Node), each with its own Azure SQL database; a static web UI; no extra Azure services; no paid APIs without caching and rate limits. **A working MVP comes first; analyses are added on top of it.**

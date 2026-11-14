@@ -20,7 +20,7 @@ class Base(DeclarativeBase):
 
 
 class Player(Base):
-    """A chess account tracked by Kiebitz (the CRUD entity)."""
+    """A chess account tracked by Chess Habits (the CRUD entity)."""
 
     __tablename__ = "players"
     __table_args__ = (UniqueConstraint("platform", "username", name="uq_players_platform_user"),)

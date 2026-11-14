@@ -1,6 +1,6 @@
 # insights service
 
-Runs Kiebitz's analyses over a player's games (fetched from the games service over HTTP) and
+Runs Chess Habits' analyses over a player's games (fetched from the games service over HTTP) and
 stores the findings in its own database (`analysis_runs`, `findings`).
 
 ## How findings are measured

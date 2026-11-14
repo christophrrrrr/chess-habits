@@ -20,7 +20,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/kiebitz
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/chess-habits
 
 jobs:
   ci:
@@ -142,8 +142,8 @@ jobs:
       - name: Smoke test the live system
         run: |
           set -e
-          for i in $(seq 1 12); do curl -fsS "${{ steps.swa.outputs.url }}" | grep -q '<title>Kiebitz</title>' && break; sleep 10; done
-          curl -fsS "${{ steps.swa.outputs.url }}" | grep -q '<title>Kiebitz</title>'
+          for i in $(seq 1 12); do curl -fsS "${{ steps.swa.outputs.url }}" | grep -q '<title>Chess Habits</title>' && break; sleep 10; done
+          curl -fsS "${{ steps.swa.outputs.url }}" | grep -q '<title>Chess Habits</title>'
           curl -fsS "${{ needs.services.outputs.games_url }}/players" > /dev/null
           curl -fsS "${{ needs.services.outputs.insights_url }}/analyses" | grep -q tilt
           echo "### Live: ${{ steps.swa.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"

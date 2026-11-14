@@ -1,4 +1,4 @@
-"""The analyses Kiebitz runs. Each one is computed per time control, because the same
+"""The analyses Chess Habits runs. Each one is computed per time control, because the same
 behaviour means different things in bullet and in rapid.
 
 Adding an analysis = writing one function that returns FindingDrafts and registering it here.

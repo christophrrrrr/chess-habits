@@ -10,7 +10,7 @@ export const INSIGHTS_API = (import.meta.env.VITE_INSIGHTS_API_URL ?? 'http://lo
 // up to a minute or more. Wait long enough, and tell the user why it is slow.
 const TIMEOUT_MS = 90_000
 const SLOW_MS = 4_000
-export const SLOW_EVENT = 'kiebitz:slow-requests'
+export const SLOW_EVENT = 'chess-habits:slow-requests'
 let slowRequests = 0
 
 function setSlow(delta: number) {

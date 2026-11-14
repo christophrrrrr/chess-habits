@@ -1,4 +1,4 @@
-# Kiebitz UI
+# Chess Habits UI
 
 Static React + Vite app (TypeScript), deployed to Azure Static Web Apps. The browser calls the
 two backend services directly; their URLs are baked in at build time.

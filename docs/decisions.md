@@ -5,7 +5,7 @@ Each record: context, decision, alternatives considered, consequences.
 ## 1. Split into a `games` and an `insights` service
 
 **Context.** The assignment requires exactly two backend services, each with its own database,
-talking over HTTP. Kiebitz has two very different kinds of work: getting and storing games
+talking over HTTP. Chess Habits has two very different kinds of work: getting and storing games
 (stable, append-only, depends on chess.com), and analysing them (changes constantly as research
 adds analyses, recomputable from the games).
 
@@ -59,7 +59,7 @@ serially, as it asks. Closing the tab stops the import; the next import resumes 
 **Context.** Merges to `main` must deploy automatically only after CI, with migrations and a
 health check; config only through environment variables and secrets.
 
-**Decision.** `deploy.yml` reuses `ci.yml`, pushes `ghcr.io/<owner>/kiebitz-<service>:<sha>`,
+**Decision.** `deploy.yml` reuses `ci.yml`, pushes `ghcr.io/<owner>/chess-habits-<service>:<sha>`,
 updates both Container Apps, and waits until the latest revision is ready and `/health` is 200
 (fails after 5 minutes); then builds the UI with the live URLs and uploads it to Static Web
 Apps, followed by a live smoke test. Infrastructure is Bicep (`infra/main.bicep`), deployed by

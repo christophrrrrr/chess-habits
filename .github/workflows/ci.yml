@@ -42,7 +42,7 @@ jobs:
       - name: Dependency audit
         run: pip-audit -r requirements.txt --strict
       - name: Build image
-        run: docker build -t kiebitz-${{ matrix.service }}:ci .
+        run: docker build -t chess-habits-${{ matrix.service }}:ci .
 
   ui:
     name: ui
@@ -92,7 +92,7 @@ jobs:
           # insights -> games over HTTP: unknown player must come back as 404
           code=$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:8002/players/999/runs)
           test "$code" = "404"
-          curl -fsS localhost:5173/ | grep -q '<title>Kiebitz</title>'
+          curl -fsS localhost:5173/ | grep -q '<title>Chess Habits</title>'
       - name: Logs on failure
         if: failure()
         run: docker compose logs --no-color

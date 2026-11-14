@@ -50,8 +50,8 @@ export function PlayersPage() {
       <section className="hero">
         <h2>Find out how you lose points, not just where.</h2>
         <p className="muted">
-          Kiebitz looks at hundreds of your games at once: your clock, your sessions, how you react to losses.
-          Every finding comes with its sample size and how sure we are.
+          Chess Habits looks at hundreds of your games at once: your clock, your sessions, how you react to
+          losses. Every finding comes with its sample size and how sure we are.
         </p>
       </section>
 
