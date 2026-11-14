@@ -1,9 +1,9 @@
 name: CI
 
+# Runs on every pull request (and every push to a PR branch). On pushes to main it runs as
+# the first stage of deploy.yml, so main is never deployed without passing CI.
 on:
   pull_request:
-  push:
-    branches: [main]
   workflow_call:
 
 permissions:
