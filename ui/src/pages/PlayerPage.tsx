@@ -1,7 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ApiError, gamesApi, insightsApi, type Game, type PlayerDetail, type Run } from '../api'
+import {
+  ApiError,
+  gamesApi,
+  insightsApi,
+  type Game,
+  type PlayerDetail,
+  type Rule,
+  type RuleDraft,
+  type Run,
+} from '../api'
+import type { RuleActions } from '../components/AdoptButton'
 import { FindingCard } from '../components/FindingCard'
 import { ImportPanel } from '../components/ImportPanel'
+import { RuleCard } from '../components/RuleCard'
 import { capitalize, formatDate, sortTimeClasses } from '../format'
 
 export function PlayerPage({ playerId }: { playerId: number }) {
@@ -93,6 +104,7 @@ function InsightsPanel({ playerId, hasGames }: { playerId: number; hasGames: boo
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [tab, setTab] = useState<string | null>(null)
+  const [rules, setRules] = useState<Rule[]>([])
 
   useEffect(() => {
     insightsApi
@@ -101,7 +113,28 @@ function InsightsPanel({ playerId, hasGames }: { playerId: number; hasGames: boo
       .catch((e: ApiError) => {
         if (e.status !== 404) setError(e.message)
       })
+    // Rules are an extra: if they fail to load, the findings still show.
+    insightsApi
+      .listRules(playerId)
+      .then(setRules)
+      .catch(() => setRules([]))
   }, [playerId])
+
+  const actions: RuleActions = useMemo(
+    () => ({
+      rules,
+      adopt: async (draft: RuleDraft) => {
+        const rule = await insightsApi.createRule(playerId, draft)
+        setRules((rs) => [...rs, rule])
+      },
+    }),
+    [rules, playerId],
+  )
+
+  async function retire(rule: Rule) {
+    await insightsApi.retireRule(rule.id)
+    setRules((rs) => rs.filter((r) => r.id !== rule.id))
+  }
 
   async function analyse() {
     setBusy(true)
@@ -119,6 +152,7 @@ function InsightsPanel({ playerId, hasGames }: { playerId: number; hasGames: boo
     () => sortTimeClasses([...new Set(run?.findings.map((f) => f.time_class) ?? [])]),
     [run],
   )
+  const checks = useMemo(() => (run?.findings ?? []).filter((f) => f.analysis_key === 'rule_check'), [run])
   const active = tab && classes.includes(tab) ? tab : classes[0]
 
   return (
@@ -153,10 +187,20 @@ function InsightsPanel({ playerId, hasGames }: { playerId: number; hasGames: boo
             ))}
           </div>
           <div className="findings">
+            {rules
+              .filter((r) => r.time_class === active)
+              .map((r) => (
+                <RuleCard
+                  key={`rule-${r.id}`}
+                  rule={r}
+                  check={checks.find((f) => f.details.rule_id === r.id)}
+                  onRetire={retire}
+                />
+              ))}
             {run.findings
-              .filter((f) => f.time_class === active)
+              .filter((f) => f.time_class === active && f.analysis_key !== 'rule_check')
               .map((f) => (
-                <FindingCard key={f.id} finding={f} />
+                <FindingCard key={f.id} finding={f} actions={actions} />
               ))}
           </div>
           <p className="muted small">

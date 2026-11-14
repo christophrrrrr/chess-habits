@@ -27,6 +27,7 @@ Chosen by the research sweep ([docs/research/shortlist.md](../../docs/research/s
 | Requeue after a loss | `after_loss_requeue` | How often the next game starts within 60 s after a loss vs a win |
 | Result after a loss | `after_loss_result` | Residual right after a loss vs right after a win, in Elo |
 | Stop-loss rules | `stop_loss_rules` | Whether "stop after 2/3 losses" would have skipped games played below the player's level |
+| Rule check | `rule_check` | For each rule the player adopted from a card (clock checkpoint or stop-loss rule): how often it was kept since adoption vs the baseline before, with a kept/broken strip; "too early" until 30 games or sessions |
 
 ## API
 
@@ -39,6 +40,11 @@ Chosen by the research sweep ([docs/research/shortlist.md](../../docs/research/s
 | GET | `/players/{id}/findings` | Latest run with findings |
 | GET | `/runs/{id}` | One run with findings |
 | DELETE | `/runs/{id}` | Delete a run |
+| POST | `/players/{id}/rules` | Adopt a rule (`clock_checkpoint` with `min_share` and `move`, or `stop_loss` with `stop_rule`); `409` if one of the same kind is active for that time class |
+| GET | `/players/{id}/rules` | Active rules (`?include_retired=true` for all) |
+| GET | `/rules/{id}` | One rule |
+| PATCH | `/rules/{id}` | Change note or threshold (restarts the count), retire or reactivate (`retired`) |
+| DELETE | `/rules/{id}` | Delete a rule |
 
 If the games service is down, `POST /players/{id}/runs` answers `503` with a clear message after
 a 60 s timeout (enough for the games service to wake from scale-to-zero); earlier findings stay readable.

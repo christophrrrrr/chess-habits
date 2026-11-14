@@ -13,6 +13,8 @@ erDiagram
     players ||--o{ imported_months : "has"
     analysis_runs ||--o{ findings : "has"
     players ||..o{ analysis_runs : "player_id (other database)"
+    players ||..o{ rules : "player_id (other database)"
+    rules ||..o{ findings : "details.rule_id (rule_check cards)"
 
     players {
         int id PK
@@ -70,7 +72,7 @@ erDiagram
     findings {
         int id PK
         int run_id FK
-        string analysis_key "clock_profile, time_trouble_score, after_loss_*, stop_loss_rules"
+        string analysis_key "clock_profile, time_trouble_score, after_loss_*, stop_loss_rules, rule_check"
         string time_class
         string kind "contrast or profile"
         string metric "score, share or profile"
@@ -85,7 +87,21 @@ erDiagram
         int sample_size
         text details "JSON"
     }
+    rules {
+        int id PK
+        int player_id "games.players.id"
+        string time_class "bullet, blitz, rapid, classical"
+        string kind "clock_checkpoint or stop_loss"
+        int move "clock checkpoint: own move number"
+        float min_share "clock checkpoint: share of T_est"
+        string stop_rule "stop loss: two_in_a_row, three_in_a_row, three_in_session"
+        string note
+        datetime adopted_at
+        datetime retired_at "null while active"
+        datetime created_at
+    }
 ```
 
 Deleting a player deletes their games and imported months (`ON DELETE CASCADE`). Deleting a run
-deletes its findings.
+deletes its findings. A rule is never deleted by a run: retiring it (`retired_at`) keeps its
+history, and each run writes one `rule_check` finding per active rule.

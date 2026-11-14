@@ -10,9 +10,9 @@ from app.analysis.analyses import ANALYSES
 from app.config import get_settings
 from app.db import get_session
 from app.games_client import GamesClient, GamesServiceUnavailable, PlayerNotFound
-from app.models import AnalysisRun
-from app.runner import run_analyses
-from app.schemas import AnalysisInfo, RunDetail, RunOut
+from app.models import AnalysisRun, Rule
+from app.runner import run_analyses, utcnow
+from app.schemas import AnalysisInfo, RuleCreate, RuleOut, RuleUpdate, RunDetail, RunOut
 
 router = APIRouter()
 
@@ -94,5 +94,101 @@ def delete_run(run_id: int, session: Session = Depends(get_session)) -> Response
     if run is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="run not found")
     session.delete(run)
+    session.commit()
+    return Response(status_code=204)
+
+
+# ---- rules ------------------------------------------------------------------------------
+
+
+def _get_rule(session: Session, rule_id: int) -> Rule:
+    rule = session.get(Rule, rule_id)
+    if rule is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="rule not found")
+    return rule
+
+
+def _ensure_single_active(session: Session, rule: Rule) -> None:
+    """One active rule per kind and time class keeps the cards readable."""
+    clash = session.scalar(
+        select(Rule).where(
+            Rule.player_id == rule.player_id,
+            Rule.time_class == rule.time_class,
+            Rule.kind == rule.kind,
+            Rule.retired_at.is_(None),
+            Rule.id != (rule.id or -1),
+        )
+    )
+    if clash is not None:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            detail=f"There is already an active rule of this kind for {rule.time_class}. "
+            "Stop tracking it first.",
+        )
+
+
+@router.post("/players/{player_id}/rules", response_model=RuleOut, status_code=201, tags=["rules"])
+def create_rule(player_id: int, body: RuleCreate, session: Session = Depends(get_session)) -> Rule:
+    now = utcnow()
+    rule = Rule(
+        player_id=player_id,
+        time_class=body.time_class,
+        kind=body.kind,
+        move=body.move,
+        min_share=body.min_share,
+        stop_rule=body.stop_rule,
+        note=body.note,
+        adopted_at=body.adopted_at or now,
+        created_at=now,
+    )
+    _ensure_single_active(session, rule)
+    session.add(rule)
+    session.commit()
+    return rule
+
+
+@router.get("/players/{player_id}/rules", response_model=list[RuleOut], tags=["rules"])
+def list_rules(
+    player_id: int, include_retired: bool = False, session: Session = Depends(get_session)
+) -> list[Rule]:
+    query = select(Rule).where(Rule.player_id == player_id).order_by(Rule.id)
+    if not include_retired:
+        query = query.where(Rule.retired_at.is_(None))
+    return list(session.scalars(query))
+
+
+@router.get("/rules/{rule_id}", response_model=RuleOut, tags=["rules"])
+def get_rule(rule_id: int, session: Session = Depends(get_session)) -> Rule:
+    return _get_rule(session, rule_id)
+
+
+@router.patch("/rules/{rule_id}", response_model=RuleOut, tags=["rules"])
+def update_rule(rule_id: int, body: RuleUpdate, session: Session = Depends(get_session)) -> Rule:
+    rule = _get_rule(session, rule_id)
+    changes = body.model_dump(exclude_unset=True)
+    threshold = {k: v for k, v in changes.items() if k in ("move", "min_share")}
+    if threshold:
+        if rule.kind != "clock_checkpoint" or None in threshold.values():
+            raise HTTPException(
+                422,
+                detail="move and min_share can only be changed on a clock checkpoint",
+            )
+        for key, value in threshold.items():
+            setattr(rule, key, value)
+        rule.adopted_at = utcnow()
+    if "note" in changes:
+        rule.note = changes["note"]
+    if changes.get("retired") is True and rule.retired_at is None:
+        rule.retired_at = utcnow()
+    elif changes.get("retired") is False and rule.retired_at is not None:
+        _ensure_single_active(session, rule)
+        rule.retired_at = None
+    session.commit()
+    return rule
+
+
+@router.delete("/rules/{rule_id}", status_code=204, tags=["rules"])
+def delete_rule(rule_id: int, session: Session = Depends(get_session)) -> Response:
+    session.delete(_get_rule(session, rule_id))
     session.commit()
     return Response(status_code=204)

@@ -102,6 +102,32 @@ export interface Run {
   findings: Finding[]
 }
 
+export type RuleKind = 'clock_checkpoint' | 'stop_loss'
+
+/** A rule the player adopted from a card; every analysis run checks whether it was kept. */
+export interface Rule {
+  id: number
+  player_id: number
+  time_class: string
+  kind: RuleKind
+  move: number | null
+  min_share: number | null
+  stop_rule: string | null
+  note: string | null
+  description: string
+  adopted_at: string
+  retired_at: string | null
+  created_at: string
+}
+
+export interface RuleDraft {
+  time_class: string
+  kind: RuleKind
+  move?: number
+  min_share?: number
+  stop_rule?: string
+}
+
 export class ApiError extends Error {
   readonly status: number
   constructor(status: number, message: string) {
@@ -171,4 +197,15 @@ export const insightsApi = {
   latestFindings: (playerId: number) => request<Run>(INSIGHTS_API, `/players/${playerId}/findings`),
   runAnalyses: (playerId: number) =>
     request<Run>(INSIGHTS_API, `/players/${playerId}/runs`, { method: 'POST' }),
+  listRules: (playerId: number) => request<Rule[]>(INSIGHTS_API, `/players/${playerId}/rules`),
+  createRule: (playerId: number, draft: RuleDraft) =>
+    request<Rule>(INSIGHTS_API, `/players/${playerId}/rules`, {
+      method: 'POST',
+      body: JSON.stringify(draft),
+    }),
+  retireRule: (ruleId: number) =>
+    request<Rule>(INSIGHTS_API, `/rules/${ruleId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ retired: true }),
+    }),
 }

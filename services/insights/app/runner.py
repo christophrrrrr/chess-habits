@@ -4,12 +4,14 @@ import json
 import math
 from datetime import UTC, datetime
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.analysis.analyses import ANALYSES
 from app.analysis.games import GameRecord, prepare
+from app.analysis.rules import RuleSpec, check_rule
 from app.analysis.stats import benjamini_hochberg, label_for
-from app.models import AnalysisRun, Finding
+from app.models import AnalysisRun, Finding, Rule
 
 
 def utcnow() -> datetime:
@@ -31,9 +33,25 @@ def _r(x: float | None) -> float | None:
     return None if x is None else round(x, 4)
 
 
+def _spec(rule: Rule) -> RuleSpec:
+    return RuleSpec(
+        id=rule.id,
+        time_class=rule.time_class,
+        kind=rule.kind,
+        adopted_at=rule.adopted_at,
+        move=rule.move,
+        min_share=rule.min_share,
+        stop_rule=rule.stop_rule,
+    )
+
+
 def run_analyses(session: Session, player_id: int, raw_games: list[dict]) -> AnalysisRun:
     games = prepare([GameRecord.from_api(g) for g in raw_games])
     drafts = [d for analysis in ANALYSES for d in analysis.run(games)]
+    rules = session.scalars(
+        select(Rule).where(Rule.player_id == player_id, Rule.retired_at.is_(None)).order_by(Rule.id)
+    )
+    drafts += [check_rule(_spec(r), games) for r in rules]
 
     # Multiple-testing correction over every contrast that has enough data to be judged.
     testable = [d for d in drafts if d.contrast is not None and d.contrast.n_small >= d.min_n]

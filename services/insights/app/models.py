@@ -59,3 +59,27 @@ class Finding(Base):
     details: Mapped[str] = mapped_column(UnicodeText)  # JSON with analysis-specific numbers
 
     run: Mapped[AnalysisRun] = relationship(back_populates="findings")
+
+
+class Rule(Base):
+    """A rule the player adopted from a card. Each analysis run checks whether it was kept."""
+
+    __tablename__ = "rules"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    player_id: Mapped[int] = mapped_column(Integer, index=True)
+    time_class: Mapped[str] = mapped_column(String(16))
+    kind: Mapped[str] = mapped_column(String(32))  # clock_checkpoint / stop_loss
+    move: Mapped[int | None] = mapped_column(Integer)  # clock checkpoint: own move number
+    min_share: Mapped[float | None] = mapped_column(Float)  # clock checkpoint: share of T_est
+    stop_rule: Mapped[str | None] = mapped_column(String(32))  # stop loss: which rule
+    note: Mapped[str | None] = mapped_column(Unicode(200))
+    adopted_at: Mapped[datetime] = mapped_column(DateTime)
+    retired_at: Mapped[datetime | None] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime)
+
+    @property
+    def description(self) -> str:
+        from app.analysis.rules import describe
+
+        return describe(self.kind, self.move, self.min_share, self.stop_rule)

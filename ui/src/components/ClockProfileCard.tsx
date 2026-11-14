@@ -1,6 +1,8 @@
 import type { Finding } from '../api'
 import { percent } from '../format'
+import { AdoptButton, type RuleActions } from './AdoptButton'
 import { CardHeader } from './CardHeader'
+import { Tile } from './Tile'
 
 interface Rate {
   count: number
@@ -28,6 +30,7 @@ export interface ClockDetails {
   }
   pace: { wins: Record<string, number | null>; losses: Record<string, number | null> }
   flags: { lost_on_time: Flags; won_on_time: Flags; net_points_per_100: number }
+  checkpoint?: { move: number; min_share: number; wins: Rate; trouble_games: Rate } | null
 }
 
 const CAUSES: Array<{ key: 'opening' | 'spikes' | 'drain'; label: string }> = [
@@ -36,23 +39,14 @@ const CAUSES: Array<{ key: 'opening' | 'spikes' | 'drain'; label: string }> = [
   { key: 'drain', label: 'Steady drain' },
 ]
 
-function Tile({ label, value, note }: { label: string; value: string; note?: string }) {
-  return (
-    <div className="tile">
-      <div className="tile__value">{value}</div>
-      <div className="tile__label">{label}</div>
-      {note && <div className="tile__note">{note}</div>}
-    </div>
-  )
-}
-
-export function ClockProfileCard({ finding }: { finding: Finding }) {
+export function ClockProfileCard({ finding, actions }: { finding: Finding; actions?: RuleActions }) {
   const d = finding.details as unknown as ClockDetails
   const causes = d.time_sinks.main_cause_share
   const onset = d.onset_move.median
   const lost = d.flags.lost_on_time
   const won = d.flags.won_on_time
   const paceMoves = Object.keys(d.pace.wins)
+  const cp = d.checkpoint
 
   return (
     <article className="finding finding--profile" aria-label={finding.title}>
@@ -152,6 +146,32 @@ export function ClockProfileCard({ finding }: { finding: Finding }) {
           </tbody>
         </table>
       </div>
+      {cp && (
+        <section className="suggestion" aria-label="Suggested rule">
+          <p>
+            <strong>
+              Suggested rule: keep at least {percent(cp.min_share)} of your clock after move {cp.move}.
+            </strong>{' '}
+            You did in {percent(cp.wins.rate)} of your wins
+            {cp.trouble_games.n > 0 && (
+              <> and in {percent(cp.trouble_games.rate)} of games with time trouble</>
+            )}
+            .
+          </p>
+          {actions && (
+            <AdoptButton
+              actions={actions}
+              draft={{
+                time_class: finding.time_class,
+                kind: 'clock_checkpoint',
+                move: cp.move,
+                min_share: cp.min_share,
+              }}
+            />
+          )}
+        </section>
+      )}
+
       <footer className="finding__foot">
         Based on {d.games_with_clock} games with clock data · net clock points per 100 games:{' '}
         {d.flags.net_points_per_100 >= 0 ? '+' : '−'}

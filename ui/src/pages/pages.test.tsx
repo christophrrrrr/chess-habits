@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
 import { mockFetch } from '../test/fetchMock'
-import { clockProfile, contrast } from '../test/fixtures'
+import { clockProfile, contrast, rule, ruleCheck } from '../test/fixtures'
 
 const player = {
   id: 1,
@@ -169,6 +169,35 @@ describe('player page', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Analyse my games' }))
     expect(await screen.findByText('Bullet: you score worse right after a loss')).toBeInTheDocument()
+  })
+
+  it('adopts a rule from a card, shows its progress and stops tracking it', async () => {
+    window.location.hash = '#/players/1'
+    const calls = mockFetch([
+      ['GET', /\/players\/1$/, () => ({ body: { ...player, game_counts: { bullet: 700 } } })],
+      [
+        'GET',
+        /\/players\/1\/findings$/,
+        () => ({ body: { ...run, findings: [{ ...clockProfile, id: 3 }, ruleCheck] } }),
+      ],
+      ['GET', /\/players\/1\/rules$/, () => ({ body: [] })],
+      ['POST', /\/players\/1\/rules$/, () => ({ status: 201, body: rule })],
+      ['PATCH', /\/rules\/11$/, () => ({ body: { ...rule, retired_at: '2026-11-12T12:00:00' } })],
+      ['GET', /\/players\/1\/games/, () => ({ body: { items: [], total: 0, limit: 15, offset: 0 } })],
+    ])
+    render(<App />)
+    // The check belongs to a rule that is not active (yet): it is not shown on its own.
+    await userEvent.click(await screen.findByRole('button', { name: 'Adopt this rule' }))
+    expect(await screen.findByRole('heading', { name: ruleCheck.title })).toBeInTheDocument()
+    expect(screen.getByText('Tracking ✓')).toBeInTheDocument()
+    const post = calls.find((c) => c.method === 'POST')
+    expect(JSON.parse(post!.body!)).toMatchObject({ kind: 'clock_checkpoint', min_share: 0.45 })
+
+    await userEvent.click(screen.getByRole('button', { name: 'Stop tracking' }))
+    await waitFor(() =>
+      expect(screen.queryByRole('heading', { name: ruleCheck.title })).not.toBeInTheDocument(),
+    )
+    expect(JSON.parse(calls.find((c) => c.method === 'PATCH')!.body!)).toEqual({ retired: true })
   })
 
   it('edits notes and reports insights outages', async () => {

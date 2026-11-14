@@ -558,3 +558,71 @@ table.mini td {
 .verdict--costs {
   color: var(--bad);
 }
+
+/* ---- rules ---------------------------------------------------------------------------- */
+
+.suggestion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  background: var(--neutral-bg);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  margin: 0.75rem 0;
+}
+
+.suggestion p {
+  margin: 0;
+  flex: 1 1 18rem;
+}
+
+.adopt {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+button.small {
+  padding: 0.2rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+.tracking {
+  color: var(--good);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.strip-wrap {
+  margin: 0.25rem 0 0.75rem;
+}
+
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.strip__cell {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+.strip__cell--kept {
+  background: var(--good);
+}
+
+.strip__cell--broken {
+  background: var(--bad);
+}
+
+.rule__foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}

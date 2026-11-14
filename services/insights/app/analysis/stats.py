@@ -155,6 +155,12 @@ def wilson(successes: int, n: int, z: float = 1.96) -> tuple[float, float]:
     return max(0.0, centre - half), min(1.0, centre + half)
 
 
+def rate_summary(k: int, n: int) -> dict:
+    """Count, rate and 95% Wilson interval, as stored in finding details."""
+    lo, hi = wilson(k, n)
+    return {"count": k, "n": n, "rate": (k / n) if n else None, "ci": [lo, hi]}
+
+
 def median(xs: list[float]) -> float | None:
     return float(np.median(xs)) if xs else None
 

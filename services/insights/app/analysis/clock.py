@@ -4,18 +4,20 @@ Research: docs/research/clock-time-trouble.md, clock-flag-losses.md, experiments
 Definitions: docs/definitions.md.
 """
 
+import math
 from dataclasses import dataclass
 
 from app.analysis.base import FindingDraft, by_category
 from app.analysis.games import GameRecord
 from app.analysis.stats import (
     MIN_OUTCOME_GROUP,
+    MIN_RATE_GROUP,
     cluster_bootstrap,
     median,
     pct,
     quantiles,
+    rate_summary,
     to_elo,
-    wilson,
 )
 
 TROUBLE = 0.10  # clock below 10% of T_est
@@ -30,6 +32,7 @@ CAUSE_TEXT = {
     "drain": "a steady drain, every move a little slow",
 }
 EARLY_ESTIMATE_BELOW = 100  # games
+CHECKPOINT_MOVE = 20  # suggested rule: clock left after this own move
 
 
 @dataclass
@@ -59,11 +62,6 @@ def analyse_clock(g: GameRecord) -> ClockGame | None:
     if entry is not None:
         self_inflicted = g.opponent_clock_before(entry) > g.clock_before(entry)
     return ClockGame(g, n, entry, _first_below(g, SCRAMBLE, n) is not None, self_inflicted)
-
-
-def _rate(k: int, n: int) -> dict:
-    lo, hi = wilson(k, n)
-    return {"count": k, "n": n, "rate": (k / n) if n else None, "ci": [lo, hi]}
 
 
 def _time_sinks(entries: list[ClockGame], calm: list[ClockGame], usual: float) -> dict:
@@ -119,6 +117,27 @@ def _pace(games: list[ClockGame]) -> dict:
     return out
 
 
+def _checkpoint(games: list[ClockGame]) -> dict | None:
+    """Suggested clock checkpoint: a floor that 3 in 4 of the player's wins clear at move 20,
+    rounded down to 5%, and how often games with time trouble cleared it."""
+
+    def share(cg: ClockGame) -> float:
+        return cg.game.own_clocks[CHECKPOINT_MOVE - 1] / (cg.game.t_est * 10)
+
+    reached = [cg for cg in games if cg.n_moves >= CHECKPOINT_MOVE]
+    wins = [share(cg) for cg in reached if cg.game.result == "win"]
+    if len(wins) < MIN_RATE_GROUP:
+        return None
+    floor = max(0.05, math.floor(quantiles(wins)[0] * 20) / 20)
+    trouble = [share(cg) for cg in reached if cg.entry_move is not None]
+    return {
+        "move": CHECKPOINT_MOVE,
+        "min_share": floor,
+        "wins": rate_summary(sum(w >= floor for w in wins), len(wins)),
+        "trouble_games": rate_summary(sum(t >= floor for t in trouble), len(trouble)),
+    }
+
+
 def _flags(games: list[GameRecord]) -> dict:
     def bucket(m: int | None) -> str:
         if m is None:
@@ -159,12 +178,13 @@ def clock_profile(games: list[GameRecord]) -> list[FindingDraft]:
         details = {
             "games_with_clock": n,
             "early_estimate": n < EARLY_ESTIMATE_BELOW,
-            "entry": _rate(len(entries), n),
-            "scramble": _rate(sum(cg.scramble for cg in analysed), n),
+            "entry": rate_summary(len(entries), n),
+            "scramble": rate_summary(sum(cg.scramble for cg in analysed), n),
             "onset_move": {"median": median(onset), "iqr": quantiles(onset)},
-            "self_inflicted": _rate(len(self_inf), len(entries)),
+            "self_inflicted": rate_summary(len(self_inf), len(entries)),
             "time_sinks": _time_sinks(entries, calm, usual) if len(entries) >= 30 else {},
             "pace": _pace(analysed),
+            "checkpoint": _checkpoint(analysed),
             "flags": flags,
             "usual_think_seconds": usual,
         }
