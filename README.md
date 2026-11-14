@@ -106,14 +106,20 @@ Reproduce the Azure setup: [docs/deployment.md](docs/deployment.md).
 | [docs/definitions.md](docs/definitions.md) | Every metric and statistical rule the analyses use |
 | [docs/deployment.md](docs/deployment.md) | Azure resources, secrets, pipeline, rollback |
 | [docs/monitoring.md](docs/monitoring.md) | Logs, dashboard queries, SLO |
-| [docs/scrum/](docs/scrum/) | Definition of Done and sprint notes |
+| [docs/scrum/](docs/scrum/) | Team and roles, Definition of Done, sprint notes |
 | [docs/research/](docs/research/) | Research notes on candidate analyses |
 | [AI_USAGE.md](AI_USAGE.md) | Log of AI-assisted work |
 | [AGENTS.md](AGENTS.md) | Guide for AI coding agents working in this repo |
 
 ## Team
 
-| Name | GitHub | Role |
-|---|---|---|
-| Christoph Rintz | [@christophrrrrr](https://github.com/christophrrrrr) | Developer |
-| _TBD_ | | |
+Group 3. Roles rotate every sprint; full table and who owns what: [docs/scrum/team.md](docs/scrum/team.md).
+
+| Name | GitHub |
+|---|---|
+| Christoph Rintz | [@christophrrrrr](https://github.com/christophrrrrr) |
+| Javi | [@javocruz](https://github.com/javocruz) |
+| Nika | [@nika140906](https://github.com/nika140906) |
+| Laura | [@Palee222](https://github.com/Palee222) |
+| Zaid | [@zaid-ju](https://github.com/zaid-ju) |
+| Xander | _to come_ |
