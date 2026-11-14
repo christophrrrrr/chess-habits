@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import { axisPosition, capitalize, formatDate, points, sortTimeClasses } from './format'
-import { parseRoute } from './routes'
 
 describe('format helpers', () => {
   it('formats score points with sign', () => {
@@ -33,11 +32,5 @@ describe('format helpers', () => {
     expect(axisPosition(0, 0.4)).toBe(50)
     expect(axisPosition(-0.4, 0.4)).toBe(0)
     expect(axisPosition(1, 0.4)).toBe(100)
-  })
-
-  it('parses hash routes', () => {
-    expect(parseRoute('#/players/12')).toEqual({ page: 'player', id: 12 })
-    expect(parseRoute('#/')).toEqual({ page: 'players' })
-    expect(parseRoute('')).toEqual({ page: 'players' })
   })
 })

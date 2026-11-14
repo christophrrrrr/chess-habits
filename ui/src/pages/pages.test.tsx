@@ -92,22 +92,45 @@ describe('players page', () => {
 })
 
 describe('player page', () => {
-  it('shows findings per time control and switches tabs', async () => {
+  it('shows one tile per finding, switches time control and opens a finding', async () => {
     window.location.hash = '#/players/1'
     mockFetch([
       ['GET', /\/players\/1$/, () => ({ body: { ...player, game_counts: { rapid: 200, bullet: 700 } } })],
       ['GET', /\/players\/1\/findings$/, () => ({ body: run })],
-      ['GET', /\/players\/1\/games/, () => ({ body: { items: [], total: 0, limit: 15, offset: 0 } })],
     ])
     render(<App />)
-    expect(await screen.findByText('Bullet: you score worse right after a loss')).toBeInTheDocument()
+    // The time control with the most games comes first.
+    expect(
+      await screen.findByRole('link', { name: /You score worse right after a loss/ }),
+    ).toBeInTheDocument()
     expect(screen.getByText(/900 games/)).toBeInTheDocument()
-    await userEvent.click(screen.getByRole('tab', { name: 'Rapid' }))
-    expect(screen.getByText('Rapid: no clear tilt after a loss')).toBeInTheDocument()
-    expect(screen.queryByText('Bullet: you score worse right after a loss')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Time trouble.*19%/ })).toBeInTheDocument()
+    expect(screen.getByText('Compare with a grandmaster')).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('link', { name: /Rapid/ }))
+    expect(await screen.findByRole('link', { name: /No clear tilt after a loss/ })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /You score worse/ })).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('link', { name: /No clear tilt after a loss/ }))
+    expect(
+      await screen.findByRole('heading', { name: 'Rapid: no clear tilt after a loss' }),
+    ).toBeInTheDocument()
+    expect(window.location.hash).toBe('#/players/1/rapid/time_trouble_score')
+    await userEvent.click(screen.getByRole('link', { name: /chrisaxm · Rapid/ }))
+    expect(await screen.findByRole('link', { name: /No clear tilt after a loss/ })).toBeInTheDocument()
   })
 
-  it('imports all missing months and runs the analysis', async () => {
+  it('says so when a linked finding is not in the latest analysis', async () => {
+    window.location.hash = '#/players/1/blitz/clock_profile'
+    mockFetch([
+      ['GET', /\/players\/1$/, () => ({ body: { ...player, game_counts: { blitz: 10 } } })],
+      ['GET', /\/players\/1\/findings$/, () => ({ body: run })],
+    ])
+    render(<App />)
+    expect(await screen.findByText('This result is not in the latest analysis.')).toBeInTheDocument()
+  })
+
+  it('imports all missing months, runs the analysis and lists recent games', async () => {
     window.location.hash = '#/players/1'
     const calls = mockFetch([
       ['GET', /\/players\/1$/, () => ({ body: { ...player, game_counts: { blitz: 3 } } })],
@@ -136,7 +159,7 @@ describe('player page', () => {
               },
             ],
             total: 1,
-            limit: 15,
+            limit: 30,
             offset: 0,
           },
         }),
@@ -160,19 +183,23 @@ describe('player page', () => {
       ['POST', /\/runs$/, () => ({ status: 201, body: run })],
     ])
     render(<App />)
-    expect(await screen.findByText('Italian Game')).toBeInTheDocument()
-    expect(screen.getByText(/Run an analysis after importing/)).toBeInTheDocument()
+    expect(await screen.findByText(/Run an analysis after importing/)).toBeInTheDocument()
 
     await userEvent.click(screen.getByRole('button', { name: 'Import from chess.com' }))
     expect(await screen.findByText('Imported 10 new games from 2 months.')).toBeInTheDocument()
     expect(calls.filter((c) => c.url.endsWith('/imports'))).toHaveLength(2)
 
     await userEvent.click(screen.getByRole('button', { name: 'Analyse my games' }))
-    expect(await screen.findByText('Bullet: you score worse right after a loss')).toBeInTheDocument()
+    expect(
+      await screen.findByRole('link', { name: /You score worse right after a loss/ }),
+    ).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('link', { name: /Recent games/ }))
+    expect(await screen.findByText('Italian Game')).toBeInTheDocument()
   })
 
-  it('adopts a rule from a card, shows its progress and stops tracking it', async () => {
-    window.location.hash = '#/players/1'
+  it('adopts a rule from a card, shows its tile and progress, and stops tracking it', async () => {
+    window.location.hash = '#/players/1/bullet/clock_profile'
     const calls = mockFetch([
       ['GET', /\/players\/1$/, () => ({ body: { ...player, game_counts: { bullet: 700 } } })],
       [
@@ -183,20 +210,22 @@ describe('player page', () => {
       ['GET', /\/players\/1\/rules$/, () => ({ body: [] })],
       ['POST', /\/players\/1\/rules$/, () => ({ status: 201, body: rule })],
       ['PATCH', /\/rules\/11$/, () => ({ body: { ...rule, retired_at: '2026-11-12T12:00:00' } })],
-      ['GET', /\/players\/1\/games/, () => ({ body: { items: [], total: 0, limit: 15, offset: 0 } })],
     ])
     render(<App />)
-    // The check belongs to a rule that is not active (yet): it is not shown on its own.
     await userEvent.click(await screen.findByRole('button', { name: 'Adopt this rule' }))
-    expect(await screen.findByRole('heading', { name: ruleCheck.title })).toBeInTheDocument()
-    expect(screen.getByText('Tracking ✓')).toBeInTheDocument()
+    expect(await screen.findByText('Tracking ✓')).toBeInTheDocument()
     const post = calls.find((c) => c.method === 'POST')
     expect(JSON.parse(post!.body!)).toMatchObject({ kind: 'clock_checkpoint', min_share: 0.45 })
 
+    await userEvent.click(screen.getByRole('link', { name: /chrisaxm · Bullet/ }))
+    // The check of the new rule is not a habit tile of its own: it shows on the rule tile.
+    await userEvent.click(await screen.findByRole('link', { name: /Your rule.*93%/ }))
+    expect(await screen.findByRole('heading', { name: ruleCheck.title })).toBeInTheDocument()
+
     await userEvent.click(screen.getByRole('button', { name: 'Stop tracking' }))
-    await waitFor(() =>
-      expect(screen.queryByRole('heading', { name: ruleCheck.title })).not.toBeInTheDocument(),
-    )
+    await waitFor(() => expect(window.location.hash).toBe('#/players/1/bullet'))
+    expect(await screen.findByRole('link', { name: /Time trouble/ })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /Your rule/ })).not.toBeInTheDocument()
     expect(JSON.parse(calls.find((c) => c.method === 'PATCH')!.body!)).toEqual({ retired: true })
   })
 
@@ -206,7 +235,6 @@ describe('player page', () => {
       ['GET', /\/players\/1$/, () => ({ body: { ...player, game_counts: {} } })],
       ['PATCH', /\/players\/1$/, () => ({ body: { ...player, notes: 'main' } })],
       ['GET', /\/players\/1\/findings$/, () => 'network-error'],
-      ['GET', /\/players\/1\/games/, () => ({ body: { items: [], total: 0, limit: 15, offset: 0 } })],
       [
         'GET',
         /\/archives$/,

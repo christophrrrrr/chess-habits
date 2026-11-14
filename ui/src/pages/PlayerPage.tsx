@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { ArrowLeft, ChartColumn } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import {
   ApiError,
   gamesApi,
   insightsApi,
+  type Finding,
   type Game,
   type PlayerDetail,
   type Rule,
@@ -11,13 +13,25 @@ import {
 } from '../api'
 import type { RuleActions } from '../components/AdoptButton'
 import { FindingCard } from '../components/FindingCard'
+import { ComingSoonTile, HabitTile } from '../components/HabitTile'
 import { ImportPanel } from '../components/ImportPanel'
 import { RuleCard } from '../components/RuleCard'
+import { TileIcon } from '../components/TileIcon'
 import { capitalize, formatDate, sortTimeClasses } from '../format'
+import { href, type PlayerView } from '../routes'
+import { findingTile, ruleTile, TILE_NAMES } from '../tiles'
 
-export function PlayerPage({ playerId }: { playerId: number }) {
+type Props = { playerId: number; view: PlayerView }
+
+/** One player: loads the account, the latest analysis and the rules once, then shows a view. */
+export function PlayerPage({ playerId, view }: Props) {
   const [player, setPlayer] = useState<PlayerDetail | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [run, setRun] = useState<Run | null>(null)
+  const [runError, setRunError] = useState<string | null>(null)
+  const [runLoaded, setRunLoaded] = useState(false)
+  const [rules, setRules] = useState<Rule[]>([])
+  const [busy, setBusy] = useState(false)
 
   const loadPlayer = useCallback(() => {
     gamesApi
@@ -28,34 +42,303 @@ export function PlayerPage({ playerId }: { playerId: number }) {
 
   useEffect(loadPlayer, [loadPlayer])
 
+  useEffect(() => {
+    insightsApi
+      .latestFindings(playerId)
+      .then(setRun)
+      .catch((e: ApiError) => {
+        if (e.status !== 404) setRunError(e.message)
+      })
+      .finally(() => setRunLoaded(true))
+    // Rules are an extra: if they fail to load, the findings still show.
+    insightsApi
+      .listRules(playerId)
+      .then(setRules)
+      .catch(() => setRules([]))
+  }, [playerId])
+
+  const actions: RuleActions = useMemo(
+    () => ({
+      rules,
+      adopt: async (draft: RuleDraft) => {
+        const rule = await insightsApi.createRule(playerId, draft)
+        setRules((rs) => [...rs, rule])
+      },
+    }),
+    [rules, playerId],
+  )
+
+  async function retire(rule: Rule) {
+    await insightsApi.retireRule(rule.id)
+    setRules((rs) => rs.filter((r) => r.id !== rule.id))
+  }
+
+  async function analyse() {
+    setBusy(true)
+    setRunError(null)
+    try {
+      setRun(await insightsApi.runAnalyses(playerId))
+    } catch (e) {
+      setRunError((e as Error).message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
   if (error) return <p className="error">{error}</p>
   if (!player) return <p className="muted">Loading…</p>
 
+  const name = player.display_name ?? player.username
   const total = Object.values(player.game_counts).reduce((a, b) => a + b, 0)
+  const checks = (run?.findings ?? []).filter((f) => f.analysis_key === 'rule_check')
+
+  if (view.view === 'finding') {
+    const finding = run?.findings.find((f) => f.time_class === view.tc && f.analysis_key === view.key)
+    return (
+      <Detail
+        back={href({ page: 'player', id: playerId, view: 'overview', tc: view.tc })}
+        backLabel={`${name} · ${capitalize(view.tc)}`}
+        icon={view.key}
+        title={TILE_NAMES[view.key] ?? capitalize(view.key.replace(/_/g, ' '))}
+      >
+        {finding ? (
+          <>
+            <FindingCard finding={finding} actions={actions} />
+            <StatsNote />
+          </>
+        ) : (
+          <p className="muted">{runLoaded ? 'This result is not in the latest analysis.' : 'Loading…'}</p>
+        )}
+      </Detail>
+    )
+  }
+
+  if (view.view === 'rule') {
+    const rule = rules.find((r) => r.id === view.ruleId)
+    const back = href({ page: 'player', id: playerId, view: 'overview', tc: rule?.time_class })
+    return (
+      <Detail back={back} backLabel={name} icon="rule" title="Your rule">
+        {rule ? (
+          <RuleCard
+            rule={rule}
+            check={checks.find((f) => f.details.rule_id === rule.id)}
+            onRetire={async (r) => {
+              await retire(r)
+              window.location.hash = back
+            }}
+          />
+        ) : (
+          <p className="muted">This rule is not tracked (any more).</p>
+        )}
+      </Detail>
+    )
+  }
+
+  if (view.view === 'games')
+    return (
+      <Detail
+        back={href({ page: 'player', id: playerId, view: 'overview' })}
+        backLabel={name}
+        icon="games"
+        title="Recent games"
+      >
+        <RecentGames playerId={playerId} />
+      </Detail>
+    )
 
   return (
     <div className="stack">
       <a href="#/" className="back">
-        ← All accounts
+        <ArrowLeft size={16} aria-hidden="true" /> All accounts
       </a>
       <section className="player-head">
-        <h2>{player.display_name ?? player.username}</h2>
-        <p className="muted">
-          chess.com/{player.username} · {total} games · last import {formatDate(player.last_imported_at)}
-        </p>
-        <NotesEditor player={player} onSaved={loadPlayer} />
-        <div className="chips">
-          {sortTimeClasses(Object.keys(player.game_counts)).map((tc) => (
-            <span key={tc} className="chip">
-              {capitalize(tc)} <strong>{player.game_counts[tc]}</strong>
-            </span>
-          ))}
+        <span className="avatar avatar--big" aria-hidden="true">
+          {name[0].toUpperCase()}
+        </span>
+        <div className="player-head__text">
+          <h2>{name}</h2>
+          <p className="muted">
+            chess.com/{player.username} · {total} games · last import {formatDate(player.last_imported_at)}
+          </p>
+          <NotesEditor player={player} onSaved={loadPlayer} />
         </div>
       </section>
-      <ImportPanel playerId={playerId} onImported={loadPlayer} />
-      <InsightsPanel playerId={playerId} hasGames={total > 0} />
-      <RecentGames playerId={playerId} key={total} />
+      <section className="actions">
+        <ImportPanel playerId={playerId} onImported={loadPlayer} />
+        <div className="actions__analyse">
+          <button className="big-button" onClick={analyse} disabled={busy || total === 0}>
+            <ChartColumn size={18} aria-hidden="true" />
+            {busy ? 'Analysing…' : run ? 'Re-run analysis' : 'Analyse my games'}
+          </button>
+          <p className="muted small">
+            {run
+              ? `Last analysis ${formatDate(run.finished_at)} over ${run.games_analyzed} games.`
+              : 'Run an analysis after importing your games.'}
+          </p>
+        </div>
+      </section>
+      {runError && <p className="error">{runError}</p>}
+      <Overview playerId={playerId} player={player} run={run} rules={rules} checks={checks} tc={view.tc} />
     </div>
+  )
+}
+
+function Overview({
+  playerId,
+  player,
+  run,
+  rules,
+  checks,
+  tc,
+}: {
+  playerId: number
+  player: PlayerDetail
+  run: Run | null
+  rules: Rule[]
+  checks: Finding[]
+  tc?: string
+}) {
+  const classes = useMemo(
+    () => sortTimeClasses([...new Set(run?.findings.map((f) => f.time_class) ?? [])]),
+    [run],
+  )
+  // Default to the time control with the most games.
+  const busiest = [...classes].sort((a, b) => (player.game_counts[b] ?? 0) - (player.game_counts[a] ?? 0))[0]
+  const active = tc && classes.includes(tc) ? tc : busiest
+  const total = Object.values(player.game_counts).reduce((a, b) => a + b, 0)
+
+  return (
+    <>
+      {run && classes.length > 0 && (
+        <>
+          <nav className="segmented" aria-label="Time control">
+            {classes.map((c) => (
+              <a
+                key={c}
+                href={href({ page: 'player', id: playerId, view: 'overview', tc: c })}
+                className={c === active ? 'segmented__item segmented__item--active' : 'segmented__item'}
+                aria-current={c === active ? 'page' : undefined}
+              >
+                {capitalize(c)}
+                <span className="segmented__count">{player.game_counts[c] ?? 0}</span>
+              </a>
+            ))}
+          </nav>
+
+          <section aria-label="Your habits">
+            <h3 className="section-title">Your habits in {active}</h3>
+            <div className="habit-grid">
+              {run.findings
+                .filter((f) => f.time_class === active && f.analysis_key !== 'rule_check')
+                .map((f) => (
+                  <HabitTile
+                    key={f.id}
+                    tile={findingTile(f)}
+                    icon={f.analysis_key}
+                    to={href({
+                      page: 'player',
+                      id: playerId,
+                      view: 'finding',
+                      tc: active,
+                      key: f.analysis_key,
+                    })}
+                  />
+                ))}
+            </div>
+          </section>
+
+          {rules.some((r) => r.time_class === active) && (
+            <section aria-label="Your rules">
+              <h3 className="section-title">Rules you track</h3>
+              <div className="habit-grid">
+                {rules
+                  .filter((r) => r.time_class === active)
+                  .map((r) => (
+                    <HabitTile
+                      key={r.id}
+                      tile={ruleTile(
+                        r,
+                        checks.find((f) => f.details.rule_id === r.id),
+                      )}
+                      icon="rule"
+                      to={href({ page: 'player', id: playerId, view: 'rule', ruleId: r.id })}
+                    />
+                  ))}
+              </div>
+            </section>
+          )}
+        </>
+      )}
+
+      <section aria-label="More">
+        <h3 className="section-title">More</h3>
+        <div className="habit-grid">
+          {total > 0 && (
+            <HabitTile
+              tile={{
+                name: 'Recent games',
+                value: String(total),
+                caption: 'Your latest games with results and openings',
+                tone: 'neutral',
+                badge: null,
+              }}
+              icon="games"
+              to={href({ page: 'player', id: playerId, view: 'games' })}
+            />
+          )}
+          <ComingSoonTile
+            icon="grandmaster"
+            name="Compare with a grandmaster"
+            caption="Your habits next to a grandmaster you pick, e.g. how Hikaru uses his clock compared with you."
+          />
+          <ComingSoonTile
+            icon="gaze"
+            name="Where you look"
+            caption="Eye tracking while you solve and play: where your eyes go first, and what you miss."
+          />
+        </div>
+      </section>
+      {run && <StatsNote />}
+    </>
+  )
+}
+
+function Detail({
+  back,
+  backLabel,
+  icon,
+  title,
+  children,
+}: {
+  back: string
+  backLabel: string
+  icon: string
+  title: string
+  children: ReactNode
+}) {
+  return (
+    <div className="stack">
+      <a href={back} className="back">
+        <ArrowLeft size={16} aria-hidden="true" /> {backLabel}
+      </a>
+      <header className="detail-head">
+        <span className="habit__icon habit__icon--big">
+          <TileIcon name={icon} size={28} />
+        </span>
+        <h2>{title}</h2>
+      </header>
+      {children}
+    </div>
+  )
+}
+
+function StatsNote() {
+  return (
+    <p className="muted small">
+      Results are compared with what your smoothed rating predicts, in Elo. Each comparison shows its 95%
+      interval and the smallest effect your games could reveal. Labels are corrected for testing many things
+      at once: “Finding” means strong evidence, “No clear effect” means nothing larger than the stated size.
+    </p>
   )
 }
 
@@ -99,136 +382,20 @@ function NotesEditor({ player, onSaved }: { player: PlayerDetail; onSaved: () =>
   )
 }
 
-function InsightsPanel({ playerId, hasGames }: { playerId: number; hasGames: boolean }) {
-  const [run, setRun] = useState<Run | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [busy, setBusy] = useState(false)
-  const [tab, setTab] = useState<string | null>(null)
-  const [rules, setRules] = useState<Rule[]>([])
-
-  useEffect(() => {
-    insightsApi
-      .latestFindings(playerId)
-      .then(setRun)
-      .catch((e: ApiError) => {
-        if (e.status !== 404) setError(e.message)
-      })
-    // Rules are an extra: if they fail to load, the findings still show.
-    insightsApi
-      .listRules(playerId)
-      .then(setRules)
-      .catch(() => setRules([]))
-  }, [playerId])
-
-  const actions: RuleActions = useMemo(
-    () => ({
-      rules,
-      adopt: async (draft: RuleDraft) => {
-        const rule = await insightsApi.createRule(playerId, draft)
-        setRules((rs) => [...rs, rule])
-      },
-    }),
-    [rules, playerId],
-  )
-
-  async function retire(rule: Rule) {
-    await insightsApi.retireRule(rule.id)
-    setRules((rs) => rs.filter((r) => r.id !== rule.id))
-  }
-
-  async function analyse() {
-    setBusy(true)
-    setError(null)
-    try {
-      setRun(await insightsApi.runAnalyses(playerId))
-    } catch (e) {
-      setError((e as Error).message)
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  const classes = useMemo(
-    () => sortTimeClasses([...new Set(run?.findings.map((f) => f.time_class) ?? [])]),
-    [run],
-  )
-  const checks = useMemo(() => (run?.findings ?? []).filter((f) => f.analysis_key === 'rule_check'), [run])
-  const active = tab && classes.includes(tab) ? tab : classes[0]
-
-  return (
-    <section className="panel">
-      <div className="panel__row">
-        <div>
-          <h3>Insights</h3>
-          <p className="muted">
-            {run
-              ? `Last analysis ${formatDate(run.finished_at)} over ${run.games_analyzed} games.`
-              : 'Run an analysis after importing your games.'}
-          </p>
-        </div>
-        <button onClick={analyse} disabled={busy || !hasGames}>
-          {busy ? 'Analysing…' : run ? 'Re-run analysis' : 'Analyse my games'}
-        </button>
-      </div>
-      {error && <p className="error">{error}</p>}
-      {run && classes.length > 0 && (
-        <>
-          <div className="tabs" role="tablist">
-            {classes.map((tc) => (
-              <button
-                key={tc}
-                role="tab"
-                aria-selected={tc === active}
-                className={tc === active ? 'tab tab--active' : 'tab'}
-                onClick={() => setTab(tc)}
-              >
-                {capitalize(tc)}
-              </button>
-            ))}
-          </div>
-          <div className="findings">
-            {rules
-              .filter((r) => r.time_class === active)
-              .map((r) => (
-                <RuleCard
-                  key={`rule-${r.id}`}
-                  rule={r}
-                  check={checks.find((f) => f.details.rule_id === r.id)}
-                  onRetire={retire}
-                />
-              ))}
-            {run.findings
-              .filter((f) => f.time_class === active && f.analysis_key !== 'rule_check')
-              .map((f) => (
-                <FindingCard key={f.id} finding={f} actions={actions} />
-              ))}
-          </div>
-          <p className="muted small">
-            Results are compared with what your smoothed rating predicts, in Elo. Each comparison shows its
-            95% interval (the bar) and the smallest effect your games could reveal. Labels are corrected for
-            testing many things at once: “Finding” means strong evidence, “No clear effect” means nothing
-            larger than the stated size.
-          </p>
-        </>
-      )}
-    </section>
-  )
-}
-
 function RecentGames({ playerId }: { playerId: number }) {
-  const [games, setGames] = useState<Game[]>([])
+  const [games, setGames] = useState<Game[] | null>(null)
 
   useEffect(() => {
     gamesApi
-      .listGames(playerId, { limit: 15 })
+      .listGames(playerId, { limit: 30 })
       .then((p) => setGames(p.items))
       .catch(() => setGames([]))
   }, [playerId])
 
-  if (games.length === 0) return null
+  if (games === null) return <p className="muted">Loading…</p>
+  if (games.length === 0) return <p className="muted">No games imported yet.</p>
   return (
     <section className="panel">
-      <h3>Recent games</h3>
       <div className="table-wrap">
         <table>
           <thead>

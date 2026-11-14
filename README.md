@@ -20,7 +20,8 @@ research questions.
 
 1. Track a chess.com account and import its full game history (month by month, cached).
 2. Run analyses across all games, per time control: a **clock profile** (how often you get into time trouble, from which move, whether it is self-inflicted, whether long thinks, the opening or a steady drain cause it, and how many won positions the clock took) and an **after-loss** card (do you requeue faster, do you play below your level, would a stop-loss rule help). Every comparison comes with its sample size, a 95% interval, the smallest effect the data could detect, and a correction for testing many things at once; Chess Habits says "not enough data" instead of guessing.
-3. Turn a suggestion into a **rule** with one click (a clock checkpoint such as "keep 30% of my time at move 20", or a stop-loss rule such as "stop after two losses in a row") and see on a rule card whether you keep it more often than before.
+3. Show every result as a big tile (icon, headline number, how sure it is); click a tile for the full card with its charts and suggestions.
+4. Turn a suggestion into a **rule** with one click (a clock checkpoint such as "keep 30% of my time at move 20", or a stop-loss rule such as "stop after two losses in a row") and see on a rule card whether you keep it more often than before.
 
 **Next (Sprint 2):** put your habits next to a grandmaster of your choice, for example how Hikaru
 uses his clock compared with you (his chess.com games are public). See
