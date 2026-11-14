@@ -113,3 +113,43 @@ class RuleOut(BaseModel):
     adopted_at: datetime
     retired_at: datetime | None
     created_at: datetime
+
+
+class CompareSide(BaseModel):
+    value: float
+    ci_low: float | None
+    ci_high: float | None
+    n: int
+
+
+class CompareDifference(BaseModel):
+    value: float
+    ci_low: float
+    ci_high: float
+
+
+class CompareRow(BaseModel):
+    key: str
+    name: str
+    unit: Literal["share", "points", "elo", "move"]
+    better: Literal["lower", "higher"] | None
+    you: CompareSide | None
+    reference: CompareSide | None
+    difference: CompareDifference | None
+    q_value: float | None
+    verdict: Literal["different", "maybe_different", "similar", "not_enough_data", "descriptive"]
+
+
+class CompareBlock(BaseModel):
+    time_class: str
+    rows: list[CompareRow]
+
+
+class Comparison(BaseModel):
+    """A player's habits next to a reference player's (a grandmaster), per time control."""
+
+    player_id: int
+    reference_id: int
+    player_run: RunOut
+    reference_run: RunOut
+    blocks: list[CompareBlock]

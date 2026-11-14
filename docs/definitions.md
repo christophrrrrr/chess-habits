@@ -62,3 +62,14 @@ the code is wrong. Background and sources: [research/shortlist.md](research/shor
 | Baseline | The player's last **300** games (or sessions) before `adopted_at`, scored as if the rule had applied. | `rules.BASELINE_UNITS` |
 | Rule verdict | Share kept after adoption minus share kept in the baseline, game-cluster (checkpoint) or session-cluster (stop loss) bootstrap, same labels and Benjamini-Hochberg pass as every other card. **Too early** (`not_enough_data`) until 30 games or sessions on both sides. It is a before/after comparison, not a controlled experiment, and the card says so. | `rules.check_rule` |
 | Changing a rule | Changing the threshold resets `adopted_at`: the count starts again. | `PATCH /rules/{id}` |
+
+## Grandmaster comparison
+
+| Term | Definition | Code |
+|---|---|---|
+| Reference player | A chess.com account with `kind = reference`: a grandmaster to compare with. Imported and analysed exactly like your own account; the UI imports only its last **12** months. | `players.kind`, `ui/src/importer.ts` |
+| Comparison | Your latest analysis run next to the reference player's, per time control both have. Nothing is recomputed from games. | `compare.compare` |
+| Rows | Time trouble, scramble and self-inflicted shares (from the clock profile), the median move where time trouble starts and the clock left at move 20 in wins (descriptive only, not tested), and the effects of the cost of time trouble, quick requeues after a loss and play after a loss. | `compare.ROWS` |
+| Difference of shares | You minus the reference, 95% Newcombe hybrid score interval, two-proportion z-test. Needs ≥ 30 games on both sides. | `compare._difference` |
+| Difference of effects | You minus the reference; each side's standard error is taken from its 95% interval (`(high − low) / 3.92`), combined as independent. Only when both sides have enough data for their own card. | `compare._difference` |
+| Verdict | Benjamini-Hochberg over every tested row of the comparison: q ≤ 0.05 **clearly different**, q ≤ 0.10 **maybe different**, otherwise **no clear difference**. Effects are measured against each player's own expectation, so they compare habits, not strength. | `compare.compare` |

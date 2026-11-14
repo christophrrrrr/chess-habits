@@ -41,3 +41,21 @@ def test_0002_backfills_existing_games(tmp_path):
     assert row[2] == -5
     command.downgrade(_cfg(url), "0001")
     engine.dispose()
+
+
+def test_0003_marks_existing_players_as_players(tmp_path):
+    url = f"sqlite:///{(tmp_path / 'm.db').as_posix()}"
+    command.upgrade(_cfg(url), "0002")
+    engine = create_engine(url)
+    with engine.begin() as conn:
+        conn.execute(
+            text(
+                "INSERT INTO players (id, platform, username, created_at, updated_at) "
+                "VALUES (1, 'chesscom', 'chrisaxm', '2026-11-12', '2026-11-12')"
+            )
+        )
+    command.upgrade(_cfg(url), "head")
+    with engine.connect() as conn:
+        assert conn.execute(text("SELECT kind FROM players")).scalar_one() == "player"
+    command.downgrade(_cfg(url), "0002")
+    engine.dispose()

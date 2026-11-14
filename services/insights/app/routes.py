@@ -7,12 +7,22 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.analysis.analyses import ANALYSES
+from app.analysis.compare import compare
 from app.config import get_settings
 from app.db import get_session
 from app.games_client import GamesClient, GamesServiceUnavailable, PlayerNotFound
 from app.models import AnalysisRun, Rule
 from app.runner import run_analyses, utcnow
-from app.schemas import AnalysisInfo, RuleCreate, RuleOut, RuleUpdate, RunDetail, RunOut
+from app.schemas import (
+    AnalysisInfo,
+    Comparison,
+    FindingOut,
+    RuleCreate,
+    RuleOut,
+    RuleUpdate,
+    RunDetail,
+    RunOut,
+)
 
 router = APIRouter()
 
@@ -67,17 +77,51 @@ def list_runs(player_id: int, session: Session = Depends(get_session)) -> list[A
     )
 
 
-@router.get("/players/{player_id}/findings", response_model=RunDetail, tags=["runs"])
-def latest_findings(player_id: int, session: Session = Depends(get_session)) -> AnalysisRun:
-    run = session.scalar(
+def _latest_run(session: Session, player_id: int) -> AnalysisRun | None:
+    return session.scalar(
         select(AnalysisRun)
         .where(AnalysisRun.player_id == player_id, AnalysisRun.status == "done")
         .order_by(AnalysisRun.created_at.desc(), AnalysisRun.id.desc())
         .limit(1)
     )
+
+
+@router.get("/players/{player_id}/findings", response_model=RunDetail, tags=["runs"])
+def latest_findings(player_id: int, session: Session = Depends(get_session)) -> AnalysisRun:
+    run = _latest_run(session, player_id)
     if run is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="no analysis run yet")
     return run
+
+
+@router.get(
+    "/players/{player_id}/compare/{reference_id}", response_model=Comparison, tags=["compare"]
+)
+def compare_players(
+    player_id: int, reference_id: int, session: Session = Depends(get_session)
+) -> Comparison:
+    """Your habits next to a reference player's (a grandmaster), from both latest runs."""
+    if player_id == reference_id:
+        raise HTTPException(422, detail="pick a different player to compare with")
+    runs = {pid: _latest_run(session, pid) for pid in (player_id, reference_id)}
+    missing = [pid for pid, run in runs.items() if run is None]
+    if missing:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND,
+            detail=f"no analysis run yet for player {', '.join(map(str, missing))}",
+        )
+
+    def findings(run: AnalysisRun) -> list[dict]:
+        return [FindingOut.model_validate(f).model_dump() for f in run.findings]
+
+    mine, theirs = runs[player_id], runs[reference_id]
+    return Comparison(
+        player_id=player_id,
+        reference_id=reference_id,
+        player_run=RunOut.model_validate(mine),
+        reference_run=RunOut.model_validate(theirs),
+        blocks=compare(findings(mine), findings(theirs)),
+    )
 
 
 @router.get("/runs/{run_id}", response_model=RunDetail, tags=["runs"])

@@ -20,6 +20,7 @@ erDiagram
         int id PK
         string platform "chesscom"
         string username "lower case, unique with platform"
+        string kind "player or reference (a grandmaster to compare with)"
         string display_name
         string notes
         datetime created_at

@@ -46,7 +46,7 @@ more features. Product ideas come from the research shortlist
 
 ### Sprint 2 (19–24 Nov)
 
-12. **Grandmaster comparison** (can start before Sprint 2): pick a grandmaster, import their
+12. **Grandmaster comparison** (done 14 Nov, pulled forward into Sprint 1): pick a grandmaster, import their
     public chess.com games through the same import, and show their clock profile and after-loss
     habits next to yours, e.g. how Hikaru uses his clock compared with you. No new service or
     database: a grandmaster is just another tracked player. Time of day (D6) and opening

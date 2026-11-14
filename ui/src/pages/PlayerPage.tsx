@@ -18,6 +18,8 @@ import { ImportPanel } from '../components/ImportPanel'
 import { RuleCard } from '../components/RuleCard'
 import { TileIcon } from '../components/TileIcon'
 import { capitalize, formatDate, sortTimeClasses } from '../format'
+import { REFERENCE_MONTHS } from '../importer'
+import { ComparePage } from './ComparePage'
 import { href, type PlayerView } from '../routes'
 import { findingTile, ruleTile, TILE_NAMES } from '../tiles'
 
@@ -134,6 +136,22 @@ export function PlayerPage({ playerId, view }: Props) {
     )
   }
 
+  if (view.view === 'compare')
+    return (
+      <Detail
+        back={href({ page: 'player', id: playerId, view: 'overview' })}
+        backLabel={name}
+        icon="grandmaster"
+        title="You and a grandmaster"
+      >
+        {runLoaded ? (
+          <ComparePage playerId={playerId} playerName={name} hasOwnRun={run !== null} refId={view.refId} />
+        ) : (
+          <p className="muted">Loading…</p>
+        )}
+      </Detail>
+    )
+
   if (view.view === 'games')
     return (
       <Detail
@@ -164,7 +182,11 @@ export function PlayerPage({ playerId, view }: Props) {
         </div>
       </section>
       <section className="actions">
-        <ImportPanel playerId={playerId} onImported={loadPlayer} />
+        <ImportPanel
+          playerId={playerId}
+          onImported={loadPlayer}
+          lastMonths={player.kind === 'reference' ? REFERENCE_MONTHS : undefined}
+        />
         <div className="actions__analyse">
           <button className="big-button" onClick={analyse} disabled={busy || total === 0}>
             <ChartColumn size={18} aria-hidden="true" />
@@ -286,11 +308,20 @@ function Overview({
               to={href({ page: 'player', id: playerId, view: 'games' })}
             />
           )}
-          <ComingSoonTile
-            icon="grandmaster"
-            name="Compare with a grandmaster"
-            caption="Your habits next to a grandmaster you pick, e.g. how Hikaru uses his clock compared with you."
-          />
+          {player.kind !== 'reference' && (
+            <HabitTile
+              tile={{
+                name: 'Compare with a grandmaster',
+                value: 'You vs. GM',
+                caption:
+                  'Your habits next to a grandmaster you pick, e.g. how Hikaru uses his clock compared with you.',
+                tone: 'neutral',
+                badge: null,
+              }}
+              icon="grandmaster"
+              to={href({ page: 'player', id: playerId, view: 'compare' })}
+            />
+          )}
           <ComingSoonTile
             icon="gaze"
             name="Where you look"

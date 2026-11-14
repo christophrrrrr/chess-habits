@@ -18,10 +18,14 @@ function setSlow(delta: number) {
   window.dispatchEvent(new CustomEvent(SLOW_EVENT, { detail: slowRequests }))
 }
 
+/** "player": an account you track; "reference": a grandmaster to compare with. */
+export type PlayerKind = 'player' | 'reference'
+
 export interface Player {
   id: number
   platform: string
   username: string
+  kind: PlayerKind
   display_name: string | null
   notes: string | null
   created_at: string
@@ -102,6 +106,37 @@ export interface Run {
   findings: Finding[]
 }
 
+export type CompareUnit = 'share' | 'points' | 'elo' | 'move'
+export type CompareVerdict = 'different' | 'maybe_different' | 'similar' | 'not_enough_data' | 'descriptive'
+
+export interface CompareSide {
+  value: number
+  ci_low: number | null
+  ci_high: number | null
+  n: number
+}
+
+export interface CompareRow {
+  key: string
+  name: string
+  unit: CompareUnit
+  better: 'lower' | 'higher' | null
+  you: CompareSide | null
+  reference: CompareSide | null
+  difference: { value: number; ci_low: number; ci_high: number } | null
+  q_value: number | null
+  verdict: CompareVerdict
+}
+
+/** Your habits next to a grandmaster's, per time control (from both latest analysis runs). */
+export interface Comparison {
+  player_id: number
+  reference_id: number
+  player_run: Omit<Run, 'findings'>
+  reference_run: Omit<Run, 'findings'>
+  blocks: { time_class: string; rows: CompareRow[] }[]
+}
+
 export type RuleKind = 'clock_checkpoint' | 'stop_loss'
 
 /** A rule the player adopted from a card; every analysis run checks whether it was kept. */
@@ -172,10 +207,10 @@ async function request<T>(base: string, path: string, init?: RequestInit): Promi
 export const gamesApi = {
   listPlayers: () => request<Player[]>(GAMES_API, '/players'),
   getPlayer: (id: number) => request<PlayerDetail>(GAMES_API, `/players/${id}`),
-  createPlayer: (username: string, notes?: string) =>
+  createPlayer: (username: string, notes?: string, kind: PlayerKind = 'player') =>
     request<Player>(GAMES_API, '/players', {
       method: 'POST',
-      body: JSON.stringify({ platform: 'chesscom', username, notes: notes || null }),
+      body: JSON.stringify({ platform: 'chesscom', username, kind, notes: notes || null }),
     }),
   updatePlayer: (id: number, patch: { display_name?: string | null; notes?: string | null }) =>
     request<Player>(GAMES_API, `/players/${id}`, { method: 'PATCH', body: JSON.stringify(patch) }),
@@ -203,6 +238,8 @@ export const insightsApi = {
       method: 'POST',
       body: JSON.stringify(draft),
     }),
+  compare: (playerId: number, referenceId: number) =>
+    request<Comparison>(INSIGHTS_API, `/players/${playerId}/compare/${referenceId}`),
   retireRule: (ruleId: number) =>
     request<Rule>(INSIGHTS_API, `/rules/${ruleId}`, {
       method: 'PATCH',

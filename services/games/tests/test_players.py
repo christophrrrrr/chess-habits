@@ -84,3 +84,17 @@ def test_cors_allows_ui_origin(client):
         headers={"Origin": "https://evil.example", "Access-Control-Request-Method": "GET"},
     )
     assert "access-control-allow-origin" not in resp.headers
+
+
+def test_reference_players_are_listed_separately(client, chesscom, player):
+    chesscom.get("/player/hikaru").respond(200, json={"username": "hikaru", "name": "Hikaru"})
+    resp = client.post("/players", json={"username": "Hikaru", "kind": "reference"})
+    assert resp.status_code == 201
+    assert resp.json()["kind"] == "reference"
+    assert player["kind"] == "player"
+
+    assert [p["username"] for p in client.get("/players").json()] == ["chrisaxm", "hikaru"]
+    assert [p["username"] for p in client.get("/players?kind=reference").json()] == ["hikaru"]
+    assert [p["username"] for p in client.get("/players?kind=player").json()] == ["chrisaxm"]
+    assert client.get("/players?kind=robot").status_code == 422
+    assert client.post("/players", json={"username": "x_y_z", "kind": "robot"}).status_code == 422
