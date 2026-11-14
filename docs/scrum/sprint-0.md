@@ -1,6 +1,6 @@
 # Sprint 0 (4–10 Nov 2026)
 
-**Product Owner:** _TBD_ · **Scrum Master:** _TBD_
+**Product Owner:** Christoph · **Scrum Master:** not assigned (team still forming); see [team.md](team.md)
 
 **Sprint Goal:** Team, idea, backlog and repository ready; local skeleton runs.
 
