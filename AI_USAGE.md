@@ -7,3 +7,4 @@ change is reviewed by a team member in its pull request before merging.
 |---|---|---|---|---|
 | 2026-11-12 | Christoph Rintz | Claude Code (Claude Opus) | Games service: chess.com import, players CRUD, migrations, Dockerfile, tests, CI workflow | Unit/API tests (97% coverage), real import of 801 games from chess.com, lint, `pip-audit`; reviewed in PR |
 | 2026-11-12 | Christoph Rintz | Claude Code (Claude Opus) | Insights service: analysis framework (Elo-expected baseline, pre-game rating reconstruction, confidence intervals), tilt / session / time-trouble analyses, tests | Unit/API tests (97% coverage); run on 2,642 real games; checked rating semantics against chess.com data; reviewed in PR |
+| 2026-11-12 | Christoph Rintz | Claude Code (Claude Opus) | UI (React + Vite): accounts CRUD, month-by-month import with progress, findings per time control with confidence-interval bars, tests, CI job | 16 component/page tests (95% coverage), lint, build; reviewed in PR |
