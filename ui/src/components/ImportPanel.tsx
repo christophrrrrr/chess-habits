@@ -1,10 +1,12 @@
 import { Download } from 'lucide-react'
 import { useState } from 'react'
-import { gamesApi } from '../api'
+import { importMissing } from '../importer'
 
 interface Props {
   playerId: number
   onImported: () => void
+  /** Only the most recent months (grandmasters); default: the full history. */
+  lastMonths?: number
 }
 
 type State =
@@ -13,21 +15,19 @@ type State =
   | { kind: 'done'; newGames: number; months: number }
   | { kind: 'error'; message: string }
 
-/** Imports every month that is not fully imported yet (full chess.com history), one request per month. */
-export function ImportPanel({ playerId, onImported }: Props) {
+/** Imports every month that is not fully imported yet, one request per month. */
+export function ImportPanel({ playerId, onImported, lastMonths }: Props) {
   const [state, setState] = useState<State>({ kind: 'idle' })
 
   async function importAll() {
     try {
       setState({ kind: 'running', done: 0, total: 0, month: '', newGames: 0 })
-      const months = (await gamesApi.listArchives(playerId)).filter((m) => !m.complete)
-      let newGames = 0
-      for (const [i, m] of months.entries()) {
-        setState({ kind: 'running', done: i, total: months.length, month: m.month, newGames })
-        const r = await gamesApi.importMonth(playerId, m.month)
-        newGames += r.new_games
-      }
-      setState({ kind: 'done', newGames, months: months.length })
+      const { newGames, months } = await importMissing(
+        playerId,
+        (p) => setState({ kind: 'running', ...p }),
+        lastMonths,
+      )
+      setState({ kind: 'done', newGames, months })
       onImported()
     } catch (e) {
       setState({ kind: 'error', message: (e as Error).message })

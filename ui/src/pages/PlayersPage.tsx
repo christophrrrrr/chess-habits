@@ -47,6 +47,9 @@ export function PlayersPage() {
     }
   }
 
+  const own = players?.filter((p) => p.kind !== 'reference')
+  const references = players?.filter((p) => p.kind === 'reference') ?? []
+
   return (
     <div className="stack">
       <section className="hero">
@@ -78,15 +81,26 @@ export function PlayersPage() {
       <section aria-label="Tracked accounts">
         <h3 className="section-title">Tracked accounts</h3>
         {players === null && !error && <p className="muted">Loading…</p>}
-        {players?.length === 0 && <p className="muted">No accounts yet. Add one above.</p>}
-        {players && players.length > 0 && (
+        {own?.length === 0 && <p className="muted">No accounts yet. Add one above.</p>}
+        {own && own.length > 0 && (
           <div className="account-grid">
-            {players.map((p) => (
+            {own.map((p) => (
               <AccountTile key={p.id} player={p} onDelete={() => remove(p)} />
             ))}
           </div>
         )}
       </section>
+
+      {references.length > 0 && (
+        <section aria-label="Grandmasters">
+          <h3 className="section-title">Grandmasters to compare with</h3>
+          <div className="account-grid">
+            {references.map((p) => (
+              <AccountTile key={p.id} player={p} onDelete={() => remove(p)} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   )
 }

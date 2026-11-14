@@ -28,6 +28,8 @@ class Player(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     platform: Mapped[str] = mapped_column(String(16))
     username: Mapped[str] = mapped_column(String(64))
+    # "player": an account you track; "reference": a grandmaster to compare with.
+    kind: Mapped[str] = mapped_column(String(16), default="player")
     display_name: Mapped[str | None] = mapped_column(Unicode(100))
     notes: Mapped[str | None] = mapped_column(Unicode(500))
     created_at: Mapped[datetime] = mapped_column(DateTime)

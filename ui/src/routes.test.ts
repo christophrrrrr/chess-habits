@@ -21,6 +21,13 @@ describe('routes', () => {
     })
     expect(parseRoute('#/players/12/rules/3')).toEqual({ page: 'player', id: 12, view: 'rule', ruleId: 3 })
     expect(parseRoute('#/players/12/games')).toEqual({ page: 'player', id: 12, view: 'games' })
+    expect(parseRoute('#/players/12/compare')).toEqual({ page: 'player', id: 12, view: 'compare' })
+    expect(parseRoute('#/players/12/compare/7')).toEqual({
+      page: 'player',
+      id: 12,
+      view: 'compare',
+      refId: 7,
+    })
     expect(parseRoute('#/players/x')).toEqual({ page: 'players' })
   })
 
@@ -32,6 +39,8 @@ describe('routes', () => {
       { page: 'player', id: 1, view: 'finding', tc: 'blitz', key: 'after_loss_result' },
       { page: 'player', id: 1, view: 'rule', ruleId: 9 },
       { page: 'player', id: 1, view: 'games' },
+      { page: 'player', id: 1, view: 'compare' },
+      { page: 'player', id: 1, view: 'compare', refId: 4 },
     ]
     for (const r of routes) expect(parseRoute(href(r))).toEqual(r)
   })

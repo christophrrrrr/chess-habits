@@ -93,12 +93,20 @@ def cluster_bootstrap(
     effect = mean_a - mean_b
 
     rng = np.random.default_rng(seed)
-    draws = rng.integers(0, n_clusters, size=(n_boot, n_clusters))
-    weights = np.zeros((n_boot, n_clusters))
-    rows = np.repeat(np.arange(n_boot), n_clusters)
-    np.add.at(weights, (rows, draws.ravel()), 1)
-    with np.errstate(invalid="ignore", divide="ignore"):
-        boot = (weights @ sum_a) / (weights @ cnt_a) - (weights @ sum_b) / (weights @ cnt_b)
+    # Resample in chunks so memory stays small for a grandmaster's thousands of games
+    # (a full n_boot x n_clusters weight matrix would be about 100 MB for 6,000 clusters).
+    chunk = max(1, min(n_boot, 2_000_000 // n_clusters))
+    parts = []
+    for start in range(0, n_boot, chunk):
+        size = min(chunk, n_boot - start)
+        draws = rng.integers(0, n_clusters, size=(size, n_clusters))
+        flat = (draws + n_clusters * np.arange(size)[:, None]).ravel()
+        weights = np.bincount(flat, minlength=size * n_clusters).reshape(size, n_clusters)
+        with np.errstate(invalid="ignore", divide="ignore"):
+            parts.append(
+                (weights @ sum_a) / (weights @ cnt_a) - (weights @ sum_b) / (weights @ cnt_b)
+            )
+    boot = np.concatenate(parts)
     boot = boot[np.isfinite(boot)]
     if boot.size < n_boot // 2:
         return None

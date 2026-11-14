@@ -6,11 +6,15 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 Platform = Literal["chesscom"]
+# "player": an account you track; "reference": a grandmaster to compare with. A reference
+# account is imported and analysed like any other; the UI imports only its last 12 months.
+PlayerKind = Literal["player", "reference"]
 
 
 class PlayerCreate(BaseModel):
     platform: Platform = "chesscom"
     username: str = Field(min_length=3, max_length=64, pattern=r"^[A-Za-z0-9_-]+$")
+    kind: PlayerKind = "player"
     notes: str | None = Field(default=None, max_length=500)
 
 
@@ -25,6 +29,7 @@ class PlayerOut(BaseModel):
     id: int
     platform: str
     username: str
+    kind: str
     display_name: str | None
     notes: str | None
     created_at: datetime

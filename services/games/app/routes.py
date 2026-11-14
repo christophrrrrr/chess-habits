@@ -22,6 +22,7 @@ from app.schemas import (
     ImportResult,
     PlayerCreate,
     PlayerDetail,
+    PlayerKind,
     PlayerOut,
     PlayerUpdate,
 )
@@ -83,6 +84,7 @@ def create_player(
     player = Player(
         platform=body.platform,
         username=username,
+        kind=body.kind,
         display_name=(profile.get("name") or None),
         notes=body.notes,
         created_at=now,
@@ -98,8 +100,13 @@ def create_player(
 
 
 @router.get("/players", response_model=list[PlayerOut], tags=["players"])
-def list_players(session: Session = Depends(get_session)) -> list[Player]:
-    return list(session.scalars(select(Player).order_by(Player.created_at)))
+def list_players(
+    kind: PlayerKind | None = None, session: Session = Depends(get_session)
+) -> list[Player]:
+    query = select(Player).order_by(Player.created_at)
+    if kind:
+        query = query.where(Player.kind == kind)
+    return list(session.scalars(query))
 
 
 @router.get("/players/{player_id}", response_model=PlayerDetail, tags=["players"])

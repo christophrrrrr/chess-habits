@@ -104,3 +104,22 @@ but harder to explain and test in this sprint).
 **Consequences.** Findings are comparable across time controls and honest about noise; "no clear
 effect" always comes with the size that could have been detected. Research E2 measured the
 false-finding rate on shuffled data, which is why q = 0.05 (not 0.10) is the finding threshold.
+
+## 7. A grandmaster is a tracked player with `kind = reference`
+
+**Context.** Sprint 2 adds "put your habits next to a grandmaster's". The assignment allows
+exactly two services and two databases.
+
+**Decision.** A grandmaster is an ordinary row in `players` with `kind = reference` (migration
+0003), imported through the same month-by-month import and analysed by the same analyses. The UI
+imports only the last 12 months of a reference player (a top player has about 500 games a month;
+a year gives thousands of games per time control). The insights service compares the two latest
+runs (`GET /players/{id}/compare/{reference_id}`) from stored findings, with intervals and a
+Benjamini-Hochberg pass over the comparison table. The cluster bootstrap now resamples in chunks,
+so a run over thousands of games stays small in memory.
+
+**Alternatives.** A separate grandmaster table or service (more code, breaks the two-service
+limit); precomputed grandmaster profiles shipped with the app (stale, and not the player's choice).
+
+**Consequences.** No new infrastructure; any chess.com account can be a reference. A reference
+player shows up in its own section on the home page and has its own habit page.

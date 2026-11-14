@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
@@ -251,6 +251,141 @@ describe('player page', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Import from chess.com' }))
     expect(await screen.findByText('chess.com is not reachable right now')).toBeInTheDocument()
+  })
+})
+
+describe('grandmaster comparison', () => {
+  const hikaru = { ...player, id: 2, username: 'hikaru', display_name: 'Hikaru Nakamura', kind: 'reference' }
+  const side = (value: number, n: number) => ({ value, ci_low: value - 0.03, ci_high: value + 0.03, n })
+  const comparison = {
+    player_id: 1,
+    reference_id: 2,
+    player_run: { ...run, findings: undefined },
+    reference_run: { ...run, id: 8, player_id: 2, games_analyzed: 6100 },
+    blocks: [
+      {
+        time_class: 'rapid',
+        rows: [
+          {
+            key: 'time_trouble',
+            name: 'Games with time trouble',
+            unit: 'share',
+            better: 'lower',
+            you: side(0.2, 100),
+            reference: side(0.1, 50),
+            difference: { value: 0.1, ci_low: -0.02, ci_high: 0.22 },
+            q_value: 0.3,
+            verdict: 'similar',
+          },
+        ],
+      },
+      {
+        time_class: 'blitz',
+        rows: [
+          {
+            key: 'time_trouble',
+            name: 'Games with time trouble',
+            unit: 'share',
+            better: 'lower',
+            you: side(0.31, 900),
+            reference: side(0.08, 4000),
+            difference: { value: 0.23, ci_low: 0.2, ci_high: 0.26 },
+            q_value: 0.001,
+            verdict: 'different',
+          },
+          {
+            key: 'onset_move',
+            name: 'Time trouble usually starts at move',
+            unit: 'move',
+            better: null,
+            you: { value: 28, ci_low: null, ci_high: null, n: 280 },
+            reference: null,
+            difference: null,
+            q_value: null,
+            verdict: 'descriptive',
+          },
+        ],
+      },
+    ],
+  }
+
+  it('lists grandmasters apart from your own accounts', async () => {
+    mockFetch([['GET', /\/players$/, () => ({ body: [player, hikaru] })]])
+    render(<App />)
+    const gms = await screen.findByRole('region', { name: 'Grandmasters' })
+    expect(within(gms).getByText('hikaru')).toBeInTheDocument()
+    expect(within(screen.getByRole('region', { name: 'Tracked accounts' })).queryByText('hikaru')).toBeNull()
+  })
+
+  it('picks a grandmaster, imports their last 12 months, analyses them and compares', async () => {
+    window.location.hash = '#/players/1'
+    let analysed = false
+    const months = Array.from({ length: 14 }, (_, i) => ({
+      month: `2025-${String(i + 1).padStart(2, '0')}`
+        .replace('2025-13', '2026-01')
+        .replace('2025-14', '2026-02'),
+      imported: false,
+      complete: false,
+      game_count: null,
+    }))
+    const calls = mockFetch([
+      ['GET', /\/players\/1$/, () => ({ body: { ...player, kind: 'player', game_counts: { blitz: 900 } } })],
+      ['GET', /\/players\/1\/findings$/, () => ({ body: run })],
+      ['GET', /\/players$/, () => ({ body: [player] })],
+      ['POST', /\/players$/, () => ({ status: 201, body: hikaru })],
+      ['GET', /\/players\/2$/, () => ({ body: { ...hikaru, game_counts: {} } })],
+      [
+        'GET',
+        /\/players\/1\/compare\/2$/,
+        () => (analysed ? { body: comparison } : { status: 404, body: { detail: 'no analysis run yet' } }),
+      ],
+      ['GET', /\/players\/2\/archives$/, () => ({ body: months })],
+      [
+        'POST',
+        /\/players\/2\/imports$/,
+        () => ({ body: { month: 'x', fetched: 500, new_games: 500, skipped: false, complete: true } }),
+      ],
+      [
+        'POST',
+        /\/players\/2\/runs$/,
+        () => {
+          analysed = true
+          return { status: 201, body: { ...run, player_id: 2 } }
+        },
+      ],
+    ])
+    render(<App />)
+    await userEvent.click(await screen.findByRole('link', { name: /Compare with a grandmaster/ }))
+    await userEvent.click(await screen.findByRole('button', { name: /Hikaru Nakamura/ }))
+    expect(JSON.parse(calls.find((c) => c.method === 'POST')!.body!)).toMatchObject({
+      username: 'hikaru',
+      kind: 'reference',
+    })
+    await waitFor(() => expect(window.location.hash).toBe('#/players/1/compare/2'))
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Prepare Hikaru Nakamura' }))
+    // Opens on blitz, the time control where both have the most games.
+    const card = await screen.findByRole('article', { name: 'Games with time trouble' })
+    expect(within(card).getByText('31%')).toBeInTheDocument()
+    expect(within(card).getByText('8%')).toBeInTheDocument()
+    expect(within(card).getByText('Clearly different')).toBeInTheDocument()
+    expect(screen.getByText('move 28')).toBeInTheDocument()
+    const imports = calls.filter((c) => c.url.endsWith('/players/2/imports'))
+    expect(imports).toHaveLength(12)
+    expect(JSON.parse(imports[0].body!)).toEqual({ month: '2025-03' })
+
+    await userEvent.click(screen.getByRole('button', { name: 'Rapid' }))
+    expect(await screen.findByText('No clear difference')).toBeInTheDocument()
+  })
+
+  it('asks you to analyse your own games first', async () => {
+    window.location.hash = '#/players/1/compare'
+    mockFetch([
+      ['GET', /\/players\/1$/, () => ({ body: { ...player, game_counts: {} } })],
+      ['GET', /\/players\/1\/findings$/, () => ({ status: 404, body: { detail: 'no analysis run yet' } })],
+    ])
+    render(<App />)
+    expect(await screen.findByText(/Analyse your own games first/)).toBeInTheDocument()
   })
 })
 
