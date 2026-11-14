@@ -1,0 +1,8 @@
+# Research experiments only (not product code). Versions used on 2026-11-12.
+chess==1.11.2
+requests==2.34.2
+numpy==2.5.4
+pandas==3.1.1
+scipy==1.18.1
+statsmodels==0.15.0
+matplotlib==3.11.2

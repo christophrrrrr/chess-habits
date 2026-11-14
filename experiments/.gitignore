@@ -1,0 +1,9 @@
+# Downloaded games, Stockfish binaries, eval caches and outputs never go into the repo.
+data/
+*.sqlite
+*.csv
+*.csv.gz
+*.jsonl.gz
+*.log
+out/
+stockfish/
