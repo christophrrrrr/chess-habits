@@ -1,10 +1,18 @@
 import { useEffect, useState } from 'react'
+import { SLOW_EVENT } from './api'
 import { PlayerPage } from './pages/PlayerPage'
 import { PlayersPage } from './pages/PlayersPage'
 import { parseRoute } from './routes'
 
 export default function App() {
   const [route, setRoute] = useState(() => parseRoute(window.location.hash))
+  const [slow, setSlow] = useState(0)
+
+  useEffect(() => {
+    const onSlow = (e: Event) => setSlow((e as CustomEvent<number>).detail)
+    window.addEventListener(SLOW_EVENT, onSlow)
+    return () => window.removeEventListener(SLOW_EVENT, onSlow)
+  }, [])
 
   useEffect(() => {
     const onChange = () => setRoute(parseRoute(window.location.hash))
@@ -21,6 +29,12 @@ export default function App() {
         </a>
         <span className="muted small">the onlooker who tells you how you play</span>
       </header>
+      {slow > 0 && (
+        <div className="wake-banner" role="status">
+          Waking up the servers. They sleep when nobody uses them, so the first request can take up to a
+          minute.
+        </div>
+      )}
       <main className="container">
         {route.page === 'player' ? <PlayerPage playerId={route.id} key={route.id} /> : <PlayersPage />}
       </main>

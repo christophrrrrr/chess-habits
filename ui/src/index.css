@@ -427,3 +427,11 @@ th {
 .notes {
   margin: 0.4rem 0;
 }
+
+.wake-banner {
+  background: var(--neutral-bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0.6rem 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+}

@@ -6,7 +6,17 @@ export const INSIGHTS_API = (import.meta.env.VITE_INSIGHTS_API_URL ?? 'http://lo
   '',
 )
 
-const TIMEOUT_MS = 20_000
+// Services scale to zero and the databases auto-pause: the first request after idle can take
+// up to a minute or more. Wait long enough, and tell the user why it is slow.
+const TIMEOUT_MS = 90_000
+const SLOW_MS = 4_000
+export const SLOW_EVENT = 'kiebitz:slow-requests'
+let slowRequests = 0
+
+function setSlow(delta: number) {
+  slowRequests += delta
+  window.dispatchEvent(new CustomEvent(SLOW_EVENT, { detail: slowRequests }))
+}
 
 export interface Player {
   id: number
@@ -97,6 +107,11 @@ export class ApiError extends Error {
 async function request<T>(base: string, path: string, init?: RequestInit): Promise<T> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
+  let isSlow = false
+  const slowTimer = setTimeout(() => {
+    isSlow = true
+    setSlow(+1)
+  }, SLOW_MS)
   let resp: Response
   try {
     resp = await fetch(`${base}${path}`, {
@@ -109,6 +124,8 @@ async function request<T>(base: string, path: string, init?: RequestInit): Promi
     throw new ApiError(0, `The ${service} service is not reachable right now. Please try again later.`)
   } finally {
     clearTimeout(timer)
+    clearTimeout(slowTimer)
+    if (isSlow) setSlow(-1)
   }
   if (resp.status === 204) return undefined as T
   const body = await resp.json().catch(() => null)

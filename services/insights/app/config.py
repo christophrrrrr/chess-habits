@@ -14,7 +14,8 @@ class Settings(BaseSettings):
     db_startup_timeout_seconds: int = 120
     # Base URL of the games service (service-to-service HTTP).
     games_service_url: str = "http://localhost:8001"
-    games_service_timeout_seconds: float = 10.0
+    # Long enough for the games service to start from zero and its database to resume.
+    games_service_timeout_seconds: float = 60.0
 
     @property
     def cors_origin_list(self) -> list[str]:
