@@ -1,7 +1,7 @@
 // Monitoring dashboard: an Azure Workbook on the existing Log Analytics workspace.
 //
-// Panels, per service: requests per minute, error rate (5xx share) and p50/p95 response
-// time. The queries are the ones in
+// Panels, per service: requests per minute, error rate (5xx share), p50/p95 response time,
+// and the availability SLO with its error budget. The queries are the ones in
 // docs/monitoring.md. The base query is inlined with `let`, so the Workbook does not depend
 // on a function saved by hand in the portal.
 //
@@ -49,6 +49,13 @@ var latencyQuery = '${base}${'''ChessHabitsRequests
 | summarize p50 = percentile(duration_ms, 50), p95 = percentile(duration_ms, 95)
     by service, bin(TimeGenerated, 1h)
 | render timechart
+'''}'
+
+var sloQuery = '${base}${'''ChessHabitsRequests
+| where TimeGenerated > ago(7d) and path != "/health"
+| summarize total = count(), good = countif(status < 500)
+| extend availability_pct = round(100.0 * good / total, 2), slo_pct = 99.0
+| extend error_budget_left_pct = round(100.0 - (100.0 - availability_pct) / (100.0 - slo_pct) * 100.0, 1)
 '''}'
 
 var workspaceType = 'microsoft.operationalinsights/workspaces'
@@ -113,6 +120,21 @@ var workbook = {
     chart('requests', 'Requests per minute, per service', requestsQuery, workspaceType)
     chart('error-rate', 'Error rate (5xx share, %), per service', errorRateQuery, workspaceType)
     chart('latency', 'Response time p50 / p95 (ms, without /health), per service', latencyQuery, workspaceType)
+    {
+      type: 3
+      name: 'slo'
+      content: {
+        version: 'KqlItem/1.0'
+        title: 'SLO: 99% of API requests succeed (status < 500), rolling 7 days'
+        query: sloQuery
+        size: 4
+        queryType: 0
+        resourceType: workspaceType
+        // The SLO window is fixed at 7 days, independent of the time range picker.
+        timeContext: { durationMs: 604800000 }
+        visualization: 'table'
+      }
+    }
   ]
   fallbackResourceIds: [workspaceId]
   '$schema': 'https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json'
