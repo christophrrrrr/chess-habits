@@ -13,6 +13,7 @@ GitHub Actions. Nothing is changed by hand in the portal after setup.
 | Static Web App | `<prefix>-ui` | Free tier |
 | Container Apps environment | `<prefix>-env` | required by the apps |
 | Log Analytics workspace | `<prefix>-logs` | request logs, dashboard queries, SLO query |
+| Workbook | `<prefix> monitoring` (display name) | monitoring dashboard on `<prefix>-logs`, see [monitoring.md](monitoring.md) |
 
 `<prefix>` is the group prefix from the professor, e.g. `sdd-3a-g3`. Images live in GitHub
 Container Registry: `ghcr.io/christophrrrrr/chess-habits-games` and `...-insights`.
