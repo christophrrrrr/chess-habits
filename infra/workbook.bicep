@@ -1,6 +1,7 @@
 // Monitoring dashboard: an Azure Workbook on the existing Log Analytics workspace.
 //
-// Panels, per service: requests per minute. The queries are the ones in
+// Panels, per service: requests per minute, error rate (5xx share) and p50/p95 response
+// time. The queries are the ones in
 // docs/monitoring.md. The base query is inlined with `let`, so the Workbook does not depend
 // on a function saved by hand in the portal.
 //
@@ -35,6 +36,18 @@ let ChessHabitsRequests = ContainerAppConsoleLogs_CL
 
 var requestsQuery = '${base}${'''ChessHabitsRequests
 | summarize requests = count() by service, bin(TimeGenerated, 1m)
+| render timechart
+'''}'
+
+var errorRateQuery = '${base}${'''ChessHabitsRequests
+| summarize error_rate = 100.0 * countif(status >= 500) / count() by service, bin(TimeGenerated, 1h)
+| render timechart
+'''}'
+
+var latencyQuery = '${base}${'''ChessHabitsRequests
+| where path != "/health"
+| summarize p50 = percentile(duration_ms, 50), p95 = percentile(duration_ms, 95)
+    by service, bin(TimeGenerated, 1h)
 | render timechart
 '''}'
 
@@ -98,6 +111,8 @@ var workbook = {
       }
     }
     chart('requests', 'Requests per minute, per service', requestsQuery, workspaceType)
+    chart('error-rate', 'Error rate (5xx share, %), per service', errorRateQuery, workspaceType)
+    chart('latency', 'Response time p50 / p95 (ms, without /health), per service', latencyQuery, workspaceType)
   ]
   fallbackResourceIds: [workspaceId]
   '$schema': 'https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json'
