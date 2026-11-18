@@ -12,6 +12,7 @@ npm run test:coverage
 npm run lint           # oxlint
 npm run format:check   # prettier
 npm run build          # static files in dist/
+npm run test:e2e       # Playwright smoke tests
 ```
 
 | Build-time variable     | Default                 |
