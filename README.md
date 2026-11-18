@@ -105,6 +105,7 @@ Reproduce the Azure setup: [docs/deployment.md](docs/deployment.md).
 | [docs/roadmap.md](docs/roadmap.md) | What comes next, until the deadline and after the course |
 | [docs/assignment.md](docs/assignment.md) | Assignment requirements as a checklist |
 | [docs/decisions.md](docs/decisions.md) | Architecture decision records |
+| [docs/security.md](docs/security.md) | Security scans in CI and how to handle a finding |
 | [docs/data-model.md](docs/data-model.md) | Entities and relationships |
 | [docs/definitions.md](docs/definitions.md) | Every metric and statistical rule the analyses use |
 | [docs/deployment.md](docs/deployment.md) | Azure resources, secrets, pipeline, rollback |
