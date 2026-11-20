@@ -17,30 +17,60 @@ GitHub Actions. Nothing is changed by hand in the portal after setup.
 `<prefix>` is the group prefix from the professor, e.g. `sdd-3a-g3`. Images live in GitHub
 Container Registry: `ghcr.io/christophrrrrr/chess-habits-games` and `...-insights`.
 
-## One-time setup (when the Azure credentials arrive)
+## Where it runs
 
-1. **Repository variables** (Settings → Secrets and variables → Actions → Variables):
+The group project runs in IE's subscription **Azure Simple IE Instituto de Empresa, S.L.**,
+which lives in its own directory (tenant), not in anyone's Azure for Students. Our resource
+group is `rg-sdd-3a-g3`; we never create resource groups. GitHub Actions signs in as the
+group's managed identity `sdd-3a-g3-github` through OpenID Connect (federated credential),
+so there is **no client secret** to store.
 
-   | Variable | Example |
+### Look at it yourself
+
+1. Accept the email from *Microsoft Invitations on behalf of IE Instituto de Empresa, S.L.*
+   (check Junk).
+2. Portal: switch directory in Settings → Directories + subscriptions (or use the link from the
+   professor's message).
+3. Terminal (add `--use-device-code` if the browser sign-in fails):
+
+   ```sh
+   az login --tenant <IE tenant ID>
+   az account set --subscription "Azure Simple IE Instituto de Empresa, S.L."
+   az group show --name rg-sdd-3a-g3 -o table
+   ```
+
+## One-time setup (when the managed identity is ready)
+
+1. **Repository variables** (Settings → Secrets and variables → Actions → Variables). These
+   are identifiers, not secrets:
+
+   | Variable | Value |
    |---|---|
-   | `AZURE_RESOURCE_GROUP` | `rg-sdd-3a-g3` (existing; never created by us) |
+   | `AZURE_CLIENT_ID` | client ID of the managed identity `sdd-3a-g3-github` |
+   | `AZURE_TENANT_ID` | the IE directory (tenant) ID |
+   | `AZURE_SUBSCRIPTION_ID` | ID of *Azure Simple IE Instituto de Empresa, S.L.* |
+   | `AZURE_RESOURCE_GROUP` | `rg-sdd-3a-g3` |
    | `AZURE_PREFIX` | `sdd-3a-g3` |
    | `SQL_ADMIN_LOGIN` | `chesshabitsadmin` |
    | `AZURE_ENABLED` | `true` (set last, after step 4) |
+
+   The client ID: `az identity show -g rg-sdd-3a-g3 -n sdd-3a-g3-github --query clientId -o tsv`
+   (or ask the professor).
 
 2. **Repository secrets** (same page → Secrets). Paste values only there, never in chat, code or issues:
 
    | Secret | Value |
    |---|---|
-   | `AZURE_CREDENTIALS` | the group's service principal as JSON: `{"clientId": "...", "clientSecret": "...", "subscriptionId": "...", "tenantId": "..."}` |
    | `SQL_ADMIN_PASSWORD` | a new strong password (16+ characters) |
    | `GHCR_PULL_TOKEN` | only if the GHCR images stay private: a classic PAT with `read:packages` |
 
    Alternative to `GHCR_PULL_TOKEN`: make both packages public (GitHub → Packages → package
    settings → Change visibility). They contain no secrets.
 
-3. **Create an environment** called `production` (Settings → Environments). Optional: require
-   a reviewer for deployments.
+3. **Create an environment** called `production` (Settings → Environments). Every Azure job
+   runs in it, so the OIDC token's subject is
+   `repo:christophrrrrr/chess-habits:environment:production`. The managed identity's federated
+   credential must match exactly that subject; confirm it with the professor.
 
 4. **First run**: merge to `main` (or run *Deploy* manually) so the images are pushed, then run
    the *Infrastructure* workflow (Actions → Infrastructure → Run workflow). Its summary shows
