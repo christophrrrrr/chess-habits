@@ -16,7 +16,8 @@ criteria in its issue.
 | End-to-end browser tests with Playwright | #18 | Laura | #24 | In review |
 | Security scans in CI: CodeQL + Bandit | #19 | Zaid | #25 | In review |
 | Release tags + CHANGELOG, README screenshots | #20 | Xander | | To do |
-| Backlog board, sprint notes, retrospectives, Sprint Review demo script | #21 | Javi | | In progress |
+| Backlog board, sprint notes, retrospectives, Sprint Review demo script | #21 | Javi | #26, #27 | In review |
+| Methods page: every definition and threshold in the UI | #28 | Javi | | In progress |
 | Tag `submission` on `main` before 24 Nov 23:59 | | Laura | | To do |
 
 ## Sprint Review (25–26 Nov)
