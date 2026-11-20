@@ -22,7 +22,7 @@ chess.com games and see a first set of findings end to end.
 | Sharper vision: the habits strong players have but cannot explain; audience club players and up | #13 | Done (merged 14 Nov) |
 | Tile UI: one big tile per finding, a page per finding, account tiles | #14 | Done (merged 14 Nov) |
 | Idea approval and Azure access requested from the professor (12 Nov) | | Done (18 Nov): resource group `rg-sdd-3a-g3` and managed identity `sdd-3a-g3-github` |
-| Product Backlog with acceptance criteria (GitHub issues, board in Projects) | | Partly done: issues #17–#21 with acceptance criteria and the `sprint-2` label; board → Sprint 2 (#21) |
+| Product Backlog with acceptance criteria (GitHub issues, board in Projects) | | Partly done: issues #17–#21 with acceptance criteria and the `sprint-2` label; the [board](https://github.com/users/javocruz/projects/1) followed on 20 Nov (#21) |
 | Branch protection on `main` (1 approval, CI green, also for admins) | | Done (14 Nov) |
 | Roles per sprint and who owns what ([team.md](team.md)) | #15 | Done (merged 14 Nov) |
 | Grandmaster comparison (pulled forward from Sprint 2) | #16 | Done (merged 14 Nov) |

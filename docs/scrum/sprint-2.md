@@ -7,7 +7,8 @@ see [team.md](team.md)
 dashboard, security scans and browser tests in CI, and the team is ready for the Sprint Review.
 
 Selected items are the issues with the `sprint-2` label. Each one has an owner and acceptance
-criteria in its issue.
+criteria in its issue. Board: [Chess Habits backlog](https://github.com/users/javocruz/projects/1)
+(To do → In progress → In review → Done, with a Sprint field).
 
 | Item | Issue | Owner | PR | Status |
 |---|---|---|---|---|
