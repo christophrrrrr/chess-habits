@@ -19,7 +19,7 @@ Group 3. Product Owner and Scrum Master rotate every sprint; everyone else is a 
 | Nika | [@nika140906](https://github.com/nika140906) | Developer | Monitoring: KQL queries and the Azure Workbook dashboard |
 | Laura | [@Palee222](https://github.com/Palee222) | Developer | End-to-end browser tests (Playwright) |
 | Zaid | [@zaid-ju](https://github.com/zaid-ju) | Developer | Security scans in CI (CodeQL, Bandit) |
-| Xander | _GitHub username to come_ | Developer | Release tags, changelog, README screenshots |
+| Xander | [@xanman04](https://github.com/xanman04) | Developer | Release tags, changelog, README screenshots |
 
 ## Why the Sprint 1 code comes from one person
 

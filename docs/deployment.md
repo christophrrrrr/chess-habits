@@ -92,6 +92,46 @@ so there is **no client secret** to store.
 Re-run the *Deploy* workflow for an earlier commit (Actions → Deploy → choose the run → Re-run),
 or run *Infrastructure* with `image_tag` set to an earlier commit SHA.
 
+## Releases
+
+Every merge to `main` is deployed, so a release does not trigger a deploy. It names a point in
+the history that the team, the graders and users can refer to.
+
+| Tag | Marks | Example |
+|---|---|---|
+| `vMAJOR.MINOR.PATCH` | the last merge of a sprint; one minor version per sprint while below 1.0 | `v0.1.0` = end of Sprint 1, `v0.2.0` = end of Sprint 2 |
+| `vMAJOR.MINOR.PATCH` with a higher patch | a fix shipped between two sprint releases | `v0.1.1` |
+| `submission` | the final graded commit on `main` (deadline 24 Nov, 23:59) | `submission` |
+
+Tags are annotated, never moved and never deleted, and they point at a merge commit on `main`.
+The [CHANGELOG](../CHANGELOG.md) lists what each version contains.
+
+### Cutting a release
+
+Needs write access to the repository. With version `0.2.0` as the example:
+
+1. In a pull request, move the entries under **Unreleased** in `CHANGELOG.md` into a new
+   `## [0.2.0] - YYYY-MM-DD` section, update the comparison links at the bottom, and merge it.
+2. Tag the merge commit and push the tag:
+
+   ```sh
+   git checkout main && git pull
+   git tag -a v0.2.0 -m "Sprint 2" <merge commit SHA>
+   git push origin v0.2.0
+   ```
+
+3. Create the GitHub Release from the tag, with that version's CHANGELOG section as the notes
+   (or on GitHub: Releases → Draft a new release → choose the tag):
+
+   ```sh
+   gh release create v0.2.0 --title "v0.2.0: Sprint 2" --notes-file notes.md
+   ```
+
+4. At the deadline, tag the last commit on `main` that should be graded, the same way:
+   `git tag -a submission -m "Graded version" <SHA>` and `git push origin submission`.
+
+`v0.1.0` was cut after Sprint 1 on the merge of #16 (`fee3dbd`).
+
 ## Known limitations (to revisit)
 
 - Both services use the SQL admin login. Next step: one contained database user per service
