@@ -9,6 +9,7 @@ import {
   SUGGESTED_GRANDMASTERS,
   VERDICT_TEXT,
 } from '../compare'
+import { MethodsLink } from '../components/MethodsLink'
 import { capitalize } from '../format'
 import { importMissing, REFERENCE_MONTHS, type ImportProgress } from '../importer'
 import { href } from '../routes'
@@ -262,7 +263,8 @@ function ComparisonView({
       <p className="muted small">
         Both sides are measured against their own expected results, so the Elo rows compare habits, not
         playing strength. A grandmaster faces much stronger opponents, which changes some numbers on its own.
-        Differences come with a 95% interval and are corrected for testing many rows at once.
+        Differences come with a 95% interval and are corrected for testing many rows at once.{' '}
+        <MethodsLink section="compare" />
       </p>
       <div className="compare__actions">
         {prepareButton(`Update ${gm}’s games`, RefreshCw)}
