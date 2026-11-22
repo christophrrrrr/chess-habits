@@ -20,6 +20,8 @@ import { TileIcon } from '../components/TileIcon'
 import { capitalize, formatDate, sortTimeClasses } from '../format'
 import { REFERENCE_MONTHS } from '../importer'
 import { ComparePage } from './ComparePage'
+import { PlanPage } from './PlanPage'
+import { buildPlan } from '../plan'
 import { href, type PlayerView } from '../routes'
 import { findingTile, ruleTile, TILE_NAMES } from '../tiles'
 
@@ -152,6 +154,22 @@ export function PlayerPage({ playerId, view }: Props) {
       </Detail>
     )
 
+  if (view.view === 'plan')
+    return (
+      <Detail
+        back={href({ page: 'player', id: playerId, view: 'overview' })}
+        backLabel={name}
+        icon="plan"
+        title="Your plan"
+      >
+        {run ? (
+          <PlanPage playerId={playerId} findings={run.findings} actions={actions} />
+        ) : (
+          <p className="muted">{runLoaded ? 'Run an analysis first.' : 'Loading…'}</p>
+        )}
+      </Detail>
+    )
+
   if (view.view === 'games')
     return (
       <Detail
@@ -231,6 +249,7 @@ function Overview({
 
   return (
     <>
+      {run && classes.length > 0 && <PlanTile playerId={playerId} run={run} />}
       {run && classes.length > 0 && (
         <>
           <nav className="segmented" aria-label="Time control">
@@ -331,6 +350,30 @@ function Overview({
       </section>
       {run && <StatsNote />}
     </>
+  )
+}
+
+function PlanTile({ playerId, run }: { playerId: number; run: Run }) {
+  const { items } = buildPlan(run.findings)
+  const top = items[0]
+  return (
+    <section aria-label="Your plan">
+      <div className="habit-grid habit-grid--wide">
+        <HabitTile
+          icon="plan"
+          to={href({ page: 'player', id: playerId, view: 'plan' })}
+          tile={{
+            name: 'Your plan',
+            value: items.length === 0 ? 'Nothing clear yet' : `${items.length} to work on`,
+            caption: top
+              ? `First: ${top.title.charAt(0).toLowerCase()}${top.title.slice(1)}`
+              : 'No habit costs you points clearly yet',
+            tone: items.length > 0 ? 'bad' : 'neutral',
+            badge: null,
+          }}
+        />
+      </div>
+    </section>
   )
 }
 

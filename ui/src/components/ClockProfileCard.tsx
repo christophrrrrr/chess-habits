@@ -2,6 +2,7 @@ import type { Finding } from '../api'
 import { percent } from '../format'
 import { AdoptButton, type RuleActions } from './AdoptButton'
 import { CardHeader } from './CardHeader'
+import { ColumnChart, LineChart } from './charts'
 import { Tile } from './Tile'
 
 interface Rate {
@@ -31,7 +32,14 @@ export interface ClockDetails {
   pace: { wins: Record<string, number | null>; losses: Record<string, number | null> }
   flags: { lost_on_time: Flags; won_on_time: Flags; net_points_per_100: number }
   checkpoint?: { move: number; min_share: number; wins: Rate; trouble_games: Rate } | null
+  charts?: {
+    clock_left: { moves: number[]; wins: Array<number | null>; losses: Array<number | null> }
+    think_time: { moves: number[]; trouble: Array<number | null>; calm: Array<number | null> }
+    onset: Array<{ from: number; to: number | null; games: number }>
+  }
 }
+
+const seconds = (v: number) => (v >= 10 ? `${v.toFixed(0)} s` : `${v.toFixed(1)} s`)
 
 const CAUSES: Array<{ key: 'opening' | 'spikes' | 'drain'; label: string }> = [
   { key: 'opening', label: 'Opening (moves 2–12)' },
@@ -45,8 +53,8 @@ export function ClockProfileCard({ finding, actions }: { finding: Finding; actio
   const onset = d.onset_move.median
   const lost = d.flags.lost_on_time
   const won = d.flags.won_on_time
-  const paceMoves = Object.keys(d.pace.wins)
   const cp = d.checkpoint
+  const paceMoves = Object.keys(d.pace.wins)
 
   return (
     <article className="finding finding--profile" aria-label={finding.title}>
@@ -92,34 +100,40 @@ export function ClockProfileCard({ finding, actions }: { finding: Finding; actio
         </section>
       )}
 
+      {d.charts && <ClockCharts d={d} />}
+
       <div className="two-col">
-        <table className="mini">
-          <caption>Clock left (share of expected game time)</caption>
-          <thead>
-            <tr>
-              <th scope="col">After move</th>
-              {paceMoves.map((m) => (
-                <th key={m} scope="col">
-                  {m}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row">Wins</th>
-              {paceMoves.map((m) => (
-                <td key={m}>{percent(d.pace.wins[m])}</td>
-              ))}
-            </tr>
-            <tr>
-              <th scope="row">Losses</th>
-              {paceMoves.map((m) => (
-                <td key={m}>{percent(d.pace.losses[m])}</td>
-              ))}
-            </tr>
-          </tbody>
-        </table>
+        {!d.charts && (
+          <>
+            <table className="mini">
+              <caption>Clock left (share of expected game time)</caption>
+              <thead>
+                <tr>
+                  <th scope="col">After move</th>
+                  {paceMoves.map((m) => (
+                    <th key={m} scope="col">
+                      {m}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Wins</th>
+                  {paceMoves.map((m) => (
+                    <td key={m}>{percent(d.pace.wins[m])}</td>
+                  ))}
+                </tr>
+                <tr>
+                  <th scope="row">Losses</th>
+                  {paceMoves.map((m) => (
+                    <td key={m}>{percent(d.pace.losses[m])}</td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </>
+        )}
         <table className="mini">
           <caption>Games decided on time, by final material</caption>
           <thead>
@@ -179,5 +193,49 @@ export function ClockProfileCard({ finding, actions }: { finding: Finding; actio
         {d.early_estimate && ' · early estimate'}
       </footer>
     </article>
+  )
+}
+
+function ClockCharts({ d }: { d: ClockDetails }) {
+  const c = d.charts!
+  const cp = d.checkpoint
+  return (
+    <section aria-label="Charts">
+      <LineChart
+        title="Clock left after each of your moves"
+        note="Median share of the expected game time, in games you won and lost. Where the lines part is where losses start to go wrong on the clock."
+        x={c.clock_left.moves}
+        xLabel="Move"
+        series={[
+          { name: 'Wins', values: c.clock_left.wins },
+          { name: 'Losses', values: c.clock_left.losses },
+        ]}
+        format={(v) => percent(v)}
+        yMin={0}
+        yMax={1}
+        marker={cp ? { at: cp.move, label: `checkpoint ${percent(cp.min_share)}` } : undefined}
+      />
+      <div className="charts-grid">
+        <LineChart
+          title="Seconds you think per move"
+          note="Median, games with time trouble vs. calm games."
+          x={c.think_time.moves}
+          xLabel="Move"
+          series={[
+            { name: 'With time trouble', values: c.think_time.trouble },
+            { name: 'Calm games', values: c.think_time.calm },
+          ]}
+          format={seconds}
+          height={200}
+        />
+        <ColumnChart
+          title="When time trouble starts"
+          note="Games by the move where your clock first drops below 10%."
+          categories={c.onset.map((b) => (b.to === null ? `${b.from}+` : `${b.from}–${b.to}`))}
+          series={[{ name: 'Games', values: c.onset.map((b) => b.games) }]}
+          format={(v) => String(Math.round(v))}
+        />
+      </div>
+    </section>
   )
 }

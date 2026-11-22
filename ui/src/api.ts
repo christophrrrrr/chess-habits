@@ -230,8 +230,13 @@ export const gamesApi = {
 
 export const insightsApi = {
   latestFindings: (playerId: number) => request<Run>(INSIGHTS_API, `/players/${playerId}/findings`),
+  // The browser's time zone, so the time-of-day card uses local hours.
   runAnalyses: (playerId: number) =>
-    request<Run>(INSIGHTS_API, `/players/${playerId}/runs`, { method: 'POST' }),
+    request<Run>(
+      INSIGHTS_API,
+      `/players/${playerId}/runs?utc_offset_minutes=${-new Date().getTimezoneOffset()}`,
+      { method: 'POST' },
+    ),
   listRules: (playerId: number) => request<Rule[]>(INSIGHTS_API, `/players/${playerId}/rules`),
   createRule: (playerId: number, draft: RuleDraft) =>
     request<Rule>(INSIGHTS_API, `/players/${playerId}/rules`, {

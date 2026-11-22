@@ -8,6 +8,7 @@ smoothed rating, so a habit is not confused with stronger or weaker opponents.
 
 from collections import Counter
 
+from app.analysis.after_loss import _by_session_game
 from app.analysis.base import FindingDraft, by_category
 from app.analysis.games import GameRecord
 from app.analysis.stats import (
@@ -73,6 +74,7 @@ def warm_up(games: list[GameRecord]) -> list[FindingDraft]:
                 contrast=c,
                 min_n=MIN_OUTCOME_GROUP,
                 sample_size=len(in_session),
+                details={"charts": {"by_session_game": _by_session_game(in_session)}},
             )
         )
     return drafts

@@ -54,3 +54,8 @@ export function axisPosition(value: number, range: number): number {
   const clamped = Math.max(-range, Math.min(range, value))
   return ((clamped + range) / (2 * range)) * 100
 }
+
+/** "Queen's Pawn Opening" stays, "Sicilian Defense" -> "Sicilian". Axis labels stay short. */
+export function shortOpening(name: string): string {
+  return name.replace(/ (Defense|Defence|Opening|Game|Attack|Gambit)$/, '').slice(0, 22)
+}
