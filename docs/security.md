@@ -39,3 +39,4 @@ bandit -r services/insights/app -ll
 2. If it is a false positive, add `# nosec <rule id>` on that line with a short comment explaining
    why it is safe (for example `# nosec B608: column names come from a fixed list`). Never
    disable a rule for the whole project.
+   
