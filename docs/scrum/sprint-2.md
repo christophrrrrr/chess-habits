@@ -30,4 +30,35 @@ demo story, who presents what and the fallback plan go in `demo.md` (#21).
 
 ## Retrospective
 
-_To fill in at the end of the sprint._
+_Draft of 23 Nov, written from the PRs and pipeline runs. The team confirms or changes it before
+the `submission` tag._
+
+**What went well**
+
+- The work was split: six members opened a PR for their own backlog item this sprint, as agreed
+  in the Sprint 1 retrospective.
+- Chess Habits is live on Azure since 22 Nov, deployed by the pipeline, which signs in through
+  OIDC with the group's managed identity, so no Azure secret is stored anywhere.
+- The monitoring dashboard is deployed from Bicep together with the rest of the infrastructure,
+  and the first release is tagged (`v0.1.0`) with a changelog.
+
+**What did not go well**
+
+- `AI_USAGE.md` conflicted on almost every PR, because every row is added at the end of the same
+  table. Each fix meant merging `main` in again, which also dismissed the approvals.
+- The live smoke test still looked for the old `tilt` analysis, so three deploys on 22 Nov were
+  red although the system was fine. #31 fixed it.
+- The first deploy came on 22 Nov, two days before the deadline: Azure access arrived on 18 Nov,
+  and the OIDC sign-in needed trial and error because GitHub puts the owner and repository IDs in
+  the token's subject, which our guide did not say (now documented in #31).
+- Two items stalled in review: the Playwright PR (#24) came from a fork without the test files,
+  so CI never ran on it (continued in #32), and CodeQL in #25 cannot upload results on a private
+  repository.
+
+**Agreements for the next sprint**
+
+- Open a PR early, from a branch in this repository (not a fork), so CI runs from the first push.
+- Smoke tests check things that do not change with the product, such as `/health` and that
+  `/analyses` is not empty, instead of one analysis by name.
+- Try a new tool or cloud setting in a small spike first (as CodeQL and OIDC showed), before
+  building a whole item on it.
