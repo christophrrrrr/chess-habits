@@ -15,11 +15,60 @@ from app.analysis.stats import (
     MIN_OUTCOME_GROUP,
     MIN_RATE_GROUP,
     cluster_bootstrap,
+    cluster_mean,
     pct,
     to_elo,
 )
 
 QUICK_REQUEUE = timedelta(seconds=60)
+# Buckets for the "time before the next game" chart: (label, upper bound or None).
+GAP_BUCKETS = [
+    ("under 30 s", timedelta(seconds=30)),
+    ("30-60 s", timedelta(seconds=60)),
+    ("1-2 min", timedelta(minutes=2)),
+    ("2-5 min", timedelta(minutes=5)),
+    ("5-30 min", timedelta(minutes=30)),
+    ("new session", None),
+]
+MAX_SESSION_GAME = 8  # the session chart pools game 8 and later
+
+
+def _gap_shares(gs: list[GameRecord]) -> dict[str, float] | None:
+    if not gs:
+        return None
+    counts = dict.fromkeys((label for label, _ in GAP_BUCKETS), 0)
+    for g in gs:
+        for label, upper in GAP_BUCKETS:
+            if upper is None or g.next_start_gap <= upper:
+                counts[label] += 1
+                break
+    return {k: v / len(gs) for k, v in counts.items()}
+
+
+def _by_session_game(gs: list[GameRecord]) -> list[dict]:
+    """Score against expectation (Elo) by position in the session: game 1, 2, ... 8+."""
+    out = []
+    for i in range(1, MAX_SESSION_GAME + 1):
+        group = [
+            g
+            for g in gs
+            if (g.session_index == i or (i == MAX_SESSION_GAME and g.session_index > i))
+        ]
+        m = cluster_mean([(g.session_id, g.residual) for g in group])
+        if m is None or m["n"] < MIN_RATE_GROUP:
+            continue
+        out.append(
+            {
+                "game": i,
+                "plus": i == MAX_SESSION_GAME,
+                "elo": to_elo(m["mean"]),
+                "low": to_elo(m["low"]),
+                "high": to_elo(m["high"]),
+                "games": m["n"],
+            }
+        )
+    return out
+
 
 STOP_RULES = [
     ("two_in_a_row", "Stop after 2 losses in a row"),
@@ -93,6 +142,14 @@ def _requeue(cat: str, gs: list[GameRecord]) -> FindingDraft:
         contrast=c,
         min_n=MIN_RATE_GROUP,
         sample_size=len(known),
+        details={
+            "charts": {
+                "next_game_gap": {
+                    "after_loss": _gap_shares([g for g in known if g.result == "loss"]),
+                    "after_win": _gap_shares([g for g in known if g.result == "win"]),
+                }
+            }
+        },
     )
 
 
@@ -142,6 +199,9 @@ def _result(cat: str, gs: list[GameRecord]) -> FindingDraft:
         contrast=c,
         min_n=MIN_OUTCOME_GROUP,
         sample_size=len(follow),
+        details={
+            "charts": {"by_session_game": _by_session_game([g for g in gs if g.session_index > 0])}
+        },
     )
 
 

@@ -36,6 +36,7 @@ class GameRecord:
     started_at: datetime | None = None
     termination: str | None = None
     final_material: int | None = None
+    opening: str | None = None  # chess.com's opening name, e.g. "Italian Game: Two Knights"
     # Filled in by prepare().
     session_id: int = 0
     session_index: int = 0  # 1 = first game of the session, 0 = not in a session (daily)
@@ -131,6 +132,7 @@ class GameRecord:
             started_at=datetime.fromisoformat(started) if started else None,
             termination=data.get("termination"),
             final_material=data.get("final_material"),
+            opening=data.get("opening"),
         )
 
 

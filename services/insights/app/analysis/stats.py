@@ -183,3 +183,37 @@ def quantiles(xs: list[float]) -> tuple[float, float] | None:
 def pct(x: float) -> str:
     """Score points as signed percentage points, e.g. -0.061 -> '-6.1'."""
     return f"{x * 100:+.1f}"
+
+
+def cluster_mean(
+    values: list[tuple[object, float]], n_boot: int = 1000, seed: int = 0
+) -> dict | None:
+    """Mean of one group with a 95% cluster-bootstrap interval, for chart points.
+
+    Returns {"mean", "low", "high", "n"} or None for fewer than 2 clusters. Charts show these
+    as descriptive points with error bars; they are not tested against anything.
+    """
+    if not values:
+        return None
+    keys = sorted({k for k, _ in values}, key=str)
+    if len(keys) < 2:
+        return None
+    index = {k: i for i, k in enumerate(keys)}
+    sums, counts = np.zeros(len(keys)), np.zeros(len(keys))
+    for k, v in values:
+        sums[index[k]] += v
+        counts[index[k]] += 1
+    rng = np.random.default_rng(seed)
+    parts = []
+    for start in range(0, n_boot, 200):  # chunks keep memory small for thousands of clusters
+        draws = rng.integers(0, len(keys), size=(min(200, n_boot - start), len(keys)))
+        with np.errstate(invalid="ignore", divide="ignore"):
+            parts.append(sums[draws].sum(axis=1) / counts[draws].sum(axis=1))
+    boot = np.concatenate(parts)
+    lo, hi = np.percentile(boot[np.isfinite(boot)], [2.5, 97.5])
+    return {
+        "mean": float(sums.sum() / counts.sum()),
+        "low": float(lo),
+        "high": float(hi),
+        "n": len(values),
+    }
