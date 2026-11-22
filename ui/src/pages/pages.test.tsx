@@ -405,3 +405,33 @@ describe('cold start banner', () => {
     vi.useRealTimers()
   })
 })
+
+describe('methods page', () => {
+  it('lists every section and marks the one a card linked to', async () => {
+    window.location.hash = '#/methods/clock'
+    render(<App />)
+    expect(screen.getByRole('heading', { name: 'How it’s measured' })).toBeInTheDocument()
+    const clock = screen.getByRole('region', { name: 'Clock profile' })
+    expect(clock).toHaveClass('methods__section--active')
+    expect(within(clock).getByText('Time trouble')).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Statistics and labels' })).not.toHaveClass(
+      'methods__section--active',
+    )
+  })
+
+  it('is linked from the header and from a finding card', async () => {
+    window.location.hash = '#/players/1/rapid/time_trouble_score'
+    mockFetch([
+      ['GET', /\/players\/1$/, () => ({ body: { ...player, game_counts: { rapid: 200, bullet: 700 } } })],
+      ['GET', /\/players\/1\/findings$/, () => ({ body: run })],
+    ])
+    render(<App />)
+    expect(screen.getByRole('link', { name: 'How it’s measured' })).toHaveAttribute('href', '#/methods')
+    const link = await screen.findByRole('link', { name: 'How is this measured?' })
+    expect(link).toHaveAttribute('href', '#/methods/clock')
+    await userEvent.click(link)
+    expect(await screen.findByRole('region', { name: 'Clock profile' })).toHaveClass(
+      'methods__section--active',
+    )
+  })
+})

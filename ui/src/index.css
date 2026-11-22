@@ -1042,3 +1042,61 @@ button.segmented__item.segmented__item--active {
     transition: none;
   }
 }
+
+/* Methods page and the links to it */
+.topbar__link {
+  margin-left: auto;
+  color: var(--muted);
+}
+
+.finding__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.methods-link {
+  color: var(--muted);
+}
+
+.methods__toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  margin-top: 0.75rem;
+}
+
+.methods__section {
+  scroll-margin-top: 1rem;
+}
+
+.methods__section--active {
+  border-color: var(--accent);
+}
+
+.methods__list {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0.75rem 0 0;
+}
+
+.methods__entry {
+  display: grid;
+  grid-template-columns: minmax(9rem, 12rem) 1fr;
+  gap: 0.25rem 1rem;
+}
+
+.methods__entry dt {
+  font-weight: 600;
+}
+
+.methods__entry dd {
+  margin: 0;
+}
+
+@media (max-width: 560px) {
+  .methods__entry {
+    grid-template-columns: 1fr;
+  }
+}
