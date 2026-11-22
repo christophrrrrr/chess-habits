@@ -14,12 +14,12 @@ criteria in its issue. Board: [Chess Habits backlog](https://github.com/users/ja
 
 | Item | Issue | Owner | PR | Status |
 |---|---|---|---|---|
-| Pipeline signs in to Azure through OIDC; first deployment by the pipeline | | Christoph | #23, #31 | Done: live since 22 Nov (#31 fixes the guide and the smoke test) |
+| Pipeline signs in to Azure through OIDC; first deployment by the pipeline | | Christoph | #23, #31 | Done: live since 22 Nov; #31 fixed the smoke test, deploys on `main` green again |
 | Monitoring dashboard: KQL queries + Azure Workbook | #17 | Nika | #22 | Merged, deployed; screenshot to add |
 | End-to-end browser tests with Playwright | #18 | Laura | #24 → #32 | In review (#24 continued in #32) |
 | Security scans in CI: CodeQL + Bandit | #19 | Zaid | #25 | In review |
 | Release tags + CHANGELOG, README screenshots | #20 | Xander | #30 | Merged (`v0.1.0`); README screenshots to add |
-| Backlog board, sprint notes, retrospectives, Sprint Review demo script | #21 | Javi | #26, #27 | In review |
+| Backlog board, sprint notes, retrospectives, Sprint Review demo script | #21 | Javi | #26, #27 | Board done, demo script merged (#27); sprint notes in review (#26) |
 | Methods page: every definition and threshold in the UI | #28 | Javi | #29 | Merged |
 | Tag `submission` on `main` before 24 Nov 23:59 | | Laura | | To do |
 
