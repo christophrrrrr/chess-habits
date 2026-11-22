@@ -12,7 +12,7 @@ npm run test:coverage
 npm run lint           # oxlint
 npm run format:check   # prettier
 npm run build          # static files in dist/
-npm run test:e2e       # Playwright smoke tests
+npm run test:e2e       # Playwright browser tests (needs `docker compose up` first)
 ```
 
 | Build-time variable     | Default                 |
@@ -21,3 +21,13 @@ npm run test:e2e       # Playwright smoke tests
 | `VITE_INSIGHTS_API_URL` | `http://localhost:8002` |
 
 `public/staticwebapp.config.json` sets security headers for Azure Static Web Apps.
+
+## Browser tests (Playwright)
+
+`e2e/` holds browser tests that run against the whole system. Start it with `docker compose up`
+from the repository root, then `npx playwright install chromium` once and `npm run test:e2e`.
+`E2E_BASE_URL` points them at another deployment. CI runs them in the compose job.
+
+One test uses the real services; the others answer the API from the unit-test fixtures, so CI
+never imports from chess.com. Covered: home page, account → habit tile → finding page → back,
+and the message when the games service is down.
