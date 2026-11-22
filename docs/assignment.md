@@ -47,7 +47,7 @@ Summary of the group assignment *"Plan, Build, Ship and Operate a Product as a S
 - [ ] At most **2 Container Apps** (Consumption plan, scale to zero, max 1 replica), **2 serverless Azure SQL databases** (auto-pause), **1 Static Web App** (`<prefix>-ui`).
 - [ ] Resource names start with `sdd-<class>-g<N>` (e.g. `sdd-3a-g3-api`, `sdd-3a-g3-api-db`).
 - [ ] Images in **GitHub Container Registry**.
-- [ ] Pipeline uses the **group's service principal** (sent by the professor).
+- [ ] Pipeline signs in as the **group's managed identity** `sdd-<class>-g<N>-github` (OIDC; created by the professor).
 - [ ] Config only through environment variables and secrets; nothing changed manually after setup.
 - [ ] Initial setup scripted (Azure CLI) or IaC (Bicep/Terraform; IaC earns credit).
 - [ ] CI never touches the Azure database.
