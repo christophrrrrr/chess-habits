@@ -13,34 +13,65 @@ GitHub Actions. Nothing is changed by hand in the portal after setup.
 | Static Web App | `<prefix>-ui` | Free tier |
 | Container Apps environment | `<prefix>-env` | required by the apps |
 | Log Analytics workspace | `<prefix>-logs` | request logs, dashboard queries, SLO query |
+| Workbook | `<prefix> monitoring` (display name) | monitoring dashboard on `<prefix>-logs`, see [monitoring.md](monitoring.md) |
 
 `<prefix>` is the group prefix from the professor, e.g. `sdd-3a-g3`. Images live in GitHub
 Container Registry: `ghcr.io/christophrrrrr/chess-habits-games` and `...-insights`.
 
-## One-time setup (when the Azure credentials arrive)
+## Where it runs
 
-1. **Repository variables** (Settings → Secrets and variables → Actions → Variables):
+The group project runs in IE's subscription **Azure Simple IE Instituto de Empresa, S.L.**,
+which lives in its own directory (tenant), not in anyone's Azure for Students. Our resource
+group is `rg-sdd-3a-g3`; we never create resource groups. GitHub Actions signs in as the
+group's managed identity `sdd-3a-g3-github` through OpenID Connect (federated credential),
+so there is **no client secret** to store.
 
-   | Variable | Example |
+### Look at it yourself
+
+1. Accept the email from *Microsoft Invitations on behalf of IE Instituto de Empresa, S.L.*
+   (check Junk).
+2. Portal: switch directory in Settings → Directories + subscriptions (or use the link from the
+   professor's message).
+3. Terminal (add `--use-device-code` if the browser sign-in fails):
+
+   ```sh
+   az login --tenant <IE tenant ID>
+   az account set --subscription "Azure Simple IE Instituto de Empresa, S.L."
+   az group show --name rg-sdd-3a-g3 -o table
+   ```
+
+## One-time setup (when the managed identity is ready)
+
+1. **Repository variables** (Settings → Secrets and variables → Actions → Variables). These
+   are identifiers, not secrets:
+
+   | Variable | Value |
    |---|---|
-   | `AZURE_RESOURCE_GROUP` | `rg-sdd-3a-g3` (existing; never created by us) |
+   | `AZURE_CLIENT_ID` | client ID of the managed identity `sdd-3a-g3-github` |
+   | `AZURE_TENANT_ID` | the IE directory (tenant) ID |
+   | `AZURE_SUBSCRIPTION_ID` | ID of *Azure Simple IE Instituto de Empresa, S.L.* |
+   | `AZURE_RESOURCE_GROUP` | `rg-sdd-3a-g3` |
    | `AZURE_PREFIX` | `sdd-3a-g3` |
    | `SQL_ADMIN_LOGIN` | `chesshabitsadmin` |
    | `AZURE_ENABLED` | `true` (set last, after step 4) |
+
+   The client ID: `az identity show -g rg-sdd-3a-g3 -n sdd-3a-g3-github --query clientId -o tsv`
+   (or ask the professor).
 
 2. **Repository secrets** (same page → Secrets). Paste values only there, never in chat, code or issues:
 
    | Secret | Value |
    |---|---|
-   | `AZURE_CREDENTIALS` | the group's service principal as JSON: `{"clientId": "...", "clientSecret": "...", "subscriptionId": "...", "tenantId": "..."}` |
    | `SQL_ADMIN_PASSWORD` | a new strong password (16+ characters) |
    | `GHCR_PULL_TOKEN` | only if the GHCR images stay private: a classic PAT with `read:packages` |
 
    Alternative to `GHCR_PULL_TOKEN`: make both packages public (GitHub → Packages → package
    settings → Change visibility). They contain no secrets.
 
-3. **Create an environment** called `production` (Settings → Environments). Optional: require
-   a reviewer for deployments.
+3. **Create an environment** called `production` (Settings → Environments). Every Azure job
+   runs in it, so the OIDC token's subject is
+   `repo:christophrrrrr/chess-habits:environment:production`. The managed identity's federated
+   credential must match exactly that subject; confirm it with the professor.
 
 4. **First run**: merge to `main` (or run *Deploy* manually) so the images are pushed, then run
    the *Infrastructure* workflow (Actions → Infrastructure → Run workflow). Its summary shows
@@ -61,6 +92,46 @@ Container Registry: `ghcr.io/christophrrrrr/chess-habits-games` and `...-insight
 
 Re-run the *Deploy* workflow for an earlier commit (Actions → Deploy → choose the run → Re-run),
 or run *Infrastructure* with `image_tag` set to an earlier commit SHA.
+
+## Releases
+
+Every merge to `main` is deployed, so a release does not trigger a deploy. It names a point in
+the history that the team, the graders and users can refer to.
+
+| Tag | Marks | Example |
+|---|---|---|
+| `vMAJOR.MINOR.PATCH` | the last merge of a sprint; one minor version per sprint while below 1.0 | `v0.1.0` = end of Sprint 1, `v0.2.0` = end of Sprint 2 |
+| `vMAJOR.MINOR.PATCH` with a higher patch | a fix shipped between two sprint releases | `v0.1.1` |
+| `submission` | the final graded commit on `main` (deadline 24 Nov, 23:59) | `submission` |
+
+Tags are annotated, never moved and never deleted, and they point at a merge commit on `main`.
+The [CHANGELOG](../CHANGELOG.md) lists what each version contains.
+
+### Cutting a release
+
+Needs write access to the repository. With version `0.2.0` as the example:
+
+1. In a pull request, move the entries under **Unreleased** in `CHANGELOG.md` into a new
+   `## [0.2.0] - YYYY-MM-DD` section, update the comparison links at the bottom, and merge it.
+2. Tag the merge commit and push the tag:
+
+   ```sh
+   git checkout main && git pull
+   git tag -a v0.2.0 -m "Sprint 2" <merge commit SHA>
+   git push origin v0.2.0
+   ```
+
+3. Create the GitHub Release from the tag, with that version's CHANGELOG section as the notes
+   (or on GitHub: Releases → Draft a new release → choose the tag):
+
+   ```sh
+   gh release create v0.2.0 --title "v0.2.0: Sprint 2" --notes-file notes.md
+   ```
+
+4. At the deadline, tag the last commit on `main` that should be graded, the same way:
+   `git tag -a submission -m "Graded version" <SHA>` and `git push origin submission`.
+
+`v0.1.0` was cut after Sprint 1 on the merge of #16 (`fee3dbd`).
 
 ## Known limitations (to revisit)
 

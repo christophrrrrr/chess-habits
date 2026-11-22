@@ -1,7 +1,7 @@
 name: Infrastructure
 
 # Manual: creates or updates all Azure resources from infra/main.bicep inside the group's
-# existing resource group. Run once after the Azure credentials arrive (and after the first
+# existing resource group. Run once after the group's managed identity is ready (and after the first
 # Deploy run has pushed images), and again whenever infra/main.bicep changes.
 
 on:
@@ -13,6 +13,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write # OIDC sign-in as the group's managed identity
 
 concurrency:
   group: deploy-production
@@ -26,7 +27,9 @@ jobs:
       - uses: actions/checkout@v7
       - uses: azure/login@v3
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       - name: Deploy infra/main.bicep
         env:
           IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/chess-habits

@@ -11,7 +11,7 @@ more features. Product ideas come from the research shortlist
 | Grading area (weight) | State |
 |---|---|
 | Product, architecture, code (25%) | MVP complete in PRs #1–#10 (#12 renames the project): games service (players CRUD, chess.com import), insights service (clock profile, after-loss, stop-loss, rules with adherence), UI. Not merged yet. |
-| Cloud infrastructure (15%) | Bicep for everything; **blocked**: no resource group and service principal yet. |
+| Cloud infrastructure (15%) | Bicep for everything; access to IE's subscription granted (18 Nov), waiting for the pipeline's managed identity. |
 | DevOps pipeline (20%) | CI (lint, format, tests with coverage gate, pip-audit, image builds, compose smoke test) and deploy workflow written; deploy never run. |
 | Testing (10%) | 51 insights + 27 games + 29 UI tests, 96–98% coverage. No browser E2E yet. |
 | Monitoring and reliability (10%) | JSON request logs, KQL queries and SLO written; no dashboard yet; partial failure handled and tested. |
@@ -62,7 +62,7 @@ more features. Product ideas come from the research shortlist
 
 | Risk | Mitigation |
 |---|---|
-| Azure credentials arrive late | Pipeline, Bicep and docs are ready; emailed the professor for access to the group's resource group and the service principal (12 Nov). Everything else is done first. |
+| Azure credentials arrive late | Pipeline, Bicep and docs are ready; access to IE's subscription arrived 18 Nov; the managed identity for the pipeline is being created by the professor. Everything else is done first. |
 | Few team members for PR approvals and role rotation | Clarify with the professor; record roles per sprint. |
 | Cold start during the live demo | Warm-up request before the review; the UI explains slow first requests. |
 | chess.com API down during the demo | Import before the review; findings are stored, so the demo does not need chess.com. |
