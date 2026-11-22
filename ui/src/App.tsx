@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { SLOW_EVENT } from './api'
+import { MethodsPage } from './pages/MethodsPage'
 import { PlayerPage } from './pages/PlayerPage'
 import { PlayersPage } from './pages/PlayersPage'
 import { parseRoute } from './routes'
@@ -31,6 +32,9 @@ export default function App() {
           Chess Habits
         </a>
         <span className="muted small">your habits at the board, measured</span>
+        <a href="#/methods" className="topbar__link small">
+          How it’s measured
+        </a>
       </header>
       {slow > 0 && (
         <div className="wake-banner" role="status">
@@ -41,6 +45,8 @@ export default function App() {
       <main className="container">
         {route.page === 'player' ? (
           <PlayerPage playerId={route.id} view={route} key={route.id} />
+        ) : route.page === 'methods' ? (
+          <MethodsPage section={route.section} />
         ) : (
           <PlayersPage />
         )}
