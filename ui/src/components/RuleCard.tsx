@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Finding, Rule } from '../api'
 import { formatDate, LABEL_TEXT, percent } from '../format'
+import { MethodsLink } from './MethodsLink'
 import { Tile } from './Tile'
 
 interface Rate {
@@ -58,8 +59,11 @@ export function RuleCard({
     <article className={`finding finding--${tone} rule`} aria-label={`Rule: ${rule.description}`}>
       <header className="finding__head">
         <h4>{current ? check!.title : `Your rule: ${rule.description}`}</h4>
-        <span className={`badge badge--${label}`}>
-          {label === 'not_enough_data' ? 'Too early' : LABEL_TEXT[label]}
+        <span className="finding__meta">
+          <span className={`badge badge--${label}`}>
+            {label === 'not_enough_data' ? 'Too early' : LABEL_TEXT[label]}
+          </span>
+          <MethodsLink section="rules" />
         </span>
       </header>
       <p className="finding__summary">
