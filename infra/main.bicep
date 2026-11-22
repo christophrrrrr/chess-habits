@@ -6,6 +6,7 @@
 //   - 1 Static Web App for the UI
 //   - plus what these need to exist: the Container Apps environment and its Log Analytics
 //     workspace (where request logs, dashboard queries and the SLO query run).
+//   - the monitoring dashboard: an Azure Workbook on that workspace (workbook.bicep).
 //
 // Deploy: .github/workflows/infra.yml (manual) or infra/deploy.sh.
 
@@ -61,6 +62,16 @@ resource env 'Microsoft.App/managedEnvironments@2024-03-01' = {
     workloadProfiles: [
       { name: 'Consumption', workloadProfileType: 'Consumption' }
     ]
+  }
+}
+
+// Dashboard: requests, error rate, latency and the SLO per service (docs/monitoring.md).
+module dashboard 'workbook.bicep' = {
+  name: 'monitoring-workbook'
+  params: {
+    prefix: prefix
+    location: location
+    workspaceId: logs.id
   }
 }
 
@@ -261,3 +272,4 @@ output gamesUrl string = 'https://${gamesApp.properties.configuration.ingress.fq
 output insightsUrl string = 'https://${insightsApp.properties.configuration.ingress.fqdn}'
 output uiUrl string = uiOrigin
 output logAnalyticsWorkspaceId string = logs.properties.customerId
+output monitoringWorkbook string = dashboard.outputs.workbookDisplayName

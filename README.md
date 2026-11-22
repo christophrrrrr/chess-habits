@@ -28,7 +28,31 @@ research questions.
    react to a loss. Every difference has a 95% interval and a verdict ("clearly different", "no
    clear difference").
 
-What comes next: [docs/roadmap.md](docs/roadmap.md).
+What comes next: [docs/roadmap.md](docs/roadmap.md). What changed in each version:
+[CHANGELOG.md](CHANGELOG.md).
+
+## Screenshots
+
+**Home page:** tracked accounts and grandmasters to compare with, each with its headline finding.
+
+![Home page with a tracked account and a grandmaster](docs/screenshots/home.png)
+
+**Habit tiles:** one tile per habit for a time control, with the headline number and how sure
+the finding is.
+
+![Habit tiles for one account in rapid](docs/screenshots/habit-tiles.png)
+
+**A habit in full:** the time trouble page, with its causes, clock tables and a suggested rule.
+
+![Time trouble page for blitz](docs/screenshots/habit-page.png)
+
+**Grandmaster comparison:** your habits next to Hikaru Nakamura's, each with a 95% interval and a
+verdict.
+
+![Comparison with a grandmaster in bullet](docs/screenshots/grandmaster-comparison.png)
+
+Taken locally with `docker compose` on 2,872 real games from chess.com account `chrisaxm` and
+5,745 of Hikaru's games from the last 12 months.
 
 **Live URL:** _added after the first Azure deployment_ (see [docs/deployment.md](docs/deployment.md)).
 
@@ -103,6 +127,7 @@ Reproduce the Azure setup: [docs/deployment.md](docs/deployment.md).
 |---|---|
 | [docs/vision.md](docs/vision.md) | Product vision, design principles, research questions |
 | [docs/roadmap.md](docs/roadmap.md) | What comes next, until the deadline and after the course |
+| [CHANGELOG.md](CHANGELOG.md) | What changed in each release |
 | [docs/assignment.md](docs/assignment.md) | Assignment requirements as a checklist |
 | [docs/decisions.md](docs/decisions.md) | Architecture decision records |
 | [docs/security.md](docs/security.md) | Security scans in CI and how to handle a finding |
@@ -126,4 +151,4 @@ Group 3. Roles rotate every sprint; full table and who owns what: [docs/scrum/te
 | Nika | [@nika140906](https://github.com/nika140906) |
 | Laura | [@Palee222](https://github.com/Palee222) |
 | Zaid | [@zaid-ju](https://github.com/zaid-ju) |
-| Xander | _to come_ |
+| Xander | [@xanman04](https://github.com/xanman04) |

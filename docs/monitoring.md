@@ -27,25 +27,51 @@ ContainerAppConsoleLogs_CL
           duration_ms = todouble(log.duration_ms)
 ```
 
+## Dashboard (Azure Workbook)
+
+The dashboard is code: [infra/workbook.bicep](../infra/workbook.bicep), deployed by
+[infra/main.bicep](../infra/main.bicep) together with everything else. Open it in the portal:
+resource group → **Workbooks** → **`<prefix> monitoring`**.
+
+It runs the queries below on the `<prefix>-logs` workspace, per service:
+
+| Panel | Query |
+|---|---|
+| Requests per minute | [Requests per service](#requests-per-service) (1 min buckets) |
+| Error rate (5xx share) | [Error rate](#error-rate-5xx-share) |
+| Response time p50 / p95 | [Response time](#response-time-p50--p95) |
+| SLO and error budget (fixed 7 days) | [SLO](#slo) |
+
+A time range picker at the top (default: last 24 hours) applies to the three charts. The
+Workbook inlines the base query with `let`, so it works without saving the
+`ChessHabitsRequests` function by hand.
+
+_Screenshot: added after the first Azure deployment._
+
 ## Dashboard queries
 
-Pin each to an Azure dashboard or a Workbook.
+The same queries for the Logs page. They need the `ChessHabitsRequests` function above.
 
-**Requests per service (15 min buckets)**
+### Requests per service
+
+15 min buckets here; the Workbook uses 1 min buckets.
+
 ```kusto
 ChessHabitsRequests
 | summarize requests = count() by service, bin(TimeGenerated, 15m)
 | render timechart
 ```
 
-**Error rate (5xx share)**
+### Error rate (5xx share)
+
 ```kusto
 ChessHabitsRequests
 | summarize error_rate = 100.0 * countif(status >= 500) / count() by service, bin(TimeGenerated, 1h)
 | render timechart
 ```
 
-**Response time (p50 / p95)**
+### Response time (p50 / p95)
+
 ```kusto
 ChessHabitsRequests
 | where path != "/health"
