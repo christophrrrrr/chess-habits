@@ -69,9 +69,13 @@ so there is **no client secret** to store.
    settings → Change visibility). They contain no secrets.
 
 3. **Create an environment** called `production` (Settings → Environments). Every Azure job
-   runs in it, so the OIDC token's subject is
-   `repo:christophrrrrr/chess-habits:environment:production`. The managed identity's federated
-   credential must match exactly that subject; confirm it with the professor.
+   runs in it. GitHub puts the owner and repository IDs into the OIDC token's subject, so the
+   managed identity's federated credential `github-chess-habits-production` must match exactly:
+   `repo:christophrrrrr@200782468/chess-habits@1454614990:environment:production`
+   (issuer `https://token.actions.githubusercontent.com`, audience `api://AzureADTokenExchange`).
+   The plain `repo:christophrrrrr/chess-habits:...` form fails with `AADSTS700213`; the exact
+   subject GitHub sends is in that error message. Added by us on 22 Nov with Contributor rights
+   on the resource group.
 
 4. **First run**: merge to `main` (or run *Deploy* manually) so the images are pushed, then run
    the *Infrastructure* workflow (Actions → Infrastructure → Run workflow). Its summary shows

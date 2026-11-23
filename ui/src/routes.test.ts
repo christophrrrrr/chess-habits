@@ -31,6 +31,13 @@ describe('routes', () => {
     expect(parseRoute('#/players/x')).toEqual({ page: 'players' })
   })
 
+  it('parses the methods page and its sections', () => {
+    expect(parseRoute('#/methods')).toEqual({ page: 'methods' })
+    expect(parseRoute('#/methods/')).toEqual({ page: 'methods' })
+    expect(parseRoute('#/methods/clock')).toEqual({ page: 'methods', section: 'clock' })
+    expect(parseRoute('#/methods/Clock')).toEqual({ page: 'players' })
+  })
+
   it('builds links that parse back to the same route', () => {
     const routes: Route[] = [
       { page: 'players' },
@@ -41,6 +48,8 @@ describe('routes', () => {
       { page: 'player', id: 1, view: 'games' },
       { page: 'player', id: 1, view: 'compare' },
       { page: 'player', id: 1, view: 'compare', refId: 4 },
+      { page: 'methods' },
+      { page: 'methods', section: 'clock' },
     ]
     for (const r of routes) expect(parseRoute(href(r))).toEqual(r)
   })
