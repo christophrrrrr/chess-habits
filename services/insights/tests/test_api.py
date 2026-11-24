@@ -37,6 +37,9 @@ def test_health_and_analyses(client):
         "opening_time",
         "premoves",
         "form",
+        "critical_moments",
+        "endings",
+        "opening_autopilot",
     ]
 
 

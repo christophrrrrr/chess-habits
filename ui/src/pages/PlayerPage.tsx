@@ -14,6 +14,7 @@ import {
 import type { RuleActions } from '../components/AdoptButton'
 import { FindingCard } from '../components/FindingCard'
 import { HabitTile } from '../components/HabitTile'
+import { DeepPanel } from '../components/DeepPanel'
 import { ImportPanel } from '../components/ImportPanel'
 import { RuleCard } from '../components/RuleCard'
 import { TileIcon } from '../components/TileIcon'
@@ -21,6 +22,8 @@ import { capitalize, formatDate, sortTimeClasses } from '../format'
 import { REFERENCE_MONTHS } from '../importer'
 import { ComparePage } from './ComparePage'
 import { PlanPage } from './PlanPage'
+import { GazePage } from './GazePage'
+import { ownPuzzles, PUZZLES } from '../gaze/model'
 import { buildPlan } from '../plan'
 import { href, type PlayerView } from '../routes'
 import { findingTile, ruleTile, TILE_NAMES } from '../tiles'
@@ -154,6 +157,16 @@ export function PlayerPage({ playerId, view }: Props) {
       </Detail>
     )
 
+  if (view.view === 'gaze') {
+    const own = ownPuzzles(run?.findings ?? [])
+    return (
+      <GazePage
+        puzzles={own.length > 0 ? own : PUZZLES}
+        back={href({ page: 'player', id: playerId, view: 'overview' })}
+      />
+    )
+  }
+
   if (view.view === 'plan')
     return (
       <Detail
@@ -217,6 +230,7 @@ export function PlayerPage({ playerId, view }: Props) {
           </p>
         </div>
       </section>
+      {player.kind !== 'reference' && total > 0 && <DeepPanel playerId={playerId} onDone={analyse} />}
       {runError && <p className="error">{runError}</p>}
       <Overview playerId={playerId} player={player} run={run} rules={rules} checks={checks} tc={view.tc} />
     </div>
@@ -343,12 +357,12 @@ function Overview({
           )}
           <HabitTile
             icon="gaze"
-            to="#/gaze"
+            to={href({ page: 'player', id: playerId, view: 'gaze' })}
             tile={{
               name: 'Where you look',
               value: 'Try it',
               caption:
-                'Prototype: webcam eye tracking while you solve three positions. Runs only in your browser.',
+                'Prototype: webcam eye tracking on positions from your own games that you got wrong (after the deep analysis). Runs only in your browser.',
               tone: 'neutral',
               badge: { text: 'Prototype', kind: 'exploratory' },
             }}

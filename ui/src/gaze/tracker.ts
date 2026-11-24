@@ -1,12 +1,12 @@
 // Webcam face tracking with MediaPipe Face Landmarker (Apache-2.0), entirely in the browser.
 // The video never leaves the page: only landmark coordinates are used, and nothing is sent to
-// a server. The library and model are loaded only when the player opens the gaze page.
+// a server. The library and model are loaded from this site only when the gaze page opens.
 import type { Point } from './model'
 
-const VERSION = '1.2.3' // keep in sync with package.json
-const WASM = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${VERSION}/wasm`
-const MODEL =
-  'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task'
+// Served from our own site: the WASM is copied from the npm package at build time
+// (scripts/copy-mediapipe.mjs), the model is in public/mediapipe (see NOTICE.md there).
+const WASM = `${import.meta.env.BASE_URL}mediapipe/wasm`
+const MODEL = `${import.meta.env.BASE_URL}mediapipe/face_landmarker.task`
 
 export interface Tracker {
   video: HTMLVideoElement

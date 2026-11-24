@@ -119,11 +119,13 @@ export interface Rect {
 }
 
 /** Square under a screen point, as [file 0-7 (a-h), rank 0-7 (1-8)] with White at the bottom. */
-export function squareAt(p: Point, board: Rect): [number, number] | null {
+export function squareAt(p: Point, board: Rect, flip = false): [number, number] | null {
   const fx = (p.x - board.left) / board.width
   const fy = (p.y - board.top) / board.height
   if (fx < 0 || fx >= 1 || fy < 0 || fy >= 1) return null
-  return [Math.floor(fx * 8), 7 - Math.floor(fy * 8)]
+  const file = Math.floor(fx * 8)
+  const rank = 7 - Math.floor(fy * 8)
+  return flip ? [7 - file, 7 - rank] : [file, rank]
 }
 
 /** The coarse region (4 x 4 blocks of 2 x 2 squares) for a square. */
@@ -151,6 +153,12 @@ export interface GazeSummary {
   enemyKing: number
   /** First region where the gaze stayed for 3 samples in a row. */
   firstRegion: number | null
+  /** Share of on-board samples within one square of the key move's from or to square. */
+  keySquares: number | null
+}
+
+function squareOf(name: string): [number, number] {
+  return ['abcdefgh'.indexOf(name[0]), Number(name[1]) - 1]
 }
 
 /** Summarises gaze samples over a board; kings as [file, rank], own = side to move. */
@@ -158,7 +166,10 @@ export function summarise(
   points: Point[],
   board: Rect,
   kings: { own: [number, number] | null; enemy: [number, number] | null },
+  opts: { flip?: boolean; side?: 'w' | 'b'; keyMove?: string } = {},
 ): GazeSummary {
+  const key = opts.keyMove ? [squareOf(opts.keyMove.slice(0, 2)), squareOf(opts.keyMove.slice(2, 4))] : null
+  let onKey = 0
   const counts = new Array(16).fill(0)
   let onBoard = 0
   let opp = 0
@@ -169,7 +180,7 @@ export function summarise(
   const near = (sq: [number, number], k: [number, number] | null) =>
     k !== null && Math.abs(sq[0] - k[0]) <= 1 && Math.abs(sq[1] - k[1]) <= 1
   for (const p of points) {
-    const sq = squareAt(p, board)
+    const sq = squareAt(p, board, opts.flip)
     if (!sq) {
       run = null
       continue
@@ -177,7 +188,8 @@ export function summarise(
     onBoard++
     const r = regionOf(sq)
     counts[r]++
-    if (sq[1] >= 4) opp++
+    if (opts.side === 'b' ? sq[1] <= 3 : sq[1] >= 4) opp++
+    if (key && key.some((k) => near(sq, k))) onKey++
     if (near(sq, kings.own)) ownK++
     if (near(sq, kings.enemy)) enemyK++
     if (firstRegion === null) {
@@ -194,6 +206,7 @@ export function summarise(
     ownKing: share(ownK),
     enemyKing: share(enemyK),
     firstRegion,
+    keySquares: key ? share(onKey) : null,
   }
 }
 
@@ -279,4 +292,24 @@ export function kingsFromFen(fen: string): {
 
 export function squareName([file, rank]: [number, number]): string {
   return `${'abcdefgh'[file]}${rank + 1}`
+}
+
+/** Puzzles from a player's own missed critical moments (critical_moments card), if any. */
+export function ownPuzzles(
+  findings: Array<{ analysis_key: string; time_class: string; details: Record<string, unknown> }>,
+): Puzzle[] {
+  const out: Puzzle[] = []
+  for (const f of findings) {
+    if (f.analysis_key !== 'critical_moments') continue
+    for (const m of (f.details.missed ?? []) as Array<{ fen: string; best: string; k: number }>) {
+      const side = m.fen.split(' ')[1] === 'b' ? 'Black' : 'White'
+      out.push({
+        id: `${f.time_class}-${m.k}-${m.fen}`,
+        fen: m.fen,
+        move: m.best,
+        hint: `From your ${f.time_class} games: ${side} to move. You missed the best move here.`,
+      })
+    }
+  }
+  return out.slice(0, 5)
 }

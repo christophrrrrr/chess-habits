@@ -145,3 +145,28 @@ the device, and a third service breaks the assignment's two-service limit).
 **Consequences.** No backend change and no new Azure resource. The library's WASM and the face
 model are fetched from jsDelivr and Google's model storage when the page opens. Linking gaze to
 mistakes needs the research in docs/research/gaze-*.md first (after the course).
+
+## 9. Stockfish runs in the player's browser; results are stored by insights
+
+**Context.** Critical moments, resignation quality and the opening autopilot need the moves and an
+engine. About 40 positions per game at 100,000 nodes (MultiPV 2) cost ~15 s per game; a few hundred
+games is too much CPU for a scale-to-zero Container App with 0.5 vCPU, a long request would time
+out, and the assignment allows no queue or third container.
+
+**Decision.** The UI runs the deep analysis in the player's browser (`ui/src/deep/`): chess.js
+(BSD-2) replays each PGN, and Stockfish 19 lite single-threaded (stockfish.js 19.0.1, GPL-3.0,
+1.8 MB WASM, served from `ui/public/engine/` with its licence and a link to the exact source) runs
+in a Web Worker, spoken to only through UCI text. Compact per-move rows are uploaded to the insights
+service (`PUT /players/{id}/game-analyses`, table `game_analyses`, migration 0004) and used by the
+normal analysis run. Uploads go game by game, so the run can stop and continue. Method and
+thresholds follow docs/research/game-decision-points.md and engines-and-human-baseline.md.
+
+**Alternatives.** Stockfish in the insights container (CPU cost on Azure credit, timeouts, the full
+build is 99 MB); Lichess cloud evaluations (rate limits, few hits after the opening); python-chess on
+the server for the positions (GPL-3.0 inside our published images).
+
+**Consequences.** No new Azure service and no extra cloud cost; the analysis uses the player's CPU
+and needs the tab open. Labels from a 100k-node search can flip near the thresholds (research: 47
+of 50 critical labels held at 1M nodes), so cards show counts and intervals and never single-move
+verdicts. Only the most recent N games get the engine pass; positions and final evaluations cover
+all games.

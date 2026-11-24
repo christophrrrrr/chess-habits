@@ -6,7 +6,7 @@ see [team.md](team.md)
 **Sprint Goal:** Chess Habits runs on Azure, deployed by the pipeline, with a monitoring
 dashboard, security scans and browser tests in CI, and the team is ready for the Sprint Review.
 
-Status as of 22 Nov. Live: https://polite-mud-0c720f303.6.azurestaticapps.net
+Status at the end of the sprint (24 Nov). Live: https://polite-mud-0c720f303.6.azurestaticapps.net
 
 Selected items are the issues with the `sprint-2` label. Each one has an owner and acceptance
 criteria in its issue. Board: [Chess Habits backlog](https://github.com/users/javocruz/projects/1)
@@ -15,13 +15,13 @@ criteria in its issue. Board: [Chess Habits backlog](https://github.com/users/ja
 | Item | Issue | Owner | PR | Status |
 |---|---|---|---|---|
 | Pipeline signs in to Azure through OIDC; first deployment by the pipeline | | Christoph | #23, #31 | Done: live since 22 Nov; #31 fixed the smoke test, deploys on `main` green again |
-| Monitoring dashboard: KQL queries + Azure Workbook | #17 | Nika | #22 | Merged, deployed; screenshot to add |
-| End-to-end browser tests with Playwright | #18 | Laura | #24 → #32 | In review (#24 continued in #32) |
-| Security scans in CI: CodeQL + Bandit | #19 | Zaid | #25 | In review |
-| Release tags + CHANGELOG, README screenshots | #20 | Xander | #30 | Merged (`v0.1.0`); README screenshots to add |
-| Backlog board, sprint notes, retrospectives, Sprint Review demo script | #21 | Javi | #26, #27 | Board done, demo script merged (#27); sprint notes in review (#26) |
+| Monitoring dashboard: KQL queries + Azure Workbook | #17 | Nika | #22 | Done: deployed, screenshots in #35 |
+| End-to-end browser tests with Playwright | #18 | Laura | #24 → #32 | Not done: #32 in review, carried over to Sprint 3 |
+| Security scans in CI: CodeQL + Bandit | #19 | Zaid | #25 | Done |
+| Release tags + CHANGELOG, README screenshots | #20 | Xander | #30 | Done (`v0.1.0`, README screenshots) |
+| Backlog board, sprint notes, retrospectives, Sprint Review demo script | #21 | Javi | #26, #27 | Done |
 | Methods page: every definition and threshold in the UI | #28 | Javi | #29 | Merged |
-| Tag `submission` on `main` before 24 Nov 23:59 | | Laura | | To do |
+| Tag `submission` on `main` | | Laura | | Moved: the deadline is now 1 Dec (Sprint 3) |
 
 ## Sprint Review (25–26 Nov)
 

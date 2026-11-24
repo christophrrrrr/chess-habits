@@ -409,13 +409,19 @@ export function IntervalChart({
   rows,
   format,
   range,
+  domain,
+  reference,
 }: {
   title: string
   note?: string
   rows: IntervalRow[]
   format: (v: number) => string
-  /** Half-width of the axis; defaults to fit the widest interval. */
+  /** Half-width of an axis centred on zero; defaults to fit the widest interval. */
   range?: number
+  /** A fixed axis instead, e.g. [0, 1] for rates. */
+  domain?: [number, number]
+  /** A dashed reference line, e.g. the overall rate. */
+  reference?: { value: number; label: string }
 }) {
   const id = useId()
   const [plotRef, W] = useWidth()
@@ -423,13 +429,14 @@ export function IntervalChart({
   if (shown.length === 0) return null
   const extent =
     range ?? Math.max(...shown.flatMap((r) => [Math.abs(r.low ?? r.value!), Math.abs(r.high ?? r.value!)]), 1)
-  const ticks = niceTicks(-extent, extent, 4)
+  const ticks = domain ? niceTicks(domain[0], domain[1], 4) : niceTicks(-extent, extent, 4)
   const span = Math.max(Math.abs(ticks[0]), Math.abs(ticks[ticks.length - 1]), extent)
+  const [lo, hi] = domain ?? [-span, span]
   const LEFT = Math.round(Math.min(160, W * 0.36))
   const rowH = 30
   const height = PAD.top + rows.length * rowH + PAD.bottom
   const iw = W - LEFT - PAD.right
-  const sx = (v: number) => LEFT + ((Math.max(-span, Math.min(span, v)) + span) / (2 * span)) * iw
+  const sx = (v: number) => LEFT + ((Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo || 1)) * iw
 
   return (
     <Frame
@@ -450,10 +457,24 @@ export function IntervalChart({
     >
       <svg viewBox={`0 0 ${W} ${height}`} role="img" aria-labelledby={id}>
         <title id={id}>{title}</title>
+        {reference && (
+          <g>
+            <line
+              className="chart__marker"
+              x1={sx(reference.value)}
+              x2={sx(reference.value)}
+              y1={PAD.top - 6}
+              y2={height - PAD.bottom}
+            />
+            <text className="chart__axis" x={sx(reference.value) + 4} y={PAD.top - 8}>
+              {reference.label}
+            </text>
+          </g>
+        )}
         {ticks.map((t) => (
           <g key={t}>
             <line
-              className={t === 0 ? 'chart__zero' : 'chart__grid'}
+              className={t === 0 && !domain ? 'chart__zero' : 'chart__grid'}
               x1={sx(t)}
               x2={sx(t)}
               y1={PAD.top}

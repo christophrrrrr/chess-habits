@@ -153,3 +153,52 @@ class Comparison(BaseModel):
     player_run: RunOut
     reference_run: RunOut
     blocks: list[CompareBlock]
+
+
+# ---- deep analysis (computed in the browser) ----------------------------------------------
+
+MoveType = Literal["capture", "check", "quiet", "retreat", "pawn", "king", "castle"]
+
+
+class EngineMove(BaseModel):
+    """Stockfish on one of the player's positions. Evaluations are centipawns from the
+    player's side (mate scores capped at +-10000), from a MultiPV-2 search."""
+
+    k: int = Field(ge=1, le=400, description="own move number (1 = first move)")
+    best: str = Field(min_length=4, max_length=5, description="best move, UCI")
+    type: MoveType = Field(description="kind of move the best move is")
+    b: int = Field(ge=-10000, le=10000, description="eval of the best move")
+    s: int | None = Field(default=None, ge=-10000, le=10000, description="eval of the 2nd best")
+    p: int = Field(ge=-10000, le=10000, description="eval of the move played")
+    legal: int = Field(ge=0, le=300)
+    check: bool = False
+    recapture: bool = False
+    fen: str | None = Field(default=None, max_length=100, description="only for critical ones")
+
+
+class GameAnalysisIn(BaseModel):
+    game_id: int
+    position_keys: list[str] = Field(default_factory=list, max_length=40)
+    engine: str | None = Field(default=None, max_length=32)
+    final_cp: int | None = Field(default=None, ge=-10000, le=10000)
+    moves: list[EngineMove] | None = Field(default=None, max_length=300)
+
+    @field_validator("position_keys")
+    @classmethod
+    def _hex_keys(cls, keys: list[str]) -> list[str]:
+        for k in keys:
+            if len(k) != 8 or any(c not in "0123456789abcdef" for c in k):
+                raise ValueError("position keys are 8 lowercase hex characters")
+        return keys
+
+
+class GameAnalysisBatch(BaseModel):
+    games: list[GameAnalysisIn] = Field(min_length=1, max_length=200)
+
+
+class DeepStatus(BaseModel):
+    positions: int  # games with position keys
+    engine: int  # games with a Stockfish pass
+    engine_game_ids: list[int]
+    position_game_ids: list[int]
+    final_game_ids: list[int]  # games whose final position has an engine evaluation

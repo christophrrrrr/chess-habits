@@ -37,6 +37,10 @@ class GameRecord:
     termination: str | None = None
     final_material: int | None = None
     opening: str | None = None  # chess.com's opening name, e.g. "Italian Game: Two Knights"
+    # Deep analysis from the player's browser (None until it has run for this game).
+    position_keys: list[str] | None = None  # position before own moves 1-20
+    engine_moves: list[dict] | None = None  # Stockfish rows for own moves (schemas.EngineMove)
+    final_cp: int | None = None  # final position, centipawns from the player's side
     # Filled in by prepare().
     session_id: int = 0
     session_index: int = 0  # 1 = first game of the session, 0 = not in a session (daily)

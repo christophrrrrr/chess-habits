@@ -11,7 +11,7 @@ from app.analysis.analyses import ANALYSES
 from app.analysis.games import GameRecord, prepare
 from app.analysis.rules import RuleSpec, check_rule
 from app.analysis.stats import benjamini_hochberg, label_for
-from app.models import AnalysisRun, Finding, Rule
+from app.models import AnalysisRun, Finding, GameAnalysis, Rule
 
 
 def utcnow() -> datetime:
@@ -56,6 +56,7 @@ def run_analyses(
         g.ended_at += shift
         if g.started_at is not None:
             g.started_at += shift
+    _attach_deep(session, player_id, records)
     games = prepare(records)
     drafts = [d for analysis in ANALYSES for d in analysis.run(games)]
     rules = session.scalars(
@@ -103,3 +104,16 @@ def run_analyses(
     session.add(run)
     session.commit()
     return run
+
+
+def _attach_deep(session: Session, player_id: int, records: list[GameRecord]) -> None:
+    """Adds the browser-computed positions and Stockfish rows to the games they belong to."""
+    by_id = {g.id: g for g in records}
+    rows = session.scalars(select(GameAnalysis).where(GameAnalysis.player_id == player_id))
+    for a in rows:
+        g = by_id.get(a.game_id)
+        if g is None:
+            continue
+        g.position_keys = a.position_keys.split(",") if a.position_keys else None
+        g.engine_moves = json.loads(a.moves) if a.moves else None
+        g.final_cp = a.final_cp

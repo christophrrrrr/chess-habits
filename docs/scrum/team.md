@@ -9,6 +9,7 @@ Group 3. Product Owner and Scrum Master rotate every sprint; everyone else is a 
 | 0 (4–10 Nov) | Christoph | _not assigned, the team was still forming_ | everyone |
 | 1 (11–18 Nov) | Christoph | Javi | Nika, Laura, Zaid, Xander, Christoph |
 | 2 (19–24 Nov) | Laura | Nika | Christoph, Javi, Zaid, Xander |
+| 3 (25 Nov–1 Dec) | Zaid | Xander | Christoph, Javi, Laura, Nika |
 
 ## Members
 
@@ -28,3 +29,11 @@ Sprint 1, before the team had met to split the work; Javi reviewed and merged it
 contribution statements show this split. From now on, every member owns at least one
 backlog item (table above), and every change still goes through a pull request approved by
 another member.
+
+## Workload in Sprints 2 and 3
+
+Christoph built most product features (charts, plan, deep analysis, eye tracking) because he
+knew the code and the research best; teammates owned the pipeline extras (monitoring, security
+scans, browser tests, releases, Scrum documentation) and reviewed the feature PRs. In Sprint 3
+each member owns at least one small, well-specified issue (#42–#46), and every large PR has a
+review guide so a teammate can check it properly.

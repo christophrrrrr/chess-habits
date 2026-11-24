@@ -1,5 +1,6 @@
 """HTTP API of the insights service."""
 
+import json
 from collections.abc import Iterator
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
@@ -11,12 +12,14 @@ from app.analysis.compare import compare
 from app.config import get_settings
 from app.db import get_session
 from app.games_client import GamesClient, GamesServiceUnavailable, PlayerNotFound
-from app.models import AnalysisRun, Rule
+from app.models import AnalysisRun, GameAnalysis, Rule
 from app.runner import run_analyses, utcnow
 from app.schemas import (
     AnalysisInfo,
     Comparison,
+    DeepStatus,
     FindingOut,
+    GameAnalysisBatch,
     RuleCreate,
     RuleOut,
     RuleUpdate,
@@ -239,3 +242,65 @@ def delete_rule(rule_id: int, session: Session = Depends(get_session)) -> Respon
     session.delete(_get_rule(session, rule_id))
     session.commit()
     return Response(status_code=204)
+
+
+# ---- deep analysis: positions and Stockfish, computed in the player's browser ---------------
+
+
+@router.put("/players/{player_id}/game-analyses", response_model=DeepStatus, tags=["deep analysis"])
+def save_game_analyses(
+    player_id: int, body: GameAnalysisBatch, session: Session = Depends(get_session)
+) -> DeepStatus:
+    """Stores deep-analysis results for up to 200 games (insert or replace per game).
+
+    A game sent without `moves` keeps an engine pass it already has, so the cheap positions
+    pass can run again without losing Stockfish results.
+    """
+    ids = [g.game_id for g in body.games]
+    existing = {
+        a.game_id: a
+        for a in session.scalars(
+            select(GameAnalysis).where(
+                GameAnalysis.player_id == player_id, GameAnalysis.game_id.in_(ids)
+            )
+        )
+    }
+    now = utcnow()
+    for g in body.games:
+        row = existing.get(g.game_id)
+        if row is None:
+            row = GameAnalysis(player_id=player_id, game_id=g.game_id, position_keys="")
+            session.add(row)
+        if g.position_keys:
+            row.position_keys = ",".join(g.position_keys)
+        if g.moves is not None:
+            row.engine = g.engine
+            row.moves = json.dumps([m.model_dump(exclude_none=True) for m in g.moves])
+        if g.final_cp is not None:
+            row.final_cp = g.final_cp
+        row.updated_at = now
+    session.commit()
+    return deep_status(player_id, session)
+
+
+@router.get(
+    "/players/{player_id}/game-analyses/status", response_model=DeepStatus, tags=["deep analysis"]
+)
+def deep_status(player_id: int, session: Session = Depends(get_session)) -> DeepStatus:
+    rows = session.execute(
+        select(
+            GameAnalysis.game_id,
+            GameAnalysis.position_keys,
+            GameAnalysis.moves,
+            GameAnalysis.final_cp,
+        ).where(GameAnalysis.player_id == player_id)
+    ).all()
+    engine = sorted(r.game_id for r in rows if r.moves is not None)
+    positions = sorted(r.game_id for r in rows if r.position_keys)
+    return DeepStatus(
+        positions=len(positions),
+        engine=len(engine),
+        engine_game_ids=engine,
+        position_game_ids=positions,
+        final_game_ids=sorted(r.game_id for r in rows if r.final_cp is not None),
+    )

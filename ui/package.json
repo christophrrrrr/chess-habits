@@ -4,6 +4,8 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "predev": "node scripts/copy-mediapipe.mjs",
+    "prebuild": "node scripts/copy-mediapipe.mjs",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint src",
@@ -16,6 +18,7 @@
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "1.2.3",
+    "chess.js": "1.4.0",
     "lucide-react": "1.61.0",
     "react": "19.3.1",
     "react-dom": "19.3.1"

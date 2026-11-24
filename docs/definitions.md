@@ -75,7 +75,19 @@ the code is wrong. Background and sources: [research/shortlist.md](research/shor
 | Chart points | Means with a 95% cluster-bootstrap interval (1,000 resamples), descriptive only. Session chart: games 1 to 7 and 8+, ≥ 30 games per point. Curves: medians from ≥ 10 games per point. | `stats.cluster_mean`, `clock._charts` |
 | Your plan | Items: significant (finding/exploratory) negative score contrasts, stop-loss rules that help, time windows that are clearly worse, openings whose interval lies below 0. Rank: cost in Elo × share of the time control's games affected. | `ui/src/plan.ts` |
 
-## Grandmaster comparison
+## Deep analysis (Stockfish in the browser)
+
+| Term | Definition | Code |
+|---|---|---|
+| Engine pass | Stockfish 19 lite single-threaded (stockfish.js 19.0.1, WASM, Web Worker), 100,000 nodes, MultiPV 2 on every own position with 2+ legal moves in the player's most recent N live games. If the played move is neither of the two, one more search restricted to it (`searchmoves`). Centipawns from the player's side; mate = ±(10000 − moves). | `ui/src/deep/run.ts` |
+| Win% | Lichess curve `50 + 50·(2/(1+e^(−0.00368208·cp)) − 1)`. | `deep.win_pct` |
+| Critical moment | `10 ≤ W_best ≤ 95` and `W_best − W_second ≥ 10`; not in check, not a recapture on the square of the opponent's last move, more than 3 legal moves. Only move: gap ≥ 20. | `deep.critical_moments` |
+| Found | The played move loses < 3 win% points against the best move. | `deep._decision_points` |
+| Move type | Of the best move: check, capture, castle, king, pawn, retreat (a piece other than pawn or king moving towards its own back rank), quiet. | `ui/src/deep/replay.ts` |
+| Breakdowns | Find rate with a 95% Wilson interval, by move type, clock left (> 50, 25–50, 10–25, < 10 % of `T_est`), time taken vs the player's median think (< 0.5×, > 2×), purpose (only move to hold: `W_second < 35 ≤ W_best`; to win: `W_best ≥ 65 > W_second`). Rows need ≥ 20 positions; the card needs ≥ 30. | `deep.critical_moments` |
+| Endings | Engine evaluation of the final position (one search, 100,000 nodes) of games ending by resignation, on time or by agreement. Resigned too early: expected score left ≥ 0.15 (also 0.10, 0.25), next to the opponents' resignations in the same games. Time losses winning/losing: ±300 cp. Agreed draws when better: expected score ≥ 0.60. In the plan only when the player's rate is 5+ points above the opponents'. | `deep.endings`, `ui/src/plan.ts` |
+| Opening autopilot | Position key: FNV-1a hash of the first four FEN fields before each of the first 20 own moves. Known: the same key in ≥ 3 earlier games of the time control. Time per move as a share of `T_est`; book exit = first own move in a new position. | `deep.opening_autopilot` |
+
 
 | Term | Definition | Code |
 |---|---|---|

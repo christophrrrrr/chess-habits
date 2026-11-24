@@ -23,6 +23,9 @@ export const TILE_NAMES: Record<string, string> = {
   opening_time: 'Opening time',
   premoves: 'Premoves',
   form: 'Form over time',
+  critical_moments: 'Critical moments',
+  endings: 'How your games end',
+  opening_autopilot: 'Opening autopilot',
 }
 
 const signed = (v: number) => `${v >= 0 ? '+' : '−'}${Math.abs(Math.round(v))}`
@@ -66,6 +69,19 @@ export function findingTile(f: Finding): TileModel {
   }
   if (f.analysis_key === 'premoves') {
     return { ...base, value: percent(f.details.rate as number | null), tone: 'neutral' }
+  }
+  if (f.analysis_key === 'critical_moments') {
+    const c = f.details.critical as { rate: number | null; n: number } | undefined
+    return { ...base, value: c && c.n >= 30 ? percent(c.rate) : '–', tone: 'neutral' }
+  }
+  if (f.analysis_key === 'endings') {
+    const r = f.details.resignations as { n: number; premature: { rate: number | null } } | undefined
+    return { ...base, value: r && r.n > 0 ? percent(r.premature.rate) : '–', tone: 'neutral' }
+  }
+  if (f.analysis_key === 'opening_autopilot') {
+    const a = f.details.think_familiar as number | null
+    const b = f.details.think_new as number | null
+    return { ...base, value: a && b ? `${(b / a).toFixed(1)}×` : '–', tone: 'neutral' }
   }
   if (f.analysis_key === 'form') {
     const months = (f.details.months ?? []) as Array<{ rating: number | null }>

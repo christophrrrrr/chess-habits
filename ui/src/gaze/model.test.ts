@@ -5,6 +5,7 @@ import {
   fitRidge,
   kingsFromFen,
   predict,
+  ownPuzzles,
   PUZZLES,
   regionName,
   regionOf,
@@ -108,5 +109,41 @@ describe('positions', () => {
       expect(p.move).toMatch(/^[a-h][1-8][a-h][1-8]$/)
     }
     expect(kingsFromFen(PUZZLES[1].fen)).toEqual({ white: [6, 0], black: [6, 7] })
+  })
+})
+
+describe('own positions', () => {
+  it('reads a flipped board for Black and measures the key squares', () => {
+    // Flipped: the top-left square on screen is h1, the bottom-right is a8.
+    expect(squareAt({ x: 101, y: 51 }, board, true)).toEqual([7, 0])
+    expect(squareAt({ x: 499, y: 449 }, board, true)).toEqual([0, 7])
+    const atScreen = (col: number, row: number): Point => ({
+      x: board.left + col * 50 + 25,
+      y: board.top + row * 50 + 25,
+    })
+    // Black to move, best move e7e5: on a flipped board e7 is column 3, row 6 (a8 is column 7, row 7).
+    const points = [...Array(4).fill(atScreen(3, 6)), atScreen(7, 7)]
+    const s = summarise(
+      points,
+      board,
+      { own: [4, 7], enemy: [4, 0] },
+      { flip: true, side: 'b', keyMove: 'e7e5' },
+    )
+    expect(s.keySquares).toBeCloseTo(0.8)
+    expect(s.opponentHalf).toBeCloseTo(0) // e7 and a8 are on Black's own half
+  })
+
+  it('turns missed critical moments into puzzles', () => {
+    const puzzles = ownPuzzles([
+      {
+        analysis_key: 'critical_moments',
+        time_class: 'blitz',
+        details: { missed: [{ fen: PUZZLES[0].fen, best: 'h5f7', k: 4 }] },
+      },
+      { analysis_key: 'clock_profile', time_class: 'blitz', details: {} },
+    ])
+    expect(puzzles).toHaveLength(1)
+    expect(puzzles[0]).toMatchObject({ move: 'h5f7' })
+    expect(puzzles[0].hint).toContain('White to move')
   })
 })

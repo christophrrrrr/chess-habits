@@ -192,6 +192,42 @@ export const METHODS: MethodsSection[] = [
     ],
   },
   {
+    id: 'deep',
+    title: 'Deep analysis (Stockfish)',
+    intro:
+      'Stockfish 19 (lite) runs in your browser on your own positions; the results are stored with your account.',
+    entries: [
+      {
+        term: 'Engine pass',
+        text: 'Every position before one of your moves in your most recent games is searched with 100,000 nodes for the two best moves (MultiPV 2). Evaluations become win% with the Lichess curve.',
+      },
+      {
+        term: 'Critical moment',
+        text: 'A position that is not decided yet (best move 10–95% win) where the second-best move already loses 10+ win% points. Recaptures, positions where you are in check and positions with 3 legal moves or fewer are left out, because those moves are obvious.',
+      },
+      {
+        term: 'Found',
+        text: 'You played the best move or one that loses less than 3 win% points.',
+      },
+      {
+        term: 'Kind of move',
+        text: 'Check, capture, castling, king move, pawn move, retreat (a piece moves back towards your side) or quiet move, for the best move.',
+      },
+      {
+        term: 'Resigned too early',
+        text: 'You resigned with at least 15% expected score left, by the engine’s evaluation of the final position (also shown for 10% and 25%). Compared with how your opponents resign against you. The curve ignores the clock, so resigning with seconds left can still be sensible.',
+      },
+      {
+        term: 'Lost on time while winning',
+        text: 'The engine has you 3+ pawns ahead in the final position of a game lost on time.',
+      },
+      {
+        term: 'Opening autopilot',
+        text: 'A position counts as known when you reached exactly the same position (pieces, side to move, castling, en passant) 3+ times in earlier games of the same time control. Compares your time per move in known and new positions over your first 20 moves.',
+      },
+    ],
+  },
+  {
     id: 'compare',
     title: 'Grandmaster comparison',
     intro: 'Your habits next to a grandmaster’s.',
@@ -233,6 +269,9 @@ const SECTION_FOR_ANALYSIS: Record<string, string> = {
   opening_time: 'habits',
   premoves: 'habits',
   form: 'habits',
+  critical_moments: 'deep',
+  endings: 'deep',
+  opening_autopilot: 'deep',
 }
 
 export function methodsSectionFor(analysisKey: string): string {
