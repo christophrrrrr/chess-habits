@@ -8,6 +8,7 @@ Which analyses exist, and why, comes from docs/research/shortlist.md.
 from app.analysis.after_loss import after_loss
 from app.analysis.base import Analysis
 from app.analysis.clock import clock_profile
+from app.analysis.deep import critical_moments, endings, opening_autopilot
 from app.analysis.habits import form, opening_time, premoves, time_of_day, warm_up
 
 ANALYSES: list[Analysis] = [
@@ -52,5 +53,23 @@ ANALYSES: list[Analysis] = [
         "Form over time",
         "How have your rating and your results against expectation moved, month by month?",
         form,
+    ),
+    Analysis(
+        "critical_moments",
+        "Critical moments",
+        "When only one move holds, how often do you find it, and which kinds do you miss?",
+        critical_moments,
+    ),
+    Analysis(
+        "endings",
+        "How your games end",
+        "Do you resign or agree draws too early, and lose on time in winning positions?",
+        endings,
+    ),
+    Analysis(
+        "opening_autopilot",
+        "Opening autopilot",
+        "Do you play positions you know faster, and what happens when you leave them?",
+        opening_autopilot,
     ),
 ]

@@ -83,3 +83,23 @@ class Rule(Base):
         from app.analysis.rules import describe
 
         return describe(self.kind, self.move, self.min_share, self.stop_rule)
+
+
+class GameAnalysis(Base):
+    """Deep analysis of one game, computed in the player's browser and uploaded.
+
+    position_keys: comma-separated 8-hex hashes of the position before each own move (moves 1-20),
+    for the opening autopilot. moves: JSON list of Stockfish rows for own moves (see
+    schemas.EngineMove). final_cp: evaluation of the final position from the player's side.
+    """
+
+    __tablename__ = "game_analyses"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    player_id: Mapped[int] = mapped_column(Integer, index=True)
+    game_id: Mapped[int] = mapped_column(Integer)
+    engine: Mapped[str | None] = mapped_column(String(32))
+    final_cp: Mapped[int | None] = mapped_column(Integer)
+    position_keys: Mapped[str] = mapped_column(UnicodeText)
+    moves: Mapped[str | None] = mapped_column(UnicodeText)
+    updated_at: Mapped[datetime] = mapped_column(DateTime)
