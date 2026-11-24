@@ -1293,3 +1293,96 @@ button.segmented__item.segmented__item--active {
 .plan--good .plan__item {
   border-left: 4px solid var(--good);
 }
+
+/* ---- where you look (eye tracking prototype) ------------------------------------------- */
+.gaze-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: var(--bg);
+}
+.gaze-overlay__text {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 28rem;
+  text-align: center;
+  color: var(--muted);
+  pointer-events: none;
+}
+.gaze-dot {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  border: 4px solid var(--surface);
+  background: var(--bad);
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  box-shadow: 0 0 0 2px var(--bad);
+}
+.gaze-cursor {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--series-1);
+  opacity: 0.5;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  width: min(100%, 480px);
+  aspect-ratio: 1;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.board__sq {
+  position: relative;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  font-size: clamp(1.2rem, 5.5vw, 2.4rem);
+  line-height: 1;
+  color: #111;
+  cursor: pointer;
+}
+.board__sq:disabled {
+  cursor: default;
+}
+.board__sq--light {
+  background: #eeeed2;
+}
+.board__sq--dark {
+  background: #769656;
+}
+.board__sq--picked {
+  box-shadow: inset 0 0 0 3px var(--series-2);
+}
+.board__heat {
+  position: absolute;
+  inset: 0;
+  background: var(--bad);
+  pointer-events: none;
+}
+.board__piece {
+  position: relative;
+}
+.gaze-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+.gaze-stats {
+  margin: 0.75rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.9rem;
+}

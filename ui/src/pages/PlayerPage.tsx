@@ -13,7 +13,7 @@ import {
 } from '../api'
 import type { RuleActions } from '../components/AdoptButton'
 import { FindingCard } from '../components/FindingCard'
-import { ComingSoonTile, HabitTile } from '../components/HabitTile'
+import { HabitTile } from '../components/HabitTile'
 import { ImportPanel } from '../components/ImportPanel'
 import { RuleCard } from '../components/RuleCard'
 import { TileIcon } from '../components/TileIcon'
@@ -341,10 +341,17 @@ function Overview({
               to={href({ page: 'player', id: playerId, view: 'compare' })}
             />
           )}
-          <ComingSoonTile
+          <HabitTile
             icon="gaze"
-            name="Where you look"
-            caption="Eye tracking while you solve and play: where your eyes go first, and what you miss."
+            to="#/gaze"
+            tile={{
+              name: 'Where you look',
+              value: 'Try it',
+              caption:
+                'Prototype: webcam eye tracking while you solve three positions. Runs only in your browser.',
+              tone: 'neutral',
+              badge: { text: 'Prototype', kind: 'exploratory' },
+            }}
           />
         </div>
       </section>

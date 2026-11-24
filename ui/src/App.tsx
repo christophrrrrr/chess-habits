@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { SLOW_EVENT } from './api'
+import { GazePage } from './pages/GazePage'
 import { MethodsPage } from './pages/MethodsPage'
 import { PlayerPage } from './pages/PlayerPage'
 import { PlayersPage } from './pages/PlayersPage'
@@ -45,6 +46,8 @@ export default function App() {
       <main className="container">
         {route.page === 'player' ? (
           <PlayerPage playerId={route.id} view={route} key={route.id} />
+        ) : route.page === 'gaze' ? (
+          <GazePage />
         ) : route.page === 'methods' ? (
           <MethodsPage section={route.section} />
         ) : (

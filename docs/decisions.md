@@ -123,3 +123,25 @@ limit); precomputed grandmaster profiles shipped with the app (stale, and not th
 
 **Consequences.** No new infrastructure; any chess.com account can be a reference. A reference
 player shows up in its own section on the home page and has its own habit page.
+
+## 8. Eye tracking prototype: MediaPipe in the browser, coarse regions only
+
+**Context.** The vision's long-term goal is gaze habits (where you look while you think). The
+course leaves no time for the research the gaze notes ask for, but a working prototype shows the
+idea and tests the pipeline. Webcam tracking is only accurate to about 1-3 squares
+(docs/research/gaze-tracking.md), and video of a player's face must not leave their device.
+
+**Decision.** An opt-in page (`#/gaze`) runs MediaPipe Face Landmarker (Apache-2.0,
+`@mediapipe/tasks-vision` pinned, loaded only on that page) in the browser. Our own code maps iris
+position and head pose to the screen with a ridge regression from a 9-point calibration, checks
+accuracy on 4 more points, and records gaze while the player solves three fixed positions. Results
+are shown per 2x2 block of squares (opponent's half, king zones, first region looked at) and are
+never stored or sent. The page is labelled a prototype and makes no claim about the player.
+
+**Alternatives.** WebGazer.js (GPLv3, which would put the whole UI under the GPL); WebEyeTrack
+(MIT, newer, no stable npm release we could pin); a gaze service in the backend (video would leave
+the device, and a third service breaks the assignment's two-service limit).
+
+**Consequences.** No backend change and no new Azure resource. The library's WASM and the face
+model are fetched from jsDelivr and Google's model storage when the page opens. Linking gaze to
+mistakes needs the research in docs/research/gaze-*.md first (after the course).
