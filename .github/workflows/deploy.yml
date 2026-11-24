@@ -156,5 +156,6 @@ jobs:
           for i in $(seq 1 12); do curl -fsS "${{ steps.swa.outputs.url }}" | grep -q '<title>Chess Habits</title>' && break; sleep 10; done
           curl -fsS "${{ steps.swa.outputs.url }}" | grep -q '<title>Chess Habits</title>'
           curl -fsS "${{ needs.services.outputs.games_url }}/players" > /dev/null
-          curl -fsS "${{ needs.services.outputs.insights_url }}/analyses" | grep -q clock_profile
+          # Any non-empty list of analyses, so renaming or adding an analysis never breaks the deploy.
+          curl -fsS "${{ needs.services.outputs.insights_url }}/analyses" | jq -e 'length > 0 and all(.[]; has("key"))' > /dev/null
           echo "### Live: ${{ steps.swa.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
