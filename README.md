@@ -11,7 +11,7 @@ player rarely knows which of their own habits hold them back, and their games ca
 
 You are compared mainly with yourself (your wins against your losses); you can also put your
 habits next to a grandmaster of your choice. Eye tracking ("where do you look?") is the long-term
-goal.
+goal; a first prototype runs in the browser.
 
 See [docs/vision.md](docs/vision.md) for the idea in full, the habits it covers and the open
 research questions.
@@ -27,6 +27,18 @@ research questions.
    each of you gets into time trouble, whether it is self-inflicted, what the clock costs, how you
    react to a loss. Every difference has a 95% interval and a verdict ("clearly different", "no
    clear difference").
+6. **More habits with charts**: the first game of a session, time of day (in your time zone),
+   clock used in each opening, premoves, form by month; the clock card shows your clock move by
+   move in wins and losses.
+7. **Your plan**: every habit with clear evidence, ranked by how many Elo it costs over an average
+   game, with one thing to do and the matching rule to adopt.
+8. **Deep analysis in your browser**: Stockfish 19 (WebAssembly) reads your games on your own
+   computer and uploads compact results. It powers **critical moments** (when only one move
+   holds, how often you find it, by the kind of move and by clock), **how your games end**
+   (resignations, draws and time losses judged by the engine) and the **opening autopilot**
+   (how fast you play positions you know vs new ones). Missed positions are shown as boards.
+9. **Where you look** (prototype): webcam eye tracking in the browser while you solve positions
+   you got wrong in your own games. The video never leaves the page.
 
 What comes next: [docs/roadmap.md](docs/roadmap.md). What changed in each version:
 [CHANGELOG.md](CHANGELOG.md).
@@ -66,6 +78,7 @@ flowchart LR
     user -->|HTTPS, CORS| games[games service<br/>Container App]
     user -->|HTTPS, CORS| insights[insights service<br/>Container App]
     insights -->|HTTP: player's games| games
+    user -.->|in the browser: Stockfish 19 WASM,<br/>MediaPipe eye tracking| user
     games --> gdb[(Azure SQL<br/>games-db)]
     insights --> idb[(Azure SQL<br/>insights-db)]
     games -->|public API| chesscom[(chess.com)]
@@ -76,8 +89,8 @@ flowchart LR
 | Part | Tech | Owns |
 |---|---|---|
 | [services/games](services/games) | Python 3.12, FastAPI, SQLAlchemy, Alembic | tracked accounts (CRUD), imported games |
-| [services/insights](services/insights) | Python 3.12, FastAPI, SQLAlchemy, Alembic | analysis runs and findings |
-| [ui](ui) | React, Vite, TypeScript | static UI |
+| [services/insights](services/insights) | Python 3.12, FastAPI, SQLAlchemy, Alembic | analysis runs, findings, rules, deep-analysis results uploaded by the browser |
+| [ui](ui) | React, Vite, TypeScript; Stockfish 19 lite (WASM) and chess.js for the deep analysis, MediaPipe for the eye-tracking prototype, all in the browser | static UI |
 | [infra](infra) | Bicep | all Azure resources |
 
 Each service has its own database and applies its own versioned migrations on startup. If one

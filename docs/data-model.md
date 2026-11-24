@@ -15,6 +15,8 @@ erDiagram
     players ||..o{ analysis_runs : "player_id (other database)"
     players ||..o{ rules : "player_id (other database)"
     rules ||..o{ findings : "details.rule_id (rule_check cards)"
+    players ||..o{ game_analyses : "player_id (other database)"
+    games ||..o| game_analyses : "game_id (other database)"
 
     players {
         int id PK
@@ -73,7 +75,7 @@ erDiagram
     findings {
         int id PK
         int run_id FK
-        string analysis_key "clock_profile, time_trouble_score, after_loss_*, stop_loss_rules, rule_check"
+        string analysis_key "clock_profile, time_trouble_score, after_loss_*, stop_loss_rules, warm_up, time_of_day, opening_time, premoves, form, critical_moments, endings, opening_autopilot, rule_check"
         string time_class
         string kind "contrast or profile"
         string metric "score, share or profile"
@@ -101,8 +103,22 @@ erDiagram
         datetime retired_at "null while active"
         datetime created_at
     }
+    game_analyses {
+        int id PK
+        int player_id "games.players.id"
+        int game_id "games.games.id, unique with player_id"
+        string engine "e.g. sf19-lite-100k; null: positions only"
+        int final_cp "final position, centipawns from the player's side"
+        text position_keys "8-hex hashes before own moves 1-20, comma-separated"
+        text moves "JSON: Stockfish rows for own moves"
+        datetime updated_at
+    }
 ```
 
 Deleting a player deletes their games and imported months (`ON DELETE CASCADE`). Deleting a run
 deletes its findings. A rule is never deleted by a run: retiring it (`retired_at`) keeps its
 history, and each run writes one `rule_check` finding per active rule.
+
+`game_analyses` (migration 0004) holds the deep analysis that the player's browser computes and
+uploads (positions, Stockfish rows, final evaluation; see decision 9). The insights service never
+computes it itself; each analysis run reads it next to the games from the games service.

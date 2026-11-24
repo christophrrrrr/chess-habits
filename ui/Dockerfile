@@ -5,6 +5,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 COPY index.html tsconfig.json tsconfig.app.json tsconfig.node.json vite.config.ts ./
 COPY public/ ./public/
+COPY scripts/ ./scripts/
 COPY src/ ./src/
 ARG VITE_GAMES_API_URL=http://localhost:8001
 ARG VITE_INSIGHTS_API_URL=http://localhost:8002
