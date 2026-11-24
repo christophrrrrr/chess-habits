@@ -46,7 +46,13 @@ A time range picker at the top (default: last 24 hours) applies to the three cha
 Workbook inlines the base query with `let`, so it works without saving the
 `ChessHabitsRequests` function by hand.
 
-_Screenshot: added after the first Azure deployment._
+Screenshots of the deployed Workbook on 23 Nov 2026 (last 3 days, the first day after the first
+deployment):
+
+![Requests per minute, per service](screenshots/monitoring-requests.png)
+![Error rate (5xx share), per service](screenshots/monitoring-errors.png)
+![Response time p50 / p95](screenshots/monitoring-latency.png)
+![SLO and error budget](screenshots/monitoring-slo.png)
 
 ## Dashboard queries
 
