@@ -54,7 +54,9 @@ verdict.
 Taken locally with `docker compose` on 2,872 real games from chess.com account `chrisaxm` and
 5,745 of Hikaru's games from the last 12 months.
 
-**Live URL:** _added after the first Azure deployment_ (see [docs/deployment.md](docs/deployment.md)).
+**Live URL:** https://polite-mud-0c720f303.6.azurestaticapps.net (deployed by the pipeline
+from `main`, see [docs/deployment.md](docs/deployment.md)). The services scale to zero, so the
+first request after a quiet period can take 30–90 s.
 
 ## Architecture
 
