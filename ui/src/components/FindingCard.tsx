@@ -3,6 +3,7 @@ import { axisPosition, elo, points } from '../format'
 import type { RuleActions } from './AdoptButton'
 import { CardHeader } from './CardHeader'
 import { ClockProfileCard } from './ClockProfileCard'
+import { HabitCharts } from './HabitCharts'
 import { StopLossCard } from './StopLossCard'
 
 /** Picks the right card for a finding. */
@@ -10,7 +11,22 @@ export function FindingCard({ finding, actions }: { finding: Finding; actions?: 
   if (finding.analysis_key === 'clock_profile')
     return <ClockProfileCard finding={finding} actions={actions} />
   if (finding.analysis_key === 'stop_loss_rules') return <StopLossCard finding={finding} actions={actions} />
+  if (finding.kind === 'profile') return <ProfileCard finding={finding} />
   return <ContrastCard finding={finding} />
+}
+
+/** A descriptive card: the text and its charts (time of day, openings, premoves, form). */
+export function ProfileCard({ finding }: { finding: Finding }) {
+  return (
+    <article className="finding finding--profile" aria-label={finding.title}>
+      <CardHeader finding={finding} />
+      {finding.summary && <p className="finding__summary">{finding.summary}</p>}
+      <HabitCharts finding={finding} />
+      <footer className="finding__foot">
+        Based on {finding.sample_size} {finding.analysis_key === 'premoves' ? 'moves' : 'games'}
+      </footer>
+    </article>
+  )
 }
 
 /** Group A vs group B with the effect, its 95% interval and the minimum detectable effect. */
@@ -60,6 +76,7 @@ export function ContrastCard({ finding }: { finding: Finding }) {
           </div>
         </div>
       )}
+      {label !== 'not_enough_data' && <HabitCharts finding={finding} />}
       <footer className="finding__foot">
         Based on {finding.sample_size} games
         {mde !== null && label !== 'not_enough_data' && (

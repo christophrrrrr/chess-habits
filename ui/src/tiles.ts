@@ -18,7 +18,14 @@ export const TILE_NAMES: Record<string, string> = {
   after_loss_requeue: 'Next game after a loss',
   after_loss_result: 'Play after a loss',
   stop_loss_rules: 'Stop-loss rules',
+  warm_up: 'First game of a session',
+  time_of_day: 'Time of day',
+  opening_time: 'Opening time',
+  premoves: 'Premoves',
+  form: 'Form over time',
 }
+
+const signed = (v: number) => `${v >= 0 ? '+' : '−'}${Math.abs(Math.round(v))}`
 
 /** "Rapid: time trouble costs you about 61 Elo" -> "Time trouble costs you about 61 Elo". */
 export function stripTimeClass(title: string): string {
@@ -45,6 +52,25 @@ export function findingTile(f: Finding): TileModel {
     const rules = (f.details.rules ?? []) as Array<{ verdict: string }>
     const helps = rules.filter((r) => r.verdict === 'helps').length
     return { ...base, value: `${helps}/${rules.length}`, tone: helps > 0 ? 'good' : 'neutral' }
+  }
+  if (f.analysis_key === 'time_of_day') {
+    const ws = (f.details.windows ?? []) as Array<{ verdict: string; vs_rest_elo?: number }>
+    const worst = ws.filter((w) => w.verdict === 'worse').sort((a, b) => a.vs_rest_elo! - b.vs_rest_elo!)[0]
+    const best = ws.filter((w) => w.verdict === 'better').sort((a, b) => b.vs_rest_elo! - a.vs_rest_elo!)[0]
+    const pick = worst ?? best
+    if (!pick) return { ...base, value: '–', tone: 'neutral' }
+    return { ...base, value: `${signed(pick.vs_rest_elo!)} Elo`, tone: worst ? 'bad' : 'good' }
+  }
+  if (f.analysis_key === 'opening_time') {
+    return { ...base, value: percent(f.details.used_median as number | null), tone: 'neutral' }
+  }
+  if (f.analysis_key === 'premoves') {
+    return { ...base, value: percent(f.details.rate as number | null), tone: 'neutral' }
+  }
+  if (f.analysis_key === 'form') {
+    const months = (f.details.months ?? []) as Array<{ rating: number | null }>
+    const last = [...months].reverse().find((m) => m.rating !== null)
+    return { ...base, value: last ? String(Math.round(last.rating!)) : '–', tone: 'neutral' }
   }
   if (f.metric === 'share') {
     const a = f.details.mean_a as number | undefined

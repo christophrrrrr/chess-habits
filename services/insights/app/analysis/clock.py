@@ -117,6 +117,52 @@ def _pace(games: list[ClockGame]) -> dict:
     return out
 
 
+CURVE_MOVES = range(2, 61, 2)  # own moves shown in the clock curves
+ONSET_BIN = 5  # own moves per bar in the onset histogram
+MIN_CURVE_GAMES = 10  # games behind every point of a curve
+
+
+def _charts(analysed: list[ClockGame], entries: list[ClockGame], calm: list[ClockGame]) -> dict:
+    """Series for the charts on the clock card: clock left by move (wins vs losses), seconds
+    thought by move (games with vs without time trouble) and when time trouble starts."""
+
+    def share_left(group: list[ClockGame], k: int) -> float | None:
+        xs = [cg.game.own_clocks[k - 1] / (cg.game.t_est * 10) for cg in group if cg.n_moves >= k]
+        return median(xs) if len(xs) >= MIN_CURVE_GAMES else None
+
+    def think(group: list[ClockGame], k: int) -> float | None:
+        xs = [max(cg.game.time_spent(k), 0.0) for cg in group if cg.n_moves >= k]
+        return median(xs) if len(xs) >= MIN_CURVE_GAMES else None
+
+    wins = [cg for cg in analysed if cg.game.result == "win"]
+    losses = [cg for cg in analysed if cg.game.result == "loss"]
+    bins: dict[int, int] = {}
+    for e in entries:
+        b = min((e.entry_move - 1) // ONSET_BIN, 12)  # last bar: move 61 and later
+        bins[b] = bins.get(b, 0) + 1
+    onset = [
+        {
+            "from": b * ONSET_BIN + 1,
+            "to": None if b == 12 else (b + 1) * ONSET_BIN,
+            "games": bins.get(b, 0),
+        }
+        for b in range(0, (max(bins) if bins else -1) + 1)
+    ]
+    return {
+        "clock_left": {
+            "moves": list(CURVE_MOVES),
+            "wins": [share_left(wins, k) for k in CURVE_MOVES],
+            "losses": [share_left(losses, k) for k in CURVE_MOVES],
+        },
+        "think_time": {
+            "moves": list(range(1, 61)),
+            "trouble": [think(entries, k) for k in range(1, 61)],
+            "calm": [think(calm, k) for k in range(1, 61)],
+        },
+        "onset": onset,
+    }
+
+
 def _checkpoint(games: list[ClockGame]) -> dict | None:
     """Suggested clock checkpoint: a floor that 3 in 4 of the player's wins clear at move 20,
     rounded down to 5%, and how often games with time trouble cleared it."""
@@ -187,6 +233,7 @@ def clock_profile(games: list[GameRecord]) -> list[FindingDraft]:
             "checkpoint": _checkpoint(analysed),
             "flags": flags,
             "usual_think_seconds": usual,
+            "charts": _charts(analysed, entries, calm),
         }
         drafts.append(
             FindingDraft(

@@ -2,7 +2,7 @@
 
 import json
 import math
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -45,8 +45,18 @@ def _spec(rule: Rule) -> RuleSpec:
     )
 
 
-def run_analyses(session: Session, player_id: int, raw_games: list[dict]) -> AnalysisRun:
-    games = prepare([GameRecord.from_api(g) for g in raw_games])
+def run_analyses(
+    session: Session, player_id: int, raw_games: list[dict], utc_offset_minutes: int = 0
+) -> AnalysisRun:
+    records = [GameRecord.from_api(g) for g in raw_games]
+    # Times from chess.com are UTC. Shifting every game by the same offset moves them into the
+    # player's time zone (for the time-of-day card) without changing gaps or sessions.
+    shift = timedelta(minutes=utc_offset_minutes)
+    for g in records:
+        g.ended_at += shift
+        if g.started_at is not None:
+            g.started_at += shift
+    games = prepare(records)
     drafts = [d for analysis in ANALYSES for d in analysis.run(games)]
     rules = session.scalars(
         select(Rule).where(Rule.player_id == player_id, Rule.retired_at.is_(None)).order_by(Rule.id)

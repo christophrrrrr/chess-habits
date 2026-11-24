@@ -2,7 +2,7 @@
 
 from collections.abc import Iterator
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -48,6 +48,9 @@ def list_analyses() -> list[AnalysisInfo]:
 @router.post("/players/{player_id}/runs", response_model=RunDetail, status_code=201, tags=["runs"])
 def create_run(
     player_id: int,
+    utc_offset_minutes: int = Query(
+        0, ge=-14 * 60, le=14 * 60, description="Player's time zone, for the time-of-day card"
+    ),
     session: Session = Depends(get_session),
     games: GamesClient = Depends(get_games_client),
 ) -> AnalysisRun:
@@ -63,7 +66,7 @@ def create_run(
                 "Previously computed findings are still available."
             ),
         ) from exc
-    return run_analyses(session, player_id, raw)
+    return run_analyses(session, player_id, raw, utc_offset_minutes)
 
 
 @router.get("/players/{player_id}/runs", response_model=list[RunOut], tags=["runs"])

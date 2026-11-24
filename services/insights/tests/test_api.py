@@ -29,7 +29,15 @@ def _mock_pages(games_api, games: list[dict], page: int = 500):
 def test_health_and_analyses(client):
     assert client.get("/health").json() == {"status": "ok", "service": "insights"}
     keys = [a["key"] for a in client.get("/analyses").json()]
-    assert keys == ["clock_profile", "after_loss"]
+    assert keys == [
+        "clock_profile",
+        "after_loss",
+        "warm_up",
+        "time_of_day",
+        "opening_time",
+        "premoves",
+        "form",
+    ]
 
 
 def test_run_stores_findings(client, games_api):
@@ -40,13 +48,16 @@ def test_run_stores_findings(client, games_api):
     run = resp.json()
     assert run["games_analyzed"] == len(games)
     keys = {f["analysis_key"] for f in run["findings"]}
-    assert keys == {
+    assert {
         "clock_profile",
         "time_trouble_score",
         "after_loss_requeue",
         "after_loss_result",
         "stop_loss_rules",
-    }
+        "warm_up",
+        "time_of_day",
+        "form",
+    } <= keys
     for f in run["findings"]:
         if f["kind"] == "profile":
             assert f["label"] == "profile"
@@ -54,6 +65,14 @@ def test_run_stores_findings(client, games_api):
             assert f["label"] in ("finding", "exploratory", "no_effect", "not_enough_data")
     requeue = next(f for f in run["findings"] if f["analysis_key"] == "after_loss_requeue")
     assert requeue["details"]["n_a"] > 0
+    gaps = requeue["details"]["charts"]["next_game_gap"]
+    assert abs(sum(gaps["after_loss"].values()) - 1) < 1e-6
+    profile = next(f for f in run["findings"] if f["analysis_key"] == "clock_profile")
+    charts = profile["details"]["charts"]
+    assert set(charts) == {"clock_left", "think_time", "onset"}
+    assert len(charts["clock_left"]["moves"]) == len(charts["clock_left"]["wins"])
+    result = next(f for f in run["findings"] if f["analysis_key"] == "after_loss_result")
+    assert [p["game"] for p in result["details"]["charts"]["by_session_game"]] == [1, 2, 3, 4]
     assert requeue["mde"] is not None
 
     latest = client.get("/players/1/findings").json()

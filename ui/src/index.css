@@ -1100,3 +1100,196 @@ button.segmented__item.segmented__item--active {
     grid-template-columns: 1fr;
   }
 }
+
+/* ---- charts (components/charts.tsx) ------------------------------------------------------ */
+.chart {
+  margin: 1.25rem 0 0;
+  position: relative;
+}
+.chart figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-bottom: 0.4rem;
+}
+.chart__title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.chart__note {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.chart__plot {
+  position: relative;
+}
+.chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.chart__grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.chart__base,
+.chart__zero {
+  stroke: var(--muted);
+  stroke-width: 1;
+}
+.chart__marker {
+  stroke: var(--muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.chart__cross {
+  stroke: var(--muted);
+  stroke-width: 1;
+}
+.chart__axis {
+  fill: var(--muted);
+  font-size: 11px;
+}
+.chart__label {
+  fill: var(--text);
+  font-size: 12px;
+}
+.chart__line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.chart__dot {
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+.chart__dot--plain {
+  fill: var(--series-1);
+}
+.chart__dot--bad {
+  fill: var(--bad);
+}
+.chart__dot--good {
+  fill: var(--good);
+}
+.chart__ci {
+  stroke: var(--series-1);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.45;
+}
+.chart__band--on > rect:first-child {
+  fill: var(--track);
+  opacity: 0.6;
+}
+.chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.4rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.chart__key {
+  display: inline-block;
+  width: 12px;
+  height: 3px;
+  border-radius: 2px;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+}
+.chart__tip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.4rem 0.6rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.12);
+  font-size: 0.8rem;
+  white-space: nowrap;
+  z-index: 2;
+}
+.chart__table {
+  margin-top: 0.3rem;
+  font-size: 0.85rem;
+}
+.chart__table summary {
+  cursor: pointer;
+  color: var(--muted);
+}
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0 1.5rem;
+}
+
+/* ---- your plan --------------------------------------------------------------------------- */
+.habit-grid--wide {
+  grid-template-columns: 1fr;
+}
+.plan {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.plan__item {
+  display: flex;
+  gap: 0.9rem;
+  padding: 1rem 1.1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.plan__rank {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  background: var(--bad-bg);
+  color: var(--bad);
+}
+.plan__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+.plan__head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.plan__icon {
+  color: var(--muted);
+  display: inline-flex;
+}
+.plan__title {
+  font-weight: 600;
+  color: var(--text);
+}
+.plan__numbers,
+.plan__action {
+  margin: 0;
+}
+.plan__numbers {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.plan--good .plan__item {
+  border-left: 4px solid var(--good);
+}

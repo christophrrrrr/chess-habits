@@ -180,7 +180,7 @@ describe('player page', () => {
         /\/imports$/,
         () => ({ body: { month: 'x', fetched: 5, new_games: 5, skipped: false, complete: true } }),
       ],
-      ['POST', /\/runs$/, () => ({ status: 201, body: run })],
+      ['POST', /\/runs(\?|$)/, () => ({ status: 201, body: run })],
     ])
     render(<App />)
     expect(await screen.findByText(/Run an analysis after importing/)).toBeInTheDocument()
@@ -347,7 +347,7 @@ describe('grandmaster comparison', () => {
       ],
       [
         'POST',
-        /\/players\/2\/runs$/,
+        /\/players\/2\/runs(\?|$)/,
         () => {
           analysed = true
           return { status: 201, body: { ...run, player_id: 2 } }

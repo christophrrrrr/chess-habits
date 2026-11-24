@@ -54,3 +54,13 @@ export function axisPosition(value: number, range: number): number {
   const clamped = Math.max(-range, Math.min(range, value))
   return ((clamped + range) / (2 * range)) * 100
 }
+
+/** Short axis label for an opening family: "Queens Pawn Opening Chigorin Variation" ->
+ * "Queens Pawn Chigorin", "Caro Kann Defense" -> "Caro Kann". */
+export function shortOpening(name: string): string {
+  const short = name
+    .split(' ')
+    .filter((w) => !['Opening', 'Defense', 'Defence', 'Game', 'Variation', 'Attack', 'System'].includes(w))
+    .join(' ')
+  return (short || name).slice(0, 24)
+}
