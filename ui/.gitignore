@@ -23,5 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
+# Playwright
+playwright-report/
+test-results/
 # copied from node_modules at build time (scripts/copy-mediapipe.mjs)
 public/mediapipe/wasm/
