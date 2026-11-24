@@ -1,6 +1,9 @@
 import {
   AlarmClock,
   BookOpen,
+  Brain,
+  Flag,
+  Repeat,
   Coffee,
   FastForward,
   ListChecks,
@@ -35,6 +38,9 @@ const ICONS: Record<string, LucideIcon> = {
   premoves: FastForward,
   form: TrendingUp,
   plan: ListChecks,
+  critical_moments: Brain,
+  endings: Flag,
+  opening_autopilot: Repeat,
 }
 
 /** The icon for an analysis key (or "rule", "games", ...); a chart for anything new. */

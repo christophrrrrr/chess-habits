@@ -201,3 +201,4 @@ class DeepStatus(BaseModel):
     engine: int  # games with a Stockfish pass
     engine_game_ids: list[int]
     position_game_ids: list[int]
+    final_game_ids: list[int]  # games whose final position has an engine evaluation

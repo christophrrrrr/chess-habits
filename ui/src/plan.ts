@@ -170,6 +170,26 @@ export function buildPlan(findings: Finding[]): { items: PlanItem[]; strengths: 
       }
     }
 
+    if (f.analysis_key === 'endings') {
+      const r = f.details.resignations as
+        { n: number; premature: { count: number; rate: number | null }; points_per_100: number } | undefined
+      const o = f.details.opponents as { premature: { rate: number | null } } | undefined
+      if (r && r.n >= 30 && r.premature.rate !== null && r.premature.rate > (o?.premature.rate ?? 0) + 0.05) {
+        // Points left in all resignations, spread over the games that ended in one.
+        const perResignation = (r.points_per_100 / 100) * (f.sample_size / r.n)
+        items.push(
+          item(f, {
+            title: `${pct(r.premature.rate)} of your ${tc} resignations came too early`,
+            costElo: perResignation * ELO_PER_SCORE_POINT,
+            affects: r.n / Math.max(1, f.sample_size),
+            evidence: 'exploratory',
+            action:
+              'Before you resign, ask whether your opponent still has to find something. If so, play on a few more moves.',
+          }),
+        )
+      }
+    }
+
     if (f.analysis_key === 'opening_time') {
       const ops = (f.details.openings ?? []) as Array<{
         opening: string

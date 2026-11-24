@@ -1,6 +1,7 @@
 // Charts for every finding except the clock profile (which has its own card).
 import type { Finding } from '../api'
 import { percent, shortOpening } from '../format'
+import { Board } from './Board'
 import { ColumnChart, IntervalChart, LineChart } from './charts'
 
 const signedElo = (v: number) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(Math.round(v))}`
@@ -177,6 +178,128 @@ export function HabitCharts({ finding }: { finding: Finding }) {
             height={160}
           />
         </>
+      )
+    }
+    case 'critical_moments': {
+      const c = d.critical as { rate: number | null } | undefined
+      const overall = c?.rate ?? null
+      const cells = (key: string) =>
+        ((d[key] ?? []) as Array<{ name: string; n: number; rate: number | null; ci: [number, number] }>).map(
+          (x) => ({
+            label: x.name,
+            value: x.rate,
+            low: x.ci[0],
+            high: x.ci[1],
+            note: `${x.n} positions`,
+            verdict:
+              overall !== null && x.ci[1] < overall
+                ? ('bad' as const)
+                : overall !== null && x.ci[0] > overall
+                  ? ('good' as const)
+                  : null,
+          }),
+        )
+      const ref = overall !== null ? { value: overall, label: `overall ${percent(overall)}` } : undefined
+      const missed = (d.missed ?? []) as Array<{ fen: string; best: string; lost: number; k: number }>
+      return (
+        <>
+          <IntervalChart
+            title="Find rate by the kind of move needed"
+            note="Share of critical positions where you found a good move, with 95% intervals. Darker dots differ clearly from your overall rate."
+            rows={cells('by_type')}
+            format={(v) => percent(v)}
+            domain={[0, 1]}
+            reference={ref}
+          />
+          <div className="charts-grid">
+            <IntervalChart
+              title="By clock left"
+              rows={cells('by_clock')}
+              format={(v) => percent(v)}
+              domain={[0, 1]}
+              reference={ref}
+            />
+            <IntervalChart
+              title="By time you took, and what was at stake"
+              rows={[...cells('by_speed'), ...cells('by_purpose')]}
+              format={(v) => percent(v)}
+              domain={[0, 1]}
+              reference={ref}
+            />
+          </div>
+          {missed.length > 0 && (
+            <section className="missed" aria-label="Positions you missed">
+              <h5>Positions you missed (biggest losses first)</h5>
+              <p className="muted small">The best move is highlighted. Cover it and find the move first.</p>
+              <div className="missed__grid">
+                {missed.slice(0, 6).map((m) => (
+                  <figure key={m.fen} className="missed__item">
+                    <Board
+                      fen={m.fen}
+                      flip={m.fen.split(' ')[1] === 'b'}
+                      highlight={[m.best.slice(0, 2), m.best.slice(2, 4)]}
+                      label={`Your move ${m.k}; best move ${m.best}`}
+                    />
+                    <figcaption className="muted small">
+                      Move {m.k} · best {m.best} · you lost {Math.round(m.lost)} win% points
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      )
+    }
+    case 'endings': {
+      const r = d.resignations as { n: number; premature_by_threshold: Record<string, number> } | undefined
+      const lost = (d.lost_on_time ?? {}) as Record<string, number>
+      const won = (d.won_on_time ?? {}) as Record<string, number>
+      const keys = ['winning', 'level', 'losing']
+      return (
+        <div className="charts-grid">
+          {r && r.n > 0 && (
+            <ColumnChart
+              title="Resignations with score still left"
+              note={`Share of your ${r.n} resignations where you still had at least this expected score.`}
+              categories={['10%+', '15%+', '25%+']}
+              series={[
+                {
+                  name: 'Resignations',
+                  values: ['0.1', '0.15', '0.25'].map((t) => (r.premature_by_threshold[t] ?? 0) / r.n),
+                },
+              ]}
+              format={(v) => percent(v)}
+            />
+          )}
+          <ColumnChart
+            title="Games decided on time, by the engine"
+            note="Final position: winning or losing by 3+ pawns, otherwise level."
+            categories={['Winning', 'Level', 'Losing']}
+            series={[
+              { name: 'Lost on time', values: keys.map((k) => lost[k] ?? 0) },
+              { name: 'Won on time', values: keys.map((k) => won[k] ?? 0) },
+            ]}
+            format={count}
+          />
+        </div>
+      )
+    }
+    case 'opening_autopilot': {
+      const rows = (d.by_move ?? []) as Array<{ move: number; familiar: number | null; new: number | null }>
+      return (
+        <LineChart
+          title="Time per move in known and new positions"
+          note="Median share of the game time per move; known = reached 3+ times in earlier games."
+          x={rows.map((r) => r.move)}
+          xLabel="Move"
+          series={[
+            { name: 'Known position', values: rows.map((r) => r.familiar) },
+            { name: 'New position', values: rows.map((r) => r.new) },
+          ]}
+          format={(v) => `${(v * 100).toFixed(1)}%`}
+          yMin={0}
+        />
       )
     }
     default:

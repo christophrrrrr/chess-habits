@@ -2,23 +2,23 @@
 // Steps: consent -> camera -> 9-point calibration -> 4-point accuracy check -> 3 positions ->
 // where your eyes went. Everything runs in the browser; nothing is stored or sent.
 import { ArrowLeft, ScanEye } from 'lucide-react'
-import { useEffect, useRef, useState, type RefObject } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
-  boardFromFen,
   features,
   fitRidge,
   kingsFromFen,
   predict,
   PUZZLES,
+  type Puzzle,
   regionName,
   smooth,
-  squareName,
   summarise,
   type GazeSummary,
   type Point,
   type Ridge,
 } from '../gaze/model'
 import { startTracker, type Tracker } from '../gaze/tracker'
+import { Board } from '../components/Board'
 
 type Step = 'intro' | 'loading' | 'calibrate' | 'check' | 'solve' | 'results' | 'error'
 
@@ -34,13 +34,13 @@ const CLICKS_PER_TARGET = 5
 const MIN_FRAMES = 30
 
 interface Result {
-  puzzle: (typeof PUZZLES)[number]
+  puzzle: Puzzle
   summary: GazeSummary
   seconds: number
   solved: boolean
 }
 
-export function GazePage() {
+export function GazePage({ puzzles = PUZZLES, back = '#/' }: { puzzles?: Puzzle[]; back?: string }) {
   const [step, setStep] = useState<Step>('intro')
   const [error, setError] = useState<string | null>(null)
   const [target, setTarget] = useState(0)
@@ -131,10 +131,18 @@ export function GazePage() {
 
   function clickSquare(sq: string) {
     if (!picked) return setPicked(sq)
-    const p = PUZZLES[puzzle]
+    const p = puzzles[puzzle]
+    const side = p.fen.split(' ')[1] === 'b' ? 'b' : 'w'
     const rect = board.current!.getBoundingClientRect()
     const kings = kingsFromFen(p.fen)
-    const summary = summarise(trace.current, rect, { own: kings.white, enemy: kings.black })
+    const own = side === 'w' ? kings.white : kings.black
+    const enemy = side === 'w' ? kings.black : kings.white
+    const summary = summarise(
+      trace.current,
+      rect,
+      { own, enemy },
+      { flip: side === 'b', side, keyMove: p.move },
+    )
     const next = [
       ...results,
       {
@@ -145,7 +153,7 @@ export function GazePage() {
       },
     ]
     setResults(next)
-    if (puzzle + 1 < PUZZLES.length) beginPuzzle(puzzle + 1)
+    if (puzzle + 1 < puzzles.length) beginPuzzle(puzzle + 1)
     else {
       tracker.current?.stop()
       tracker.current = null
@@ -160,8 +168,8 @@ export function GazePage() {
 
   return (
     <div className="stack">
-      <a href="#/" className="back">
-        <ArrowLeft size={16} aria-hidden="true" /> All accounts
+      <a href={back} className="back">
+        <ArrowLeft size={16} aria-hidden="true" /> {back === '#/' ? 'All accounts' : 'Back'}
       </a>
       <header className="detail-head">
         <span className="habit__icon habit__icon--big">
@@ -227,9 +235,9 @@ export function GazePage() {
         <section className="stack">
           <p>
             <strong>
-              Position {puzzle + 1} of {PUZZLES.length}:
+              Position {puzzle + 1} of {puzzles.length}:
             </strong>{' '}
-            {PUZZLES[puzzle].hint} Click the piece, then the square.
+            {puzzles[puzzle].hint} Click the piece, then the square.
             {errorPx !== null && squareSize && (
               <span className="muted small">
                 {' '}
@@ -237,51 +245,17 @@ export function GazePage() {
               </span>
             )}
           </p>
-          <Board fen={PUZZLES[puzzle].fen} boardRef={board} picked={picked} onSquare={clickSquare} />
+          <Board
+            fen={puzzles[puzzle].fen}
+            flip={puzzles[puzzle].fen.split(' ')[1] === 'b'}
+            boardRef={board}
+            picked={picked}
+            onSquare={clickSquare}
+          />
         </section>
       )}
 
       {step === 'results' && <Results results={results} errorPx={errorPx} />}
-    </div>
-  )
-}
-
-function Board({
-  fen,
-  boardRef,
-  picked,
-  onSquare,
-  heat,
-}: {
-  fen: string
-  boardRef?: RefObject<HTMLDivElement | null>
-  picked?: string | null
-  onSquare?: (sq: string) => void
-  heat?: number[]
-}) {
-  const pieces = boardFromFen(fen)
-  const max = heat ? Math.max(...heat, 1e-9) : 1
-  return (
-    <div className="board" ref={boardRef}>
-      {pieces.map((piece, i) => {
-        const file = i % 8
-        const rank = 7 - Math.floor(i / 8)
-        const sq = squareName([file, rank])
-        const dark = (file + rank) % 2 === 0
-        const region = Math.floor(rank / 2) * 4 + Math.floor(file / 2)
-        return (
-          <button
-            key={sq}
-            className={`board__sq ${dark ? 'board__sq--dark' : 'board__sq--light'}${picked === sq ? ' board__sq--picked' : ''}`}
-            onClick={onSquare ? () => onSquare(sq) : undefined}
-            disabled={!onSquare}
-            aria-label={`${sq}${piece ? ` ${piece}` : ''}`}
-          >
-            {heat && <span className="board__heat" style={{ opacity: (heat[region] / max) * 0.75 }} />}
-            <span className="board__piece">{piece}</span>
-          </button>
-        )
-      })}
     </div>
   )
 }
@@ -303,13 +277,23 @@ function Results({ results, errorPx }: { results: Result[]; errorPx: number | nu
             <h4 className="finding__title">
               {r.puzzle.hint} {r.solved ? '✓ solved' : '✗ not solved'} in {r.seconds.toFixed(0)} s
             </h4>
-            <Board fen={r.puzzle.fen} heat={r.summary.regions} />
+            <Board
+              fen={r.puzzle.fen}
+              heat={r.summary.regions}
+              flip={r.puzzle.fen.split(' ')[1] === 'b'}
+              highlight={[r.puzzle.move.slice(0, 2), r.puzzle.move.slice(2, 4)]}
+            />
             <ul className="gaze-stats">
               <li>
                 On the board:{' '}
                 <strong>{pct(r.summary.samples ? r.summary.onBoard / r.summary.samples : 0)}</strong> of the
                 time
               </li>
+              {r.summary.keySquares !== null && (
+                <li>
+                  Around the squares of the best move: <strong>{pct(r.summary.keySquares)}</strong>
+                </li>
+              )}
               <li>
                 Opponent’s half: <strong>{pct(r.summary.opponentHalf)}</strong>
               </li>

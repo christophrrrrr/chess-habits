@@ -288,9 +288,12 @@ def save_game_analyses(
 )
 def deep_status(player_id: int, session: Session = Depends(get_session)) -> DeepStatus:
     rows = session.execute(
-        select(GameAnalysis.game_id, GameAnalysis.position_keys, GameAnalysis.moves).where(
-            GameAnalysis.player_id == player_id
-        )
+        select(
+            GameAnalysis.game_id,
+            GameAnalysis.position_keys,
+            GameAnalysis.moves,
+            GameAnalysis.final_cp,
+        ).where(GameAnalysis.player_id == player_id)
     ).all()
     engine = sorted(r.game_id for r in rows if r.moves is not None)
     positions = sorted(r.game_id for r in rows if r.position_keys)
@@ -299,4 +302,5 @@ def deep_status(player_id: int, session: Session = Depends(get_session)) -> Deep
         engine=len(engine),
         engine_game_ids=engine,
         position_game_ids=positions,
+        final_game_ids=sorted(r.game_id for r in rows if r.final_cp is not None),
     )

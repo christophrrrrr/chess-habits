@@ -4,6 +4,7 @@ export type PlayerView =
   | { view: 'rule'; ruleId: number }
   | { view: 'games' }
   | { view: 'plan' }
+  | { view: 'gaze' }
   | { view: 'compare'; refId?: number }
 
 export type Route =
@@ -21,6 +22,7 @@ export type Route =
  *   #/players/1/rules/11                one adopted rule
  *   #/players/1/games                   recent games
  *   #/players/1/plan                    your plan: habits ranked by cost
+ *   #/players/1/gaze                    where you look, on your own missed positions
  *   #/players/1/compare                 pick a grandmaster to compare with
  *   #/players/1/compare/7               you next to player 7 (a grandmaster)
  *   #/methods                           how everything is measured
@@ -37,6 +39,7 @@ export function parseRoute(hash: string): Route {
   const [, , a, b] = m
   if (a === 'games' && !b) return { page: 'player', id, view: 'games' }
   if (a === 'plan' && !b) return { page: 'player', id, view: 'plan' }
+  if (a === 'gaze' && !b) return { page: 'player', id, view: 'gaze' }
   if (a === 'compare' && !b) return { page: 'player', id, view: 'compare' }
   if (a === 'compare' && /^\d+$/.test(b)) return { page: 'player', id, view: 'compare', refId: Number(b) }
   if (a === 'rules' && b && /^\d+$/.test(b)) return { page: 'player', id, view: 'rule', ruleId: Number(b) }
@@ -60,6 +63,8 @@ export function href(route: Route): string {
       return `${base}/games`
     case 'plan':
       return `${base}/plan`
+    case 'gaze':
+      return `${base}/gaze`
     case 'compare':
       return route.refId ? `${base}/compare/${route.refId}` : `${base}/compare`
   }

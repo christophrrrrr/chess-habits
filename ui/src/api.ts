@@ -67,6 +67,9 @@ export interface Game {
   eco: string | null
   opening: string | null
   ply_count: number
+  termination?: string | null
+  /** Only when listed with include_pgn. */
+  pgn?: string
 }
 
 export interface GamePage {
@@ -221,7 +224,10 @@ export const gamesApi = {
       method: 'POST',
       body: JSON.stringify({ month }),
     }),
-  listGames: (id: number, params: { limit?: number; offset?: number; time_class?: string } = {}) => {
+  listGames: (
+    id: number,
+    params: { limit?: number; offset?: number; time_class?: string; include_pgn?: boolean } = {},
+  ) => {
     const q = new URLSearchParams()
     Object.entries(params).forEach(([k, v]) => v !== undefined && v !== '' && q.set(k, String(v)))
     return request<GamePage>(GAMES_API, `/players/${id}/games?${q}`)
@@ -249,5 +255,46 @@ export const insightsApi = {
     request<Rule>(INSIGHTS_API, `/rules/${ruleId}`, {
       method: 'PATCH',
       body: JSON.stringify({ retired: true }),
+    }),
+}
+
+// ---- deep analysis (computed in the browser, stored by the insights service) ---------------
+
+export interface EngineMove {
+  k: number
+  best: string
+  type: string
+  b: number
+  s?: number
+  p: number
+  legal: number
+  check?: boolean
+  recapture?: boolean
+  fen?: string
+}
+
+export interface GameAnalysisIn {
+  game_id: number
+  position_keys?: string[]
+  engine?: string
+  final_cp?: number
+  moves?: EngineMove[]
+}
+
+export interface DeepStatus {
+  positions: number
+  engine: number
+  engine_game_ids: number[]
+  position_game_ids: number[]
+  final_game_ids: number[]
+}
+
+export const deepApi = {
+  status: (playerId: number) =>
+    request<DeepStatus>(INSIGHTS_API, `/players/${playerId}/game-analyses/status`),
+  save: (playerId: number, games: GameAnalysisIn[]) =>
+    request<DeepStatus>(INSIGHTS_API, `/players/${playerId}/game-analyses`, {
+      method: 'PUT',
+      body: JSON.stringify({ games }),
     }),
 }

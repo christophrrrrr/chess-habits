@@ -119,6 +119,7 @@ def test_upload_status_and_run(client, games_api):
     )
     st = client.get("/players/1/game-analyses/status").json()
     assert st["engine_game_ids"] == [raw[0]["id"]]
+    assert st["final_game_ids"] == [raw[0]["id"]]
 
     bad = client.put(
         "/players/1/game-analyses", json={"games": [{"game_id": 1, "position_keys": ["XYZ"]}]}
@@ -128,3 +129,18 @@ def test_upload_status_and_run(client, games_api):
     run = client.post("/players/1/runs").json()
     keys = {f["analysis_key"] for f in run["findings"]}
     assert "critical_moments" in keys
+
+
+def test_browser_may_send_put_and_patch(client):
+    # The UI uploads deep analysis with PUT and edits rules with PATCH (CORS preflight).
+    for method in ("PUT", "PATCH"):
+        resp = client.options(
+            "/players/1/game-analyses",
+            headers={
+                "Origin": "http://localhost:5173",
+                "Access-Control-Request-Method": method,
+                "Access-Control-Request-Headers": "content-type",
+            },
+        )
+        assert resp.status_code == 200, method
+        assert method in resp.headers["access-control-allow-methods"]
