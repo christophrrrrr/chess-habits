@@ -63,6 +63,18 @@ the code is wrong. Background and sources: [research/shortlist.md](research/shor
 | Rule verdict | Share kept after adoption minus share kept in the baseline, game-cluster (checkpoint) or session-cluster (stop loss) bootstrap, same labels and Benjamini-Hochberg pass as every other card. **Too early** (`not_enough_data`) until 30 games or sessions on both sides. It is a before/after comparison, not a controlled experiment, and the card says so. | `rules.check_rule` |
 | Changing a rule | Changing the threshold resets `adopted_at`: the count starts again. | `PATCH /rules/{id}` |
 
+## More habits
+
+| Term | Definition | Code |
+|---|---|---|
+| Warm-up | First game of a session (`session_index = 1`) vs later games in sessions; residual contrast, session-cluster bootstrap, ≥ 100 games per side. | `habits.warm_up` |
+| Time of day | Start hour in the player's time zone (the UI sends `utc_offset_minutes`; times are shifted before sessions are built, which does not change gaps). Windows 0–6, 6–12, 12–18, 18–24 h. Per window: mean residual with a 95% session-cluster interval; vs the rest of the day: contrast with Bonferroni over 4 windows (p × 4 ≤ 0.05), ≥ 100 games inside and outside. | `habits.time_of_day` |
+| Opening time | `1 − clock after own move 12 / T_est`. Per opening family (chess.com name without the move list, up to the first word such as Defense, Opening, Game or Variation; for generic families such as Queens Pawn Opening or Indian Game up to the second), ≥ 20 games, at most 8: median share used and mean residual with a 95% game-cluster interval. Descriptive, not corrected for multiple openings. | `habits.opening_time` |
+| Premove | Own move whose time spent is exactly 0.1 s (1 tenth). Card only in bullet and blitz, with ≥ 50 such moves and at least 3× as many 0.1 s as 0.2 s moves. Shares by clock left (> 50 %, 25–50, 10–25, 5–10, < 5 % of `T_est`). | `habits.premoves` |
+| Form | Per calendar month: games, median post-game rating, mean residual (from 10 games). | `habits.form` |
+| Chart points | Means with a 95% cluster-bootstrap interval (1,000 resamples), descriptive only. Session chart: games 1 to 7 and 8+, ≥ 30 games per point. Curves: medians from ≥ 10 games per point. | `stats.cluster_mean`, `clock._charts` |
+| Your plan | Items: significant (finding/exploratory) negative score contrasts, stop-loss rules that help, time windows that are clearly worse, openings whose interval lies below 0. Rank: cost in Elo × share of the time control's games affected. | `ui/src/plan.ts` |
+
 ## Grandmaster comparison
 
 | Term | Definition | Code |

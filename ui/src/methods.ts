@@ -160,6 +160,38 @@ export const METHODS: MethodsSection[] = [
     ],
   },
   {
+    id: 'habits',
+    title: 'More habits',
+    intro:
+      'Warm-up, time of day, opening time, premoves and form. All from the clock and the results you already import.',
+    entries: [
+      {
+        term: 'First game of a session',
+        text: 'Your score against expectation in the first game after a break of more than 30 minutes, compared with later games in the same sessions. Needs 100 games on each side.',
+      },
+      {
+        term: 'Time of day',
+        text: 'Your score against expectation for games you start at night (0–6 h), in the morning (6–12 h), afternoon (12–18 h) and evening (18–24 h), in your browser’s time zone. A window counts as clearly different only if it beats the rest after a Bonferroni correction for four windows, with at least 100 games inside and outside it.',
+      },
+      {
+        term: 'Opening time',
+        text: 'Share of the estimated game time used by your move 12, overall and for each opening you played at least 20 times (chess.com’s opening name shortened to its family, e.g. Caro Kann Defense; broad families such as Queens Pawn Opening keep their next named part). Each opening’s score is shown with a 95% interval; openings are compared one by one, so a single result is a hint.',
+      },
+      {
+        term: 'Premove',
+        text: 'A move that took exactly 0.1 s, which is what chess.com charges for a premove. Shown only in bullet and blitz, and only if 0.1 s moves are at least 3 times as common as 0.2 s moves (otherwise you do not premove).',
+      },
+      {
+        term: 'Form over time',
+        text: 'Per month: games played, the median of your ratings, and your score against expectation from 10 games.',
+      },
+      {
+        term: 'Your plan',
+        text: 'Every habit with clear evidence, ranked by Elo over an average game: the cost in the games it affects times the share of games it affects. For example, time trouble that costs 100 Elo in 20% of your games ranks as about 20 Elo per game.',
+      },
+    ],
+  },
+  {
     id: 'compare',
     title: 'Grandmaster comparison',
     intro: 'Your habits next to a grandmaster’s.',
@@ -196,6 +228,11 @@ const SECTION_FOR_ANALYSIS: Record<string, string> = {
   after_loss_result: 'results',
   stop_loss_rules: 'rules',
   rule_check: 'rules',
+  warm_up: 'habits',
+  time_of_day: 'habits',
+  opening_time: 'habits',
+  premoves: 'habits',
+  form: 'habits',
 }
 
 export function methodsSectionFor(analysisKey: string): string {

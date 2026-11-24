@@ -4,9 +4,30 @@
 //   IntervalChart   an estimate with its 95% interval per row, around a zero line
 // Colors are the validated --series-* tokens; text always uses text tokens. Every chart has
 // a table view under "Show as table", so nothing depends on seeing the marks.
-import { useId, useState, type PointerEvent, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useState, type PointerEvent, type ReactNode, type RefObject } from 'react'
 
-const W = 640
+const DEFAULT_WIDTH = 640
+
+/** The plot's real width in CSS pixels, so text and marks keep their size on any screen. */
+function useWidth(): [RefObject<HTMLDivElement | null>, number] {
+  const ref = useRef<HTMLDivElement | null>(null)
+  const [width, setWidth] = useState(DEFAULT_WIDTH)
+  useEffect(() => {
+    const el = ref.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const measure = () => el.clientWidth > 0 && setWidth(Math.max(260, Math.round(el.clientWidth)))
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  return [ref, width]
+}
+
+/** Show every n-th label so labels of about `chars` characters never overlap. */
+function labelStep(count: number, room: number, chars: number): number {
+  return Math.max(1, Math.ceil(count / Math.max(1, Math.floor(room / (chars * 6.5 + 10)))))
+}
 const PAD = { top: 16, right: 16, bottom: 30, left: 48 }
 const SERIES = ['var(--series-1)', 'var(--series-2)', 'var(--series-3)']
 
@@ -79,12 +100,14 @@ function Frame({
   legend,
   children,
   table,
+  plotRef,
 }: {
   title: string
   note?: string
   legend?: string[]
   children: ReactNode
   table: ReactNode
+  plotRef: RefObject<HTMLDivElement | null>
 }) {
   return (
     <figure className="chart">
@@ -93,7 +116,9 @@ function Frame({
         {note && <span className="chart__note">{note}</span>}
       </figcaption>
       {legend && <Legend series={legend} />}
-      <div className="chart__plot">{children}</div>
+      <div className="chart__plot" ref={plotRef}>
+        {children}
+      </div>
       {table}
     </figure>
   )
@@ -126,6 +151,7 @@ export function LineChart({
   marker?: { at: number | string; label: string }
 }) {
   const [hover, setHover] = useState<number | null>(null)
+  const [plotRef, W] = useWidth()
   const values = series.flatMap((s) => s.values).filter((v): v is number => v !== null)
   if (values.length === 0) return null
   const lo = yMin ?? Math.min(0, ...values)
@@ -137,7 +163,7 @@ export function LineChart({
   const ih = height - PAD.top - PAD.bottom
   const sx = (i: number) => PAD.left + (x.length === 1 ? iw / 2 : (i / (x.length - 1)) * iw)
   const sy = (v: number) => PAD.top + ih - ((v - bottom) / (top - bottom || 1)) * ih
-  const every = Math.ceil(x.length / 8)
+  const every = labelStep(x.length, iw, Math.max(...x.map((v) => String(v).length)))
   const markerIndex = marker ? x.indexOf(marker.at) : -1
 
   function path(vals: Array<number | null>) {
@@ -181,6 +207,7 @@ export function LineChart({
 
   return (
     <Frame
+      plotRef={plotRef}
       title={title}
       note={note}
       legend={series.map((s) => s.name)}
@@ -272,6 +299,7 @@ export function ColumnChart({
   height?: number
 }) {
   const [hover, setHover] = useState<number | null>(null)
+  const [plotRef, W] = useWidth()
   const values = series.flatMap((s) => s.values).filter((v): v is number => v !== null)
   if (values.length === 0) return null
   const ticks = niceTicks(0, Math.max(...values))
@@ -281,10 +309,11 @@ export function ColumnChart({
   const band = iw / categories.length
   const barW = Math.min(24, (band - 8) / series.length - 2)
   const sy = (v: number) => PAD.top + ih - (v / (top || 1)) * ih
-  const every = Math.ceil(categories.length / 12)
+  const every = labelStep(categories.length, iw, Math.max(...categories.map((c) => c.length)))
 
   return (
     <Frame
+      plotRef={plotRef}
       title={title}
       note={note}
       legend={series.map((s) => s.name)}
@@ -389,13 +418,14 @@ export function IntervalChart({
   range?: number
 }) {
   const id = useId()
+  const [plotRef, W] = useWidth()
   const shown = rows.filter((r) => r.value !== null)
   if (shown.length === 0) return null
   const extent =
     range ?? Math.max(...shown.flatMap((r) => [Math.abs(r.low ?? r.value!), Math.abs(r.high ?? r.value!)]), 1)
   const ticks = niceTicks(-extent, extent, 4)
   const span = Math.max(Math.abs(ticks[0]), Math.abs(ticks[ticks.length - 1]), extent)
-  const LEFT = 150
+  const LEFT = Math.round(Math.min(160, W * 0.36))
   const rowH = 30
   const height = PAD.top + rows.length * rowH + PAD.bottom
   const iw = W - LEFT - PAD.right
@@ -403,6 +433,7 @@ export function IntervalChart({
 
   return (
     <Frame
+      plotRef={plotRef}
       title={title}
       note={note}
       table={

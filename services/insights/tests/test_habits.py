@@ -142,3 +142,17 @@ def test_form_by_month():
     assert [m["month"] for m in months] == ["2026-01", "2026-02", "2026-03"]
     assert [m["games"] for m in months] == [30, 30, 30]
     assert d.text("profile")[0] == "Blitz: rating 1900 → 2000 since 2026-01"
+
+
+def test_opening_families_from_chesscom_names():
+    from app.analysis.habits import _family
+
+    assert _family("Caro Kann Defense Exchange Variation 3...cxd5 4.Nf3") == "Caro Kann Defense"
+    assert (
+        _family("Queens Pawn Opening Chigorin Variation 2...Nf6 3.Bf4")
+        == "Queens Pawn Opening Chigorin Variation"
+    )
+    assert _family("Queens Pawn Opening 1...c6") == "Queens Pawn Opening"
+    assert _family("Modern Defense with 1 d4 2.Nc3 Bg7") == "Modern Defense"
+    assert _family("Italian Game: Two Knights") == "Italian Game"
+    assert _family(None) is None

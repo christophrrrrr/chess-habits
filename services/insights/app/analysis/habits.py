@@ -182,11 +182,40 @@ MAX_OPENINGS = 8
 MIN_OPENING_GAMES = 20
 
 
+FAMILY_WORDS = ("Opening", "Defense", "Defence", "Game", "Gambit", "Attack", "System", "Variation")
+# Families so broad that the next named part is what tells games apart.
+GENERIC_FAMILIES = (
+    "Queens Pawn Opening",
+    "Kings Pawn Opening",
+    "Indian Game",
+    "Kings Indian Attack",
+)
+
+
 def _family(opening: str | None) -> str | None:
-    """'Sicilian Defense: Najdorf Variation 6.Be3' -> 'Sicilian Defense'."""
+    """chess.com opening name -> a family to group games by.
+
+    'Caro Kann Defense Exchange Variation 3...cxd5 4.Nf3' -> 'Caro Kann Defense'
+    'Queens Pawn Opening Chigorin Variation 2...Nf6 3.Bf4'
+        -> 'Queens Pawn Opening Chigorin Variation' (a generic family: keep the next part)
+    'Old Benoni Defense' -> 'Old Benoni Defense'
+    """
     if not opening:
         return None
-    return opening.split(":")[0].strip() or None
+    words = []
+    for w in opening.split(":")[0].split():
+        if any(ch.isdigit() for ch in w) or "..." in w:
+            break  # the move list starts
+        words.append(w)
+    if not words:
+        return None
+    cuts = [i + 1 for i, w in enumerate(words) if w in FAMILY_WORDS]
+    if not cuts:
+        return " ".join(words)
+    first = " ".join(words[: cuts[0]])
+    if first in GENERIC_FAMILIES and len(cuts) > 1:
+        return " ".join(words[: cuts[1]])
+    return first
 
 
 def _clock_left(g: GameRecord, k: int) -> float | None:

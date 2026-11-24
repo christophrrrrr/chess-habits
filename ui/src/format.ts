@@ -55,7 +55,12 @@ export function axisPosition(value: number, range: number): number {
   return ((clamped + range) / (2 * range)) * 100
 }
 
-/** "Queen's Pawn Opening" stays, "Sicilian Defense" -> "Sicilian". Axis labels stay short. */
+/** Short axis label for an opening family: "Queens Pawn Opening Chigorin Variation" ->
+ * "Queens Pawn Chigorin", "Caro Kann Defense" -> "Caro Kann". */
 export function shortOpening(name: string): string {
-  return name.replace(/ (Defense|Defence|Opening|Game|Attack|Gambit)$/, '').slice(0, 22)
+  const short = name
+    .split(' ')
+    .filter((w) => !['Opening', 'Defense', 'Defence', 'Game', 'Variation', 'Attack', 'System'].includes(w))
+    .join(' ')
+  return (short || name).slice(0, 24)
 }
