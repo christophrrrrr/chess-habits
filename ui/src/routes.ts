@@ -7,7 +7,10 @@ export type PlayerView =
   | { view: 'compare'; refId?: number }
 
 export type Route =
-  { page: 'players' } | { page: 'methods'; section?: string } | ({ page: 'player'; id: number } & PlayerView)
+  | { page: 'players' }
+  | { page: 'gaze' }
+  | { page: 'methods'; section?: string }
+  | ({ page: 'player'; id: number } & PlayerView)
 
 /**
  * Minimal hash router, works on any static host:
@@ -21,9 +24,11 @@ export type Route =
  *   #/players/1/compare                 pick a grandmaster to compare with
  *   #/players/1/compare/7               you next to player 7 (a grandmaster)
  *   #/methods                           how everything is measured
+ *   #/gaze                              where you look (eye tracking prototype)
  *   #/methods/clock                     one section of it
  */
 export function parseRoute(hash: string): Route {
+  if (/^#\/gaze\/?$/.test(hash)) return { page: 'gaze' }
   const methods = hash.match(/^#\/methods(?:\/([a-z-]+))?\/?$/)
   if (methods) return methods[1] ? { page: 'methods', section: methods[1] } : { page: 'methods' }
   const m = hash.match(/^#\/players\/(\d+)(?:\/([a-z_]+)(?:\/([a-z0-9_]+))?)?\/?$/)
@@ -41,6 +46,7 @@ export function parseRoute(hash: string): Route {
 
 export function href(route: Route): string {
   if (route.page === 'players') return '#/'
+  if (route.page === 'gaze') return '#/gaze'
   if (route.page === 'methods') return route.section ? `#/methods/${route.section}` : '#/methods'
   const base = `#/players/${route.id}`
   switch (route.view) {
