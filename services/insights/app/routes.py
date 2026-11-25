@@ -271,6 +271,7 @@ def save_game_analyses(
         if row is None:
             row = GameAnalysis(player_id=player_id, game_id=g.game_id, position_keys="")
             session.add(row)
+            existing[g.game_id] = row
         if g.position_keys:
             row.position_keys = ",".join(g.position_keys)
         if g.moves is not None:
