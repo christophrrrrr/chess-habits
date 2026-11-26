@@ -1,7 +1,8 @@
 // Monitoring dashboard: an Azure Workbook on the existing Log Analytics workspace.
 //
 // Panels, per service: requests per minute, error rate (5xx share), p50/p95 response time,
-// and the availability SLO with its error budget. The queries are the ones in
+// and the availability SLO with its error budget. One more panel watches the deep-analysis
+// uploads (`/game-analyses`) per hour, split by status class. The queries are the ones in
 // docs/monitoring.md. The base query is inlined with `let`, so the Workbook does not depend
 // on a function saved by hand in the portal.
 //
@@ -48,6 +49,15 @@ var latencyQuery = '${base}${'''ChessHabitsRequests
 | where path != "/health"
 | summarize p50 = percentile(duration_ms, 50), p95 = percentile(duration_ms, 95)
     by service, bin(TimeGenerated, 1h)
+| render timechart
+'''}'
+
+// Deep-analysis uploads and status polls (PUT and GET under /players/{id}/game-analyses),
+// split by status class so a broken upload shows up as 4xx or 5xx.
+var deepAnalysisQuery = '${base}${'''ChessHabitsRequests
+| where path contains "/game-analyses"
+| extend status_class = case(status >= 500, "5xx", status >= 400, "4xx", status >= 200, "2xx", "other")
+| summarize requests = count() by status_class, bin(TimeGenerated, 1h)
 | render timechart
 '''}'
 
@@ -120,6 +130,7 @@ var workbook = {
     chart('requests', 'Requests per minute, per service', requestsQuery, workspaceType)
     chart('error-rate', 'Error rate (5xx share, %), per service', errorRateQuery, workspaceType)
     chart('latency', 'Response time p50 / p95 (ms, without /health), per service', latencyQuery, workspaceType)
+    chart('deep-analysis', 'Deep-analysis requests per hour (/game-analyses), by status', deepAnalysisQuery, workspaceType)
     {
       type: 3
       name: 'slo'
