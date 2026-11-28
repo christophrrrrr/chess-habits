@@ -81,3 +81,48 @@ test('a clear message when the games service is down', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByText(/games service is not reachable/)).toBeVisible()
 })
+
+test('your plan: time trouble ranked first, with a rule to adopt', async ({ page }) => {
+  await mockApi(page)
+  // Adopting posts a rule; the list answers with it from then on.
+  const rules: unknown[] = []
+  await page.route(/:8002\/players\/1\/rules$/, (route) => {
+    if (route.request().method() === 'POST') {
+      const draft = route.request().postDataJSON() as Record<string, unknown>
+      const rule = {
+        id: 1,
+        player_id: 1,
+        stop_rule: null,
+        note: null,
+        description: 'Keep at least 45% of your clock after move 20',
+        adopted_at: '2026-11-28T00:00:00',
+        retired_at: null,
+        created_at: '2026-11-28T00:00:00',
+        ...draft,
+      }
+      rules.push(rule)
+      return json(route, rule, 201)
+    }
+    return json(route, rules)
+  })
+
+  await page.goto('/#/players/1')
+  const tile = page.getByRole('link', { name: /Your plan.*First: time trouble costs you 110 Elo in bullet/ })
+  await expect(tile).toBeVisible()
+  await tile.click()
+  await expect(page).toHaveURL(/#\/players\/1\/plan$/)
+
+  const first = page.getByRole('listitem').first()
+  await expect(first.getByRole('link', { name: 'Time trouble costs you 110 Elo in bullet' })).toBeVisible()
+  await expect(first.getByText('Keep at least 45% of your clock after move 20.')).toBeVisible()
+
+  await first.getByRole('button', { name: 'Adopt this rule' }).click()
+  await expect(first.getByText('Tracking ✓')).toBeVisible()
+  expect(rules).toHaveLength(1)
+  expect(rules[0]).toMatchObject({
+    time_class: 'bullet',
+    kind: 'clock_checkpoint',
+    move: 20,
+    min_share: 0.45,
+  })
+})
