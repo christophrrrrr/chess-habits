@@ -144,3 +144,17 @@ def test_browser_may_send_put_and_patch(client):
         )
         assert resp.status_code == 200, method
         assert method in resp.headers["access-control-allow-methods"]
+
+
+def test_upload_with_the_same_game_twice_keeps_one_row(client):
+    # Bug from #43: sending the same game twice in one upload crashed with a 500,
+    # because it tried to save two rows for one game.
+    body = {
+        "games": [
+            {"game_id": 1, "position_keys": ["0000abcd"]},
+            {"game_id": 1, "position_keys": ["1111abcd"]},
+        ]
+    }
+    resp = client.put("/players/1/game-analyses", json=body)
+    assert resp.status_code == 200
+    assert resp.json()["position_game_ids"] == [1]
