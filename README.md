@@ -63,8 +63,20 @@ verdict.
 
 ![Comparison with a grandmaster in bullet](docs/screenshots/grandmaster-comparison.png)
 
-Taken locally with `docker compose` on 2,872 real games from chess.com account `chrisaxm` and
-5,745 of Hikaru's games from the last 12 months.
+**Your plan:** every habit with clear evidence, ranked by how many Elo it costs over an average
+game, with one thing to do and a rule to adopt where there is one.
+
+![Your plan page with habits ranked by cost](docs/screenshots/your-plan.png)
+
+**Critical moments:** from the deep analysis in the browser, how often you find the key move
+when only one or two moves hold, with the positions you missed as boards.
+
+![Critical moments card for bullet](docs/screenshots/critical-moments.png)
+
+The first four were taken locally with `docker compose` on 2,872 real games from chess.com
+account `chrisaxm` and 5,745 of Hikaru's games from the last 12 months. Your plan and critical
+moments were taken on the live site on 28 Nov 2026, for the same account (2,936 games, Stockfish
+on the last 25).
 
 **Live URL:** https://polite-mud-0c720f303.6.azurestaticapps.net (deployed by the pipeline
 from `main`, see [docs/deployment.md](docs/deployment.md)). The services scale to zero, so the
