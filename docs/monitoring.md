@@ -40,9 +40,10 @@ It runs the queries below on the `<prefix>-logs` workspace, per service:
 | Requests per minute | [Requests per service](#requests-per-service) (1 min buckets) |
 | Error rate (5xx share) | [Error rate](#error-rate-5xx-share) |
 | Response time p50 / p95 | [Response time](#response-time-p50--p95) |
+| Deep-analysis requests per hour, by status | [Deep-analysis requests](#deep-analysis-requests-by-status) |
 | SLO and error budget (fixed 7 days) | [SLO](#slo) |
 
-A time range picker at the top (default: last 24 hours) applies to the three charts. The
+A time range picker at the top (default: last 24 hours) applies to the four charts. The
 Workbook inlines the base query with `let`, so it works without saving the
 `ChessHabitsRequests` function by hand.
 
@@ -83,6 +84,20 @@ ChessHabitsRequests
 | where path != "/health"
 | summarize p50 = percentile(duration_ms, 50), p95 = percentile(duration_ms, 95)
     by service, bin(TimeGenerated, 1h)
+| render timechart
+```
+
+### Deep-analysis requests (by status)
+
+Uploads (`PUT /players/{id}/game-analyses`) and status polls (`GET .../game-analyses/status`)
+per hour, split into 2xx / 4xx / 5xx, so a broken upload in production shows up as a 4xx or 5xx
+line.
+
+```kusto
+ChessHabitsRequests
+| where path contains "/game-analyses"
+| extend status_class = case(status >= 500, "5xx", status >= 400, "4xx", status >= 200, "2xx", "other")
+| summarize requests = count() by status_class, bin(TimeGenerated, 1h)
 | render timechart
 ```
 
