@@ -59,6 +59,9 @@ export function PlayersPage() {
           habits that never show up in a move list. Chess Habits measures them across hundreds of your games,
           and every finding says how sure it is.
         </p>
+        <p className="muted">
+          New in Sprint 2: every finding links to <a href="#/methods">how it is measured</a>.
+        </p>
         <form className="add-form" onSubmit={add}>
           <label htmlFor="username" className="sr-only">
             chess.com username
